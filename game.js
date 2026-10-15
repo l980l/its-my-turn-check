@@ -54,6 +54,10 @@
       combo: $("#comboToast"),
       ranking: $("#rankingScreen"),
       rankingButton: $("#rankingButton"),
+      traitCodex: $("#traitCodexScreen"),
+      traitCodexButton: $("#traitCodexButton"),
+      traitCodexList: $("#traitCodexList"),
+      traitCodexClose: $("#traitCodexClose"),
       tutorial: $("#tutorialScreen"),
       tutorialButton: $("#tutorialButton"),
       tutorialStep: $("#tutorialStep"),
@@ -336,6 +340,33 @@
   }
   function closeRanking() {
     ui.ranking.classList.add("hidden");
+  }
+  function renderTraitCodex() {
+    ui.traitCodexList.textContent = "";
+    TRAITS.forEach((trait) => {
+      let entry = document.createElement("article");
+      entry.className = "trait-codex-entry";
+      let icon = document.createElement("div");
+      icon.innerHTML = traitIcon(trait.id);
+      let copy = document.createElement("div");
+      let kind = document.createElement("p");
+      kind.className = "trait-codex-kind";
+      kind.textContent = "BASE TRAIT";
+      let name = document.createElement("h3");
+      name.textContent = trait.name;
+      let description = document.createElement("p");
+      description.textContent = trait.desc;
+      copy.append(kind, name, description);
+      entry.append(icon, copy);
+      ui.traitCodexList.appendChild(entry);
+    });
+  }
+  function openTraitCodex() {
+    renderTraitCodex();
+    ui.traitCodex.classList.remove("hidden");
+  }
+  function closeTraitCodex() {
+    ui.traitCodex.classList.add("hidden");
   }
   function returnToMenu() {
     S.running = false;
@@ -2979,7 +3010,12 @@
     if (localStorage.getItem("its-my-turn-tutorial-seen")) beginRun();
     else openTutorial(true);
   });
+  $("#coopButton").addEventListener("click", () => {
+    window.location.href = "coop.html";
+  });
   ui.tutorialButton.addEventListener("click", () => openTutorial(false));
+  ui.traitCodexButton.addEventListener("click", openTraitCodex);
+  ui.traitCodexClose.addEventListener("click", closeTraitCodex);
   ui.tutorialPrev.addEventListener("click", () => {
     if (tutorialPage === 0) return;
     tutorialPage--;
