@@ -46,6 +46,20 @@ const game = context.gameTest;
 assert.ok(game, 'real game initialized');
 const {S, ui} = game;
 function reset() {game.reset(); S.running = true; S.phase = 'player'; S.enemies = []; now += 1000;}
+function selectAndFuse(id) {
+  const inventory = [...S.player.traits, ...S.player.materials];
+  const recipe = TraitSystem.byId[id].recipe;
+  const first = inventory.indexOf(recipe[0]);
+  const second = inventory.findIndex((candidate,index) => index !== first && candidate === recipe[1]);
+  const beforeSelection = JSON.stringify(inventory);
+  assert.ok(first >= 0 && second >= 0);
+  ui.fusionInventory.children[first].handlers.click();
+  ui.fusionInventory.children[second].handlers.click();
+  assert.equal(JSON.stringify([...S.player.traits, ...S.player.materials]), beforeSelection, 'selecting two cards only previews the result');
+  assert.equal(ui.fusionConfirm.disabled, false);
+  assert.match(ui.fusionPreview.textContent, new RegExp(TraitSystem.byId[id].name));
+  ui.fusionConfirm.handlers.click();
+}
 
 reset();
 S.enemies = [{boss:true, bossPhase:'vulnerable', hp:1, bossXp:5, bossScore:5000, x:0, y:0}];
@@ -69,14 +83,24 @@ assert.ok(S.items.includes(kit), 'unused kit remains');
 assert.equal(S.phase, 'player');
 
 S.player.traits = ['shockwave', 'diagonalBurst', 'longStride', 'royalStep'];
-S.pendingKit = kit; game.openFusionKit(); now += 1000;
-ui.fusionRecipes.children[0].handlers.click();
+S.pendingKit = kit; game.openFusionKit();
+ui.fusionInventory.children[0].handlers.click();
+assert.equal(S.fusionSession.selected.length, 0, 'pickup touch cannot select a trait through the initial lock');
+now += 1000;
+ui.fusionInventory.children[0].handlers.click();
+ui.fusionInventory.children[2].handlers.click();
+assert.equal(ui.fusionConfirm.disabled, true, 'invalid pair disables fusion');
+ui.fusionConfirm.handlers.click();
+assert.equal(S.player.traits.length, 4, 'invalid pair cannot consume materials');
+ui.fusionInventory.children[0].handlers.click();
+ui.fusionInventory.children[2].handlers.click();
+selectAndFuse('kineticCrown');
 assert.ok(S.player.traits.includes('kineticCrown'));
 assert.equal(S.player.traits.length, 3);
 now += 1000;
-ui.fusionRecipes.children[0].handlers.click();
+selectAndFuse('royalVector');
 now += 1000;
-ui.fusionRecipes.children[0].handlers.click();
+selectAndFuse('prismaticImpact');
 assert.deepEqual([...S.player.traits], ['prismaticImpact'], 'one workshop supports sequential tier upgrades');
 game.closeFusion();
 assert.ok(!S.items.includes(kit), 'used kit consumed once on close');
@@ -109,7 +133,7 @@ S.player.traits=['royalStep'];
 S.player.materials=['longStride'];
 game.dropFusionKit({x:2,y:0});
 S.pendingKit=S.items[0]; game.openFusionKit(); now+=1000;
-ui.fusionRecipes.children[0].handlers.click();
+selectAndFuse('royalVector');
 assert.deepEqual([...S.player.traits], ['royalVector'], 'fusion consumes from equipped and inactive bag');
 assert.equal(S.player.materials.length, 0);
 game.closeFusion();
@@ -127,6 +151,17 @@ now+=1000; game.tick(now);
 assert.equal(S.phase, 'fusion', 'pending workshop opens after level-up without an enemy turn');
 game.closeFusion();
 
+reset();
+S.player.traits=['shockwave','diagonalBurst','longStride','royalStep','echoBlade','fork'];
+S.player.materials=['kineticCrown','royalVector'];
+game.dropFusionKit({x:2,y:0});
+S.pendingKit=S.items[0]; game.openFusionKit(); now+=1000;
+selectAndFuse('prismaticImpact');
+assert.ok(S.player.traits.includes('prismaticImpact'), 'a stronger result from bag materials equips automatically');
+assert.equal(S.player.traits.length, 6);
+assert.equal(S.player.materials.length, 1, 'displaced equipment stays in the bag');
+game.closeFusion();
+
 // Build six distinct tier-IV traits while retaining previous completed traits.
 // Material bag is essential: the sixth final recipe needs room for its ingredients.
 reset();
@@ -140,8 +175,7 @@ function craft(id) {
   trait.recipe.forEach(craft);
   game.dropFusionKit({x:S.player.x+2,y:S.player.y});
   S.pendingKit=S.items.at(-1); game.openFusionKit(); now+=1000;
-  const recipes=TraitSystem.availableRecipes([...S.player.traits,...S.player.materials]);
-  ui.fusionRecipes.children[recipes.findIndex(t=>t.id===id)].handlers.click();
+  selectAndFuse(id);
   game.closeFusion();
   assert.ok(S.player.traits.length<=6 && S.player.materials.length<=8);
 }
