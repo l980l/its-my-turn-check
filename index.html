@@ -338,6 +338,29 @@
     }
     .stats {
       justify-self: auto;
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 6px 16px;
+      max-width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ffffff12;
+      background: #080a19b8;
+      border-radius: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .stats > span { display: flex; align-items: baseline; justify-content: flex-end; gap: 6px; white-space: nowrap; }
+    .xp-progress { grid-column: 1 / -1; min-width: 190px; }
+    .xp-progress-label { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
+    .stats .player-level { color: #53f0e4; font-size: 16px; letter-spacing: .02em; }
+    .stats .xp-count { color: #aeb9d3; font-size: 11px; letter-spacing: .02em; }
+    .stats .xp-count b { color: #e5edff; font-size: 12px; }
+    .xp-track { height: 5px; margin-top: 5px; overflow: hidden; border-radius: 3px; background: #ffffff1a; }
+    .xp-track i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #3ac8c1, #8cfff3); box-shadow: 0 0 8px #53f0e466; }
+    @media (max-width: 560px) {
+      .stats { gap: 4px 12px; padding: 6px 9px; }
+      .xp-progress { min-width: 175px; }
+      .stats .player-level { font-size: 14px; }
+      .stats .xp-count, .stats .xp-count b { font-size: 10px; }
     }
     #app,
     #app * {
@@ -618,6 +641,16 @@
       line-height: 1.65;
     }
     .trait-codex-fusion b { display: block; margin-bottom: 4px; color: #ffd166; font: 700 11px "DM Mono", monospace; letter-spacing: .14em; }
+    .trait-codex-entry { border-left-width: 3px; }
+    .trait-codex-entry.tier-2 { border-color: #53f0e488; }
+    .trait-codex-entry.tier-3 { border-color: #d66efd99; }
+    .trait-codex-entry.tier-4 { border-color: #ffd166bb; }
+    button.trait-codex-entry { margin: 0; width: 100%; color: #eef3ff; text-align: left; box-shadow: none; letter-spacing: 0; }
+    .fusion-recipe { margin-top: 7px !important; color: #ffd166 !important; }
+    .fusion-heading { margin: 20px 0 10px; color: #e6e9ff; font-size: 17px; }
+    #fusionScreen { z-index: 8; touch-action: pan-y; }
+    #fusionScreen .panel, #traitCodexScreen .panel { touch-action: pan-y; overscroll-behavior: contain; }
+    #traitTierFilter { display: block; margin: 0 auto 16px; padding: 9px 14px; color: #eef3ff; border: 1px solid #53f0e477; background: #101735; font: inherit; }
     @media (max-width: 560px) {
       #startScreen {
         /* Use the same key art as desktop: this portrait crop keeps the queen and enemy line in frame. */
@@ -712,7 +745,10 @@
         <div class="stats">
           <span>SCORE <b id="score">0</b></span
           ><span>WAVE <b id="hp">0</b></span
-          ><span>XP <b id="xp">0 / 3</b></span>
+          ><div class="xp-progress">
+            <div class="xp-progress-label"><strong class="player-level" id="playerLevel">Lv. 1</strong><span class="xp-count">XP <b id="xp">0 / 3</b></span></div>
+            <div class="xp-track" id="xpProgress" role="progressbar" aria-label="다음 레벨까지 경험치" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><i id="xpProgressFill"></i></div>
+          </div>
         </div>
       </header>
       <div id="comboToast" aria-live="polite"></div>
@@ -734,7 +770,7 @@
         ><button id="devPiece">[5] PIECE</button
         ><button id="devTrait">[6] TRAIT</button
         ><button id="devBoss">[7] BOSS</button>
-        ><button id="devAuto">[8] AUTO OFF</button>
+        ><button id="devAuto">[8] AUTO OFF</button><button id="devFusion">융합 도구</button>
       </div>
       <button class="dev-visibility hidden" id="devVisibilityToggle" type="button" aria-expanded="true">HIDE DEV TOOLS</button>
       <div class="sound-control">
@@ -747,7 +783,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.10.96</b> · 2026.10.15</p>
+        <p class="build-version">BUILD <b>v0.12.2</b> · 2026.10.16</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -791,9 +827,10 @@
         <div class="panel trait-codex-panel">
           <p class="eyebrow">TRAIT CODEX</p>
           <h2>나만의 기물을 만드세요</h2>
-          <p class="trait-codex-note">레벨업 때 등장하는 기본 특성입니다. 특성은 이동 방식과 처치 연쇄를 바꾸며, 어떤 조합을 고르느냐에 따라 같은 기물도 전혀 다르게 플레이됩니다.</p>
+          <p class="trait-codex-note">1티어는 작은 보조 효과를 주는 재료입니다. 상위 특성은 각자의 조건과 공격 패턴을 가집니다. 공격 효과는 직접 처치 후 일반 적에게만 적용됩니다. 중반부터 보유 재료와 맞는 선택지가 등장하며, 성장할수록 2티어 보상을 더 자주 만날 수 있습니다.</p>
+          <select id="traitTierFilter" aria-label="특성 티어 필터"><option value="0">모든 티어</option><option value="1">1티어 · 기본</option><option value="2">2티어 · 상급</option><option value="3">3티어 · 희귀</option><option value="4">4티어 · 전설</option></select>
           <div class="trait-codex-list" id="traitCodexList"></div>
-          <div class="trait-codex-fusion"><b>FUSION ARCHIVE · PLANNED</b>보스를 처치해 얻는 기회로 두 기본 특성을 하나의 상위 특성으로 융합하는 시스템을 준비하고 있습니다. 완성 전까지는 기본 특성 조합으로 빌드를 만드세요.</div>
+          <div class="trait-codex-fusion"><b>FUSION · TIER I → IV</b>특성은 최대 6개까지 장착합니다. 장착 칸이 가득 차면 재료 가방에 8개까지 보관하며, 가방 속 특성은 효과가 없습니다. 보스가 남긴 융합 도구를 주우면 조합식을 따라 두 특성을 하나로 합칠 수 있습니다. 도구 하나로 연속 조합할 수 있으며, 조합을 한 번도 하지 않았다면 도구가 남습니다. 중복 효과는 중첩되지 않습니다. 융합 도구는 일반 아이템과 달리 소멸하지 않습니다.</div>
           <div class="leaderboard-actions"><button class="secondary-button" id="traitCodexClose">닫기</button></div>
         </div>
       </section>
@@ -812,6 +849,17 @@
               <b>♝</b><strong>BISHOP</strong><span>대각선 3칸 · 대각 폭발</span>
             </button>
           </div>
+        </div>
+      </section>
+      <section class="overlay hidden" id="fusionScreen" role="dialog" aria-modal="true" aria-labelledby="fusionTitle">
+        <div class="panel trait-codex-panel">
+          <p class="eyebrow" id="fusionEyebrow">FUSION WORKSHOP</p>
+          <h2 id="fusionTitle">어떤 특성을 합칠까요?</h2>
+          <p class="trait-codex-note" id="fusionStatus"></p>
+          <div class="trait-codex-list" id="fusionInventory"></div>
+          <h3 class="fusion-heading" id="fusionHeading">가능한 조합</h3>
+          <div class="trait-codex-list" id="fusionRecipes"></div>
+          <div class="leaderboard-actions"><button class="secondary-button" id="fusionClose">조합 마치기</button></div>
         </div>
       </section>
       <section class="overlay hidden" id="riskScreen">
@@ -884,6 +932,7 @@
         </div>
       </section>
     </main>
-    <script src="game.js?v=v0.10.96"></script>
+    <script src="traits.js?v=v0.12.1"></script>
+    <script src="game.js?v=v0.12.2"></script>
   </body>
 </html>

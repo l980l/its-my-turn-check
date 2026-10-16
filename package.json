@@ -3,6 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
+    "test:traits": "node scripts/test-traits.cjs && node scripts/test-trait-combat.cjs && node scripts/test-fusion-runtime.cjs",
+    "balance:traits": "node scripts/simulate-trait-balance.cjs",
     "prepare:web": "node scripts/prepare-web.mjs",
     "sync:android": "npm run prepare:web && npx cap sync android",
     "open:android": "npm run sync:android && npx cap open android"

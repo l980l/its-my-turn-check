@@ -1,0 +1,34 @@
+{
+  "seed": 20261016,
+  "scenarioCount": 32,
+  "draftCount": 64,
+  "dirtyFiles": [
+    "M README.md",
+    " M game.js",
+    " M index.html",
+    " M package.json",
+    " M scripts/prepare-web.mjs",
+    "?? .ai-wiki.yml",
+    "?? CODEX_AI_COLLABORATION_PORTFOLIO.md",
+    "?? docs/",
+    "?? scripts/game-harness.cjs",
+    "?? scripts/simulate-trait-balance.cjs",
+    "?? scripts/test-fusion-runtime.cjs",
+    "?? scripts/test-trait-combat.cjs",
+    "?? scripts/test-traits.cjs",
+    "?? traits.js"
+  ],
+  "hashes": {
+    "evaluator": "562630841433ac172cd8a9ad6e5e0eb7186904686c8d84b325f6ec68a3618e1f",
+    "harness": "d8a0efd11de486ff22acad96c1580e5e8c0c5633c9d7aa4a92b8956e627e6b42",
+    "current": {
+      "game": "e13908a0c7c8e60cf2cada65e87397bbded91fd474679831359206491287db4f",
+      "traits": "330ee0a8083c40f4fe48a823ad24137cf8414cebf1ab269f1340c6bbeb49f158"
+    },
+    "baseline": {
+      "game": "db8e221247ab25c90f1480fcc0bbfb9e9dcdd673eb5b69c54768ad72b6657164",
+      "traits": "6c3dd3a4af9a8b08a4a0b33b101368c1b63849f756a4e3db2aad9e7bfff83e20"
+    }
+  },
+  "dirty": true
+}

@@ -5,6 +5,9 @@
     ui = {
       hp: $("#hp"),
       xp: $("#xp"),
+      level: $("#playerLevel"),
+      xpProgress: $("#xpProgress"),
+      xpFill: $("#xpProgressFill"),
       score: $("#score"),
       phase: $("#phaseLabel"),
       beat: $("#beatText"),
@@ -58,6 +61,14 @@
       traitCodexButton: $("#traitCodexButton"),
       traitCodexList: $("#traitCodexList"),
       traitCodexClose: $("#traitCodexClose"),
+      fusion: $("#fusionScreen"),
+      fusionTitle: $("#fusionTitle"),
+      fusionEyebrow: $("#fusionEyebrow"),
+      fusionStatus: $("#fusionStatus"),
+      fusionInventory: $("#fusionInventory"),
+      fusionRecipes: $("#fusionRecipes"),
+      fusionHeading: $("#fusionHeading"),
+      fusionClose: $("#fusionClose"),
       tutorial: $("#tutorialScreen"),
       tutorialButton: $("#tutorialButton"),
       tutorialStep: $("#tutorialStep"),
@@ -179,6 +190,7 @@
       necklace: { icon: "☾", name: "SILVER NECKLACE", color: "#e6e9ff" },
       judgement: { icon: "ϟ", name: "JUDGEMENT", color: "#ffd166" },
       chest: { icon: "▣", name: "TREASURE CHEST", color: "#ffba47" },
+      fusion: { icon: "⚒", name: "융합 도구", color: "#e6e9ff" },
     },
     knightCorner = (a, b) => {
       let dx = Math.abs(a.x - b.x),
@@ -343,7 +355,7 @@
   }
   function renderTraitCodex() {
     ui.traitCodexList.textContent = "";
-    TRAITS.forEach((trait) => {
+    TRAITS.filter((trait) => !Number($("#traitTierFilter").value) || trait.tier === Number($("#traitTierFilter").value)).forEach((trait) => {
       let entry = document.createElement("article");
       entry.className = "trait-codex-entry";
       let icon = document.createElement("div");
@@ -351,11 +363,12 @@
       let copy = document.createElement("div");
       let kind = document.createElement("p");
       kind.className = "trait-codex-kind";
-      kind.textContent = "BASE TRAIT";
+      entry.classList.add("tier-" + trait.tier);
+      kind.textContent = "TIER " + trait.tier;
       let name = document.createElement("h3");
       name.textContent = trait.name;
       let description = document.createElement("p");
-      description.textContent = trait.desc;
+      description.textContent = trait.desc + (trait.recipe ? " · 조합: " + trait.recipe.map((id) => TraitSystem.byId[id].name).join(" + ") : "");
       copy.append(kind, name, description);
       entry.append(icon, copy);
       ui.traitCodexList.appendChild(entry);
@@ -690,68 +703,7 @@
   }
   addEventListener("resize", resize);
   resize();
-  const TRAITS = [
-    {
-      id: "shockwave",
-      icon: "✦",
-      name: "IMPACT CORE",
-      desc: "착지 시 주변 1칸 충격파",
-    },
-    {
-      id: "diagonalBurst",
-      icon: "✧",
-      name: "DIAGONAL BURST",
-      desc: "직접 타격 시 착지 칸의 모든 대각선 적 관통",
-    },
-    {
-      id: "longStride",
-      icon: "↔",
-      name: "LONG STRIDE",
-      desc: "킹·폰 3칸 / 나이트 확장 L자 / 슬라이딩 말 +2칸",
-    },
-    {
-      id: "royalStep",
-      icon: "♚",
-      name: "ROYAL STEP",
-      desc: "모든 방향으로 2칸 이동 가능",
-    },
-    {
-      id: "magnet",
-      icon: "✹",
-      name: "ARC MAGNET",
-      desc: "처치 시 주변 2칸의 적도 타격",
-    },
-    {
-      id: "chainSpark",
-      icon: "⚡",
-      name: "CHAIN SPARK",
-      desc: "연속 처치 시 XP를 추가 획득",
-    },
-    {
-      id: "echoBlade",
-      icon: "➤",
-      name: "ECHO BLADE",
-      desc: "처치 시 이동 방향의 가장 가까운 적 관통",
-    },
-    {
-      id: "fork",
-      icon: "♞",
-      name: "FORK",
-      desc: "처치 시 나이트 위치의 적도 타격",
-    },
-    {
-      id: "crossCheck",
-      icon: "✚",
-      name: "CROSS CHECK",
-      desc: "처치 시 상하좌우 가장 가까운 적 관통",
-    },
-    {
-      id: "slipstream",
-      icon: "〰",
-      name: "SLIPSTREAM",
-      desc: "3적 턴마다 첫 비처치 이동 후 한 번 더 이동",
-    },
-  ];
+  const TRAITS = TraitSystem.traits;
   const TRAIT_SVG = {
     shockwave: '<path d="M32 5l5 18 18 5-18 5-5 18-5-18-18-5 18-5z"/><circle cx="32" cy="28" r="8"/>',
     diagonalBurst: '<path d="M12 48L48 12M17 20l-5-8M25 17l-2-10M44 52l8 5M47 44l10 2"/><path d="M32 22l4 6 7 1-5 5 1 7-7-3-7 3 1-7-5-5 7-1z"/>',
@@ -765,13 +717,20 @@
     slipstream: '<path d="M7 22c8-12 16 12 24 0s16 12 26 0M7 36c8-12 16 12 24 0s16 12 26 0"/><path d="M45 15l12 7-12 7"/>',
   };
   function traitIcon(id) {
-    let body = TRAIT_SVG[id] || TRAIT_SVG.shockwave;
+    let trait = TraitSystem.byId[id],
+      root = trait?.recipe ? TraitSystem.byId[trait.recipe[0]] : trait;
+    while (root?.recipe) root = TraitSystem.byId[root.recipe[0]];
+    let body = TRAIT_SVG[root?.id || id] || TRAIT_SVG.shockwave;
     return '<svg class="trait-svg-icon" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">' + body + '</svg>';
   }
   function reset() {
     S.phase = "enemy";
     S.elapsed = S.flash = S.wave = S.kills = S.score = S.death = S.chain = S.riskBeats = 0;
     S.items = [];
+    S.pendingKit = null;
+    S.fusionSession = null;
+    S.pendingReward = null;
+    ui.fusion.classList.add("hidden");
     S.terrain = [];
     S.wormholeId = 0;
     S.terrainNotice = "";
@@ -793,7 +752,7 @@
     S.deathReason = "";
     ui.rewindControls.classList.add("hidden");
     S.upgradeOptions = [];
-    S.player = { x: 0, y: 0, hp: 5, xp: 0, rank: 0, piece: "pawn", traits: [], slipUsed: false, slipCooldown: 0 };
+    S.player = { x: 0, y: 0, hp: 5, xp: 0, rank: 0, piece: "pawn", traits: [], materials: [], moveNumber: 0, directKills: 0, traitMemory: {} };
     S.enemies = [
       { x: 0, y: -6, type: "pawn", face: { x: 0, y: 1 }, hp: 1, maxHp: 1 },
       { x: -2, y: -7, type: "pawn", face: { x: 0, y: 1 }, hp: 1, maxHp: 1 },
@@ -818,8 +777,15 @@
     if (S.rewindHistory.length > 5) S.rewindHistory.shift();
   }
   function hud() {
+    const requiredXp = 3 + S.player.rank * 2;
+    const progress = Math.max(0, Math.min(requiredXp, S.player.xp));
     ui.hp.textContent = S.wave;
-    ui.xp.textContent = S.player.xp + " / " + (3 + S.player.rank * 2);
+    ui.level.textContent = "Lv. " + (S.player.rank + 1);
+    ui.xp.textContent = S.player.xp + " / " + requiredXp;
+    ui.xpFill.style.width = progress / requiredXp * 100 + "%";
+    ui.xpProgress.setAttribute("aria-valuemax", String(requiredXp));
+    ui.xpProgress.setAttribute("aria-valuenow", String(progress));
+    ui.xpProgress.setAttribute("aria-valuetext", S.player.xp + " / " + requiredXp);
     ui.score.textContent = S.score.toLocaleString();
   }
   function gainXp(amount) {
@@ -863,7 +829,7 @@
         [-1, -1],
       ],
       base;
-    let longStride = p.traits?.includes("longStride"),
+    let augmentation = TraitSystem.movement(p.traits),
       fieldStride = S.rangeBoostMoves > 0,
       terrainType = terrainAt(p.x, p.y)?.type,
       terrainStride = terrainType === "amplifier",
@@ -871,7 +837,7 @@
       extraRange = (fieldStride ? 2 : 0) + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0);
     if (piece === "pawn" || piece === "king")
       base = king.flatMap(([x, y]) =>
-        Array.from({ length: Math.max(1, (longStride ? 3 : 1) + extraRange) }, (_, i) => [x * (i + 1), y * (i + 1)]),
+        Array.from({ length: Math.max(1, 1 + augmentation.stride + extraRange) }, (_, i) => [x * (i + 1), y * (i + 1)]),
       );
     else if (piece === "knight") {
       base = [
@@ -884,7 +850,7 @@
         [-2, 1],
         [-1, 2],
       ];
-      let knightRange = Math.max(0, (longStride ? 1 : 0) + (fieldStride ? 2 : 0) + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0));
+      let knightRange = Math.max(0, augmentation.stride + (fieldStride ? 2 : 0) + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0));
       for (let n = 3; n <= 2 + knightRange; n++)
         base.push(
           [1, n], [n, 1], [n, -1], [1, -n],
@@ -908,14 +874,15 @@
                 [0, 1],
                 [0, -1],
               ],
-        range = Math.max(1, (longStride ? 5 : 3) + extraRange);
+        range = Math.max(1, 3 + augmentation.stride + extraRange);
       base = b.flatMap(([x, y]) =>
         Array.from({ length: range }, (_, i) => [x * (i + 1), y * (i + 1)]),
       );
       if (piece === "bishop") base.push([0, -1]);
     }
-    if (!p.traits?.includes("royalStep")) return base;
-    let royal = king.flatMap(([x, y]) => [[x, y], [x * 2, y * 2]]);
+    if (!augmentation.royal) return base;
+    let royal = [[1, 0], [-1, 0], [0, 1], [0, -1]].flatMap(([x, y]) =>
+      Array.from({length: augmentation.royal}, (_, i) => [x * (i + 1), y * (i + 1)]));
     return [...base, ...royal].filter(([x, y], i, all) => all.findIndex(([a, b]) => a === x && b === y) === i);
   }
   function moves() {
@@ -1036,6 +1003,7 @@
       }
     });
     S.enemies = S.enemies.filter((e) => !dead.includes(e));
+    dead.filter((e) => e.boss).forEach(dropFusionKit);
     let sealedBoss = boss(),
       minionKills = dead.filter((e) => !e.boss).length;
     if (sealedBoss?.gimmick === "blood" && sealedBoss.bossPhase === "sealed" && minionKills) {
@@ -1057,8 +1025,125 @@
     let roll = Math.random() * 100;
     return roll < 40 ? "chest" : roll < 65 ? "necklace" : roll < 85 ? "stride" : roll < 95 ? "aegis" : "judgement";
   }
+  function dropFusionKit(at) {
+    // Search outwards so a boss killed on the player's square cannot auto-pick its reward.
+    for (let radius = 0; ; radius++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
+          let x = at.x + dx, y = at.y + dy;
+          if (isWall(x, y) || terrainAt(x, y)?.type === "wormhole" ||
+              (x === S.player.x && y === S.player.y) ||
+              S.enemies.some((e) => e.x === x && e.y === y) ||
+              S.items.some((item) => item.x === x && item.y === y)) continue;
+          S.items.push({ type: "fusion", x, y, life: Infinity });
+          burst(x, y, FIELD_ITEMS.fusion.color, 24);
+          return;
+        }
+      }
+    }
+  }
+  function traitCard(trait, action) {
+    let entry = document.createElement(action ? "button" : "article");
+    entry.className = "trait-codex-entry tier-" + trait.tier;
+    entry.innerHTML = '<div>' + traitIcon(trait.id) + '</div><div><p class="trait-codex-kind">TIER ' + trait.tier + '</p><h3>' + trait.name + '</h3><p>' + trait.desc + '</p></div>';
+    if (trait.recipe) {
+      let recipe = document.createElement("p");
+      recipe.className = "fusion-recipe";
+      recipe.textContent = trait.recipe.map((id) => TraitSystem.byId[id].name).join(" + ");
+      entry.lastChild.appendChild(recipe);
+    }
+    if (action) entry.addEventListener("click", action);
+    return entry;
+  }
+  function renderFusion() {
+    let replacing = Boolean(S.pendingReward);
+    ui.fusionTitle.textContent = replacing ? "어떤 특성을 교체할까요?" : "어떤 특성을 합칠까요?";
+    ui.fusionEyebrow.textContent = replacing ? "TRAIT SLOTS · 6 / 6" : "FUSION WORKSHOP · TIER I–IV";
+    ui.fusionStatus.textContent = replacing
+      ? S.pendingReward.name + " 획득 — 교체할 특성을 고르세요. 보상을 포기할 수도 있습니다."
+      : "장착 " + S.player.traits.length + "/6 · 재료 가방 " + S.player.materials.length + "/8 (효과 없음) · 장착 특성을 누른 뒤 가방 특성을 눌러 교체하세요. 도구 하나로 연속 조합할 수 있습니다.";
+    ui.fusionInventory.replaceChildren();
+    [...S.player.traits, ...S.player.materials].forEach((id, index) => {
+      let card = traitCard(TraitSystem.byId[id], replacing ? () => {
+      if (performance.now() < S.fusionLock) return;
+      if (index < S.player.traits.length) S.player.traits[index] = S.pendingReward.id;
+      else S.player.materials[index - S.player.traits.length] = S.pendingReward.id;
+      S.pendingReward = null;
+      finishUpgrade();
+      closeFusion();
+    } : () => {
+      if (performance.now() < S.fusionLock) return;
+      if (index < S.player.traits.length) {
+        S.fusionSession.selectedSlot = index;
+        renderFusion();
+        ui.fusionStatus.textContent = "교체할 재료 가방의 특성을 선택하세요. 조합을 실행하지 않으면 도구가 남습니다.";
+      } else {
+        let bagIndex = index - S.player.traits.length;
+        if (S.player.traits.length < TraitSystem.SLOT_LIMIT) S.player.traits.push(S.player.materials.splice(bagIndex, 1)[0]);
+        else if (Number.isInteger(S.fusionSession.selectedSlot)) {
+          let slot = S.fusionSession.selectedSlot;
+          [S.player.traits[slot], S.player.materials[bagIndex]] = [S.player.materials[bagIndex], S.player.traits[slot]];
+        }
+        S.fusionSession.selectedSlot = null;
+        renderFusion();
+      }
+    });
+      let location = document.createElement("p");
+      location.textContent = index < S.player.traits.length
+        ? S.fusionSession?.selectedSlot === index ? "교체 대상으로 선택됨" : "장착 중"
+        : "가방 · 효과 비활성";
+      card.lastChild.appendChild(location);
+      ui.fusionInventory.appendChild(card);
+    });
+    ui.fusionRecipes.replaceChildren();
+    ui.fusionHeading.hidden = replacing;
+    if (!replacing) {
+      let recipes = TraitSystem.availableRecipes([...S.player.traits, ...S.player.materials]);
+      recipes.forEach((trait) => ui.fusionRecipes.appendChild(traitCard(trait, () => {
+        if (performance.now() < S.fusionLock) return;
+        // Consume equipped ingredients first; unused bag materials never grant effects.
+        for (let ingredient of trait.recipe) {
+          let index = S.player.traits.indexOf(ingredient);
+          if (index >= 0) S.player.traits.splice(index, 1);
+          else S.player.materials.splice(S.player.materials.indexOf(ingredient), 1);
+        }
+        if (S.player.traits.length < TraitSystem.SLOT_LIMIT) S.player.traits.push(trait.id);
+        else S.player.materials.push(trait.id);
+        S.fusionSession.selectedSlot = null;
+        S.fusionSession.used = true;
+        S.fusionLock = performance.now() + 350;
+        sfx("upgrade");
+        burst(S.player.x, S.player.y, "#e6e9ff", 32);
+        renderFusion();
+      })));
+      if (!recipes.length) ui.fusionRecipes.textContent = "지금은 맞는 재료가 없습니다. 도감에서 조합식을 확인하고 재료를 더 모아보세요.";
+    }
+    ui.fusionClose.textContent = replacing ? "이번 보상 포기" : S.fusionSession?.used ? "완료 · 도구 소모" : "닫기 · 도구 남기기";
+  }
+  function openFusionKit() {
+    if (!S.pendingKit || !S.items.includes(S.pendingKit)) { S.pendingKit = null; return; }
+    S.fusionSession = { kit: S.pendingKit, used: false };
+    S.pendingKit = null;
+    S.phase = "fusion";
+    S.fusionLock = performance.now() + 550;
+    renderFusion();
+    ui.fusion.classList.remove("hidden");
+  }
+  function closeFusion() {
+    if (S.pendingReward) {
+      S.pendingReward = null;
+      finishUpgrade();
+    }
+    if (S.fusionSession?.used) S.items = S.items.filter((item) => item !== S.fusionSession.kit);
+    S.fusionSession = null;
+    ui.fusion.classList.add("hidden");
+    if (S.phase === "fusion") { S.phase = "player"; S.elapsed = 0; }
+    moves();
+    hud();
+  }
   function spawnFieldItem() {
-    if (S.items.length || S.itemCooldown) return;
+    if (S.items.some((item) => item.type !== "fusion") || S.itemCooldown) return;
     let p = S.player,
       r = 5 + Math.min(S.wave, 6),
       side = Math.floor(Math.random() * 4),
@@ -1068,7 +1153,7 @@
     if (side === 1) { x += r; y += Math.floor(Math.random() * (r * 2 + 1)) - r; }
     if (side === 2) { x += Math.floor(Math.random() * (r * 2 + 1)) - r; y += r; }
     if (side === 3) { x -= r; y += Math.floor(Math.random() * (r * 2 + 1)) - r; }
-    if (S.enemies.some((e) => e.x === x && e.y === y) || (x === p.x && y === p.y)) return;
+    if (isWall(x, y) || S.items.some((item) => item.x === x && item.y === y) || S.enemies.some((e) => e.x === x && e.y === y) || (x === p.x && y === p.y)) return;
     let type = rollFieldItem();
     S.items.push({ type, x, y, life: 14 });
     S.itemCooldown = 2;
@@ -1155,10 +1240,11 @@
     if (S.wave >= 60 && (S.wave - 60) % 30 === 0 && count("wormhole") < 6) addTerrain("wormhole");
   }
   function collectItemsAt(x, y, combo, hitSet) {
-    let picked = S.items.filter((item) => item.x === x && item.y === y),
+    let picked = S.items.filter((item) => item.x === x && item.y === y && item.type !== "fusion"),
       result = { hits: 0, kills: 0, points: 0, names: [] };
+    S.pendingKit ||= S.items.find((item) => item.type === "fusion" && item.x === x && item.y === y) || null;
     if (!picked.length) return result;
-    S.items = S.items.filter((item) => item.x !== x || item.y !== y);
+    S.items = S.items.filter((item) => !picked.includes(item));
     picked.forEach((item) => {
       let data = FIELD_ITEMS[item.type];
       result.names.push(data.name);
@@ -1502,7 +1588,7 @@
     let invulnerable = S.invincibleBeats > 0;
     if (invulnerable) S.invincibleBeats--;
     S.itemCooldown = Math.max(0, S.itemCooldown - 1);
-    S.items = S.items.filter((item) => --item.life > 0);
+    S.items = S.items.filter((item) => item.type === "fusion" || --item.life > 0);
     S.trail = [];
     S.enemyTrail = [];
     S.chain = 0;
@@ -1510,8 +1596,6 @@
     clearTimeout(S.comboStepTimer);
     clearTimeout(S.comboHideTimer);
     ui.combo.classList.remove("show");
-    S.player.slipUsed = false;
-    S.player.slipCooldown = Math.max(0, (S.player.slipCooldown || 0) - 1);
     sfx("enemy");
     let bossStrike = advanceBoss();
     if (bossStrike && !invulnerable) {
@@ -1657,6 +1741,7 @@
       earned = 0,
       scoreGain = 0,
       attacked = false,
+      directKilled = 0,
       struck = new Set(),
       combo = S.chain + 1,
       dx = Math.sign(m.x - from.x),
@@ -1664,18 +1749,20 @@
       caught = S.enemies.filter((e) => e.x === m.x && e.y === m.y);
     p.x = m.x;
     p.y = m.y;
+    p.moveNumber = (p.moveNumber || 0) + 1;
     if (usedRangeBoost) S.rangeBoostMoves--;
     sfx("move");
     S.trail.push({ x1: from.x, y1: from.y, x2: p.x, y2: p.y, via: p.piece === "knight" ? knightCorner(from, p) : null, life: 1 });
-    if (p.traits.includes("longStride") && (Math.abs(m.x - from.x) > 1 || Math.abs(m.y - from.y) > 1))
+    if (TraitSystem.movement(p.traits).stride && (Math.abs(m.x - from.x) > 1 || Math.abs(m.y - from.y) > 1))
       traitFx("stride", p.x, p.y, { dx, dy });
-    if (p.traits.includes("royalStep")) traitFx("royal", p.x, p.y);
+    if (TraitSystem.movement(p.traits).royal) traitFx("royal", p.x, p.y);
     let pickup = collectItemsAt(p.x, p.y, combo, struck);
     attacked ||= pickup.hits > 0;
     gained += pickup.kills;
     earned += pickup.points;
     if (caught.length) {
       let r = damageEnemies(caught, combo, struck);
+      directKilled += r.kills;
       attacked ||= r.hits > 0;
       gained += r.kills;
       earned += r.points;
@@ -1695,97 +1782,29 @@
       let exitCaught = S.enemies.filter((e) => e.x === p.x && e.y === p.y);
       if (exitCaught.length) {
         let r = damageEnemies(exitCaught, combo, struck);
+        directKilled += r.kills;
         attacked ||= r.hits > 0;
         gained += r.kills;
         earned += r.points;
       }
       ui.hint.textContent = "웜홀을 통과했습니다.";
     }
-    if (p.traits.includes("shockwave")) {
-      let v = S.enemies.filter(
-          (e) => Math.max(Math.abs(e.x - p.x), Math.abs(e.y - p.y)) <= 1,
-        );
-      let r = damageEnemies(v, combo, struck);
-      attacked ||= r.hits > 0;
-      gained += r.kills;
-      earned += r.points;
-      burst(p.x, p.y, "#c274ff", 20);
-      traitFx("shockwave", p.x, p.y);
+    p.directKills += directKilled;
+    const augmentation = TraitSystem.resolve(p.traits, {
+      from, to: p, directKill: directKilled > 0, directKills: p.directKills,
+      chain: S.chain + gained, wave: S.wave,
+      enemies: S.enemies.filter((enemy) => !struck.has(enemy)), isWall,
+    }, p.traitMemory);
+    if (augmentation.targets.length) {
+      const collateral = damageEnemies(augmentation.targets, combo, struck);
+      gained += collateral.kills;
+      earned += collateral.points;
+      augmentation.fx.forEach((effect) => effect.targets.forEach((enemy) => {
+        traitFx(effect.type, p.x, p.y, { x2: enemy.x, y2: enemy.y, via: effect.type === "fork" ? knightCorner(p, enemy) : null });
+      }));
     }
-    if (p.traits.includes("diagonalBurst") && caught.length) {
-      let v = S.enemies.filter((e) => {
-        let x = e.x - p.x,
-          y = e.y - p.y;
-        return Math.abs(x) === Math.abs(y);
-      });
-      let r = damageEnemies(v, combo, struck);
-      attacked ||= r.hits > 0;
-      gained += r.kills;
-      earned += r.points;
-    }
-    if (attacked && p.traits.includes("magnet")) {
-      let v = S.enemies.filter(
-        (e) => Math.max(Math.abs(e.x - p.x), Math.abs(e.y - p.y)) <= 2,
-      );
-      let r = damageEnemies(v, combo, struck);
-      attacked ||= r.hits > 0;
-      gained += r.kills;
-      earned += r.points;
-      traitFx("magnet", p.x, p.y);
-    }
-    if (attacked && p.traits.includes("echoBlade")) {
-      let v = S.enemies
-        .filter((e) => {
-          let x = e.x - p.x,
-            y = e.y - p.y;
-          if (dx === 0) return x === 0 && y * dy > 0;
-          if (dy === 0) return y === 0 && x * dx > 0;
-          return x * dy === y * dx && x * dx > 0 && y * dy > 0;
-        })
-        .sort((a, b) => dist(a, p) - dist(b, p))
-        .slice(0, 1);
-      let r = damageEnemies(v, combo, struck);
-      attacked ||= r.hits > 0;
-      gained += r.kills;
-      earned += r.points;
-      v.forEach((e) => traitFx("echo", p.x, p.y, { x2: e.x, y2: e.y }));
-    }
-    if (attacked && p.traits.includes("fork")) {
-      let v = S.enemies.filter((e) => {
-        let x = Math.abs(e.x - p.x),
-          y = Math.abs(e.y - p.y);
-        return (x === 1 && y === 2) || (x === 2 && y === 1);
-      });
-      let r = damageEnemies(v, combo, struck);
-      attacked ||= r.hits > 0;
-      gained += r.kills;
-      earned += r.points;
-      v.forEach((e) => {
-        traitFx("fork", p.x, p.y, { x2: e.x, y2: e.y, via: knightCorner(p, e) });
-      });
-    }
-    if (attacked && p.traits.includes("crossCheck")) {
-      let v = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-        .map(([dx, dy]) =>
-          S.enemies
-            .filter((e) => {
-              let x = e.x - p.x,
-                y = e.y - p.y;
-              return dx ? y === 0 && x * dx > 0 : x === 0 && y * dy > 0;
-            })
-            .sort((a, b) => dist(a, p) - dist(b, p))[0],
-        )
-        .filter(Boolean);
-      let r = damageEnemies(v, combo, struck);
-      attacked ||= r.hits > 0;
-      gained += r.kills;
-      earned += r.points;
-      v.forEach((e) => {
-        traitFx("cross", p.x, p.y, { x2: e.x, y2: e.y });
-      });
-    }
-    if (attacked && p.traits.includes("chainSpark")) {
-      gainXp(1);
+    if (augmentation.xp) {
+      gainXp(augmentation.xp);
       traitFx("spark", p.x, p.y);
     }
     if (gained) {
@@ -1794,15 +1813,11 @@
     }
     if (attacked) sfx("capture", S.chain + Math.max(1, gained));
     hud();
-    let reroll = (p.rank + 1) % 5 === 0;
-    if (
-      p.xp >= 3 + p.rank * 2 &&
-      (p.rank === 0 || reroll || p.traits.length < TRAITS.length)
-    ) {
+    if (p.xp >= 3 + p.rank * 2) {
       openUpgrade(true, gained);
       return;
     }
-    if (attacked) {
+    if (attacked || S.pendingKit) {
       if (gained) {
         let previousChain = S.chain;
         S.chain += gained;
@@ -1823,9 +1838,7 @@
       ui.hint.textContent = "은 목걸이 — 처치 없이 한 번 더 움직입니다. (" + S.extendedMoves + "회 남음)";
       return;
     }
-    if (p.traits.includes("slipstream") && !p.slipUsed && !p.slipCooldown) {
-      p.slipUsed = true;
-      p.slipCooldown = 2;
+    if (TraitSystem.escape(p.traits, S.wave, p.traitMemory)) {
       S.flash = 1;
       moves();
       traitFx("slip", p.x, p.y);
@@ -1837,8 +1850,8 @@
     ui.beat.textContent = "CHARGING";
     ui.hint.textContent = "다음 박자에 모든 적이 동시에 움직입니다.";
   }
-  function chooseRandom(list, n) {
-    return [...list].sort(() => Math.random() - 0.5).slice(0, n);
+  function traitRewardPool() {
+    return TraitSystem.offer(S.player.rank, Math.random, [...S.player.traits, ...S.player.materials]);
   }
   function openUpgrade(continueTurn = false, chainGain = 0) {
     let p = S.player,
@@ -1855,7 +1868,7 @@
       S.upgradeMode = "fork";
       S.upgradeOptions = [
         { kind: "piece", icon: "♛", name: "말 바꾸기", desc: "현재 말이 무작위 기물로 바뀝니다" },
-        ...(TRAITS.some((t) => !p.traits.includes(t.id))
+        ...(TRAITS.length
           ? [{ kind: "trait", icon: "✦", name: "특성 고르기", desc: "무작위 특성 3개 중 하나를 고릅니다" }]
           : []),
       ];
@@ -1863,9 +1876,9 @@
       ui.upgradeTitle.textContent = "이번에는 무엇을 고를까요?";
       renderChoices();
     } else {
-      let pool = TRAITS.filter((t) => !p.traits.includes(t.id));
+      let pool = traitRewardPool();
       S.upgradeMode = "trait";
-      S.upgradeOptions = chooseRandom(pool, Math.min(3, pool.length));
+      S.upgradeOptions = pool;
       ui.upgradeEyebrow.textContent = "RANDOM AUGMENTS";
       ui.upgradeTitle.textContent = "강화 특성을 선택하세요";
       renderChoices();
@@ -1899,8 +1912,11 @@
         }[o];
       } else {
         icon = o.icon;
-        name = o.name;
+        name = "T" + o.tier + " · " + o.name;
         desc = o.desc;
+        const inventory = [...S.player.traits, ...S.player.materials];
+        if (TraitSystem.availableRecipes([...inventory, o.id]).some((recipe) =>
+          recipe.recipe.includes(o.id) && !inventory.includes(recipe.id))) desc += " · 보유 특성과 조합할 수 있는 재료";
       }
       b.querySelector("b").innerHTML = S.upgradeMode === "trait" ? traitIcon(o.id) : icon;
       b.querySelector("strong").textContent = name;
@@ -1919,9 +1935,9 @@
         ui.upgradeEyebrow.textContent = "RANDOM PIECE · LEVEL " + (p.rank + 1);
         ui.upgradeTitle.textContent = "새 말이 정해졌습니다";
       } else {
-        let pool = TRAITS.filter((t) => !p.traits.includes(t.id));
+        let pool = traitRewardPool();
         S.upgradeMode = "trait";
-        S.upgradeOptions = chooseRandom(pool, Math.min(3, pool.length));
+        S.upgradeOptions = pool;
         ui.upgradeEyebrow.textContent = "RANDOM AUGMENTS";
         ui.upgradeTitle.textContent = "강화 특성을 선택하세요";
       }
@@ -1931,8 +1947,26 @@
     }
     if (S.upgradeMode === "piece") p.piece = o;
     else {
+      if (p.traits.length >= TraitSystem.SLOT_LIMIT) {
+        if (p.materials.length < 8) {
+          p.materials.push(o.id);
+          finishUpgrade();
+          return;
+        }
+        S.pendingReward = o;
+        S.phase = "fusion";
+        S.fusionLock = performance.now() + 550;
+        ui.upgrade.classList.add("hidden");
+        renderFusion();
+        ui.fusion.classList.remove("hidden");
+        return;
+      }
       p.traits.push(o.id);
     }
+    finishUpgrade();
+  }
+  function finishUpgrade() {
+    let p = S.player;
     p.rank++;
     p.xp = 0;
     moves();
@@ -1960,7 +1994,7 @@
     ui.hint.textContent =
       S.upgradeMode === "piece"
         ? p.piece.toUpperCase() + (continueTurn ? "으로 승진! 한 번 더 움직이세요." : "으로 승진했습니다.")
-        : "특성 " + o.name + (continueTurn ? " 획득! 한 번 더 움직이세요." : "을 획득했습니다.");
+        : "특성 보상 선택을 마쳤습니다.";
     burst(p.x, p.y, "#f45cf4", 34);
     sfx("upgrade");
   }
@@ -2230,7 +2264,7 @@
       data = FIELD_ITEMS[item.type],
       pulse = 0.78 + Math.sin(performance.now() / 180) * 0.18;
     g.save();
-    g.globalAlpha = Math.min(1, item.life / 1.3) * pulse;
+    g.globalAlpha = (item.type === "fusion" ? 1 : Math.min(1, item.life / 1.3)) * pulse;
     g.fillStyle = "#11172c";
     g.strokeStyle = data.color;
     g.shadowColor = data.color;
@@ -2245,6 +2279,10 @@
     g.textAlign = "center";
     g.textBaseline = "middle";
     g.fillText(data.icon, q.x, q.y + s * 0.01);
+    if (item.type === "fusion") {
+      g.font = "700 9px 'Gowun Batang', serif";
+      g.fillText("융합", q.x, q.y + s * 0.43);
+    }
     g.restore();
   }
   function edgeMoveTargets() {
@@ -2286,6 +2324,29 @@
         y = H / 2 + dy * scale + Math.cos(angle) * offset;
       return { ...target, x: Math.max(margin, Math.min(W - margin, x)), y: Math.max(margin, Math.min(H - margin, y)), angle };
     });
+  }
+  function drawFusionDirection() {
+    let target = S.items.filter((item) => item.type === "fusion")
+      .sort((a, b) => dist(a, S.player) - dist(b, S.player))[0];
+    if (!target) return;
+    let q = pos(target.x, target.y), margin = 30;
+    if (q.x >= 0 && q.x <= W && q.y >= 0 && q.y <= H) return;
+    let dx = q.x - W / 2, dy = q.y - H / 2,
+      scale = Math.min((W / 2 - margin) / Math.max(1, Math.abs(dx)), (H / 2 - margin) / Math.max(1, Math.abs(dy))),
+      x = W / 2 + dx * scale, y = H / 2 + dy * scale, angle = Math.atan2(dy, dx);
+    g.save();
+    g.translate(x, y);
+    g.fillStyle = "#11172c";
+    g.strokeStyle = "#e6e9ff";
+    g.lineWidth = 1.5;
+    g.beginPath(); g.arc(0, 0, 12, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = "#e6e9ff";
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "15px Georgia, serif"; g.fillText("⚒", 0, 0);
+    g.font = "9px monospace"; g.fillText(dist(target, S.player) + "칸", 0, 21);
+    g.rotate(angle);
+    g.beginPath(); g.moveTo(23, 0); g.lineTo(15, -4); g.lineTo(15, 4); g.closePath(); g.fill();
+    g.restore();
   }
   function drawRewind() {
     let replay = S.rewind,
@@ -2649,6 +2710,7 @@
     });
     if (S.phase === "captured") piece(S.player.x, S.player.y, S.player.piece);
     S.items.forEach(fieldItem);
+    drawFusionDirection();
     S.enemies.forEach((e) => piece(e.x, e.y, e.type, true, e.hp || 1, e.maxHp || 1, e.risk, e.boss, e.bossPhase, e.bossName, e.seals, e.enraged));
     if (!["dead", "captured"].includes(S.phase)) piece(S.player.x, S.player.y, S.player.piece);
     if (S.phase === "dead") {
@@ -2697,6 +2759,7 @@
     let dt = Math.min(0.05, (now - last) / 1000 || 0) * S.devSpeed;
     last = now;
     if (S.running) {
+      if (S.pendingKit && S.phase === "player") openFusionKit();
       S.camera.x += (S.player.x - S.camera.x) * Math.min(1, dt * 8);
       S.camera.y += (S.player.y - S.camera.y) * Math.min(1, dt * 8);
       S.flash = Math.max(0, S.flash - dt * 1.8);
@@ -2775,6 +2838,14 @@
           S.autoElapsed = 0;
           chooseUpgrade(Math.floor(Math.random() * S.upgradeOptions.length));
         }
+      } else if (S.phase === "fusion" && S.autoPlay) {
+        S.autoElapsed += dt;
+        if (S.autoElapsed >= 0.6 && now >= (S.fusionLock || 0)) {
+          S.autoElapsed = 0;
+          let recipe = ui.fusionRecipes.querySelector("button");
+          if (recipe && !S.pendingReward) recipe.click();
+          else closeFusion();
+        }
       } else if (S.phase === "risk" && S.autoPlay) {
         S.autoElapsed += dt;
         if (S.autoElapsed >= 0.55) {
@@ -2826,6 +2897,11 @@
       q = S.moves[0] || { x: p.x + 1, y: p.y };
     S.enemies.push({ x: q.x, y: q.y, type: "pawn", face: { x: 0, y: 1 }, hp: 1, maxHp: 1 });
     ui.hint.textContent = "DEV: 인접한 폰을 생성했습니다.";
+  }
+  function devFusionKit() {
+    if (!S.running || !["player", "enemy"].includes(S.phase)) return;
+    dropFusionKit(S.player);
+    ui.hint.textContent = "DEV: 인접한 빈칸에 융합 도구를 생성했습니다.";
   }
   function devBeat() {
     if (!S.running || ["upgrade", "dead", "devpick"].includes(S.phase)) return;
@@ -2933,7 +3009,7 @@
     ui.devPickOptions.innerHTML = "";
     options.forEach((o) => {
       let b = document.createElement("button"),
-        owned = kind === "trait" && S.player.traits.includes(o.id);
+        owned = kind === "trait" && S.player.traits.length >= TraitSystem.SLOT_LIMIT && S.player.materials.length >= 8;
       b.disabled = owned;
       let icon = kind === "trait" ? traitIcon(o.id) : o.icon;
       b.innerHTML = "<b>" + icon + "</b><strong>" + (o.name || o.id.toUpperCase()) + "</strong><span>" + (owned ? "이미 보유함" : o.desc) + "</span>";
@@ -2945,7 +3021,8 @@
         } else if (kind === "boss") {
           devBoss(o.id);
         } else {
-          p.traits.push(o.id);
+          if (p.traits.length < TraitSystem.SLOT_LIMIT) p.traits.push(o.id);
+          else p.materials.push(o.id);
           ui.hint.textContent = "DEV: " + o.name + " 특성을 추가했습니다.";
         }
         moves();
@@ -3016,6 +3093,10 @@
   ui.tutorialButton.addEventListener("click", () => openTutorial(false));
   ui.traitCodexButton.addEventListener("click", openTraitCodex);
   ui.traitCodexClose.addEventListener("click", closeTraitCodex);
+  $("#traitTierFilter").addEventListener("change", renderTraitCodex);
+  ui.fusionClose.addEventListener("click", () => {
+    if (performance.now() >= (S.fusionLock || 0)) closeFusion();
+  });
   ui.tutorialPrev.addEventListener("click", () => {
     if (tutorialPage === 0) return;
     tutorialPage--;
@@ -3076,11 +3157,13 @@
   $("#devPiece").addEventListener("click", () => openDevPick("piece"));
   $("#devTrait").addEventListener("click", () => openDevPick("trait"));
   $("#devBoss").addEventListener("click", () => openDevPick("boss"));
+  $("#devFusion").addEventListener("click", devFusionKit);
   $("#devAuto").addEventListener("click", devAuto);
   ui.devVisibilityToggle.addEventListener("click", toggleDevTools);
   $("#devPickClose").addEventListener("click", closeDevPick);
   document.addEventListener("keydown", (e) => {
     if (!S.dev) return;
+    if (S.phase === "fusion") return;
     let k = e.key.toLowerCase();
     if (k === "1") devXp();
     if (k === "2") devPawn();
