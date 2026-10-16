@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#08091a" />
+    <title>It's My Turn… Check! — Co-op Alpha</title>
+    <link rel="stylesheet" href="coop.css" />
+  </head>
+  <body>
+    <main id="coopApp">
+      <header>
+        <a href="index.html" class="back">← SOLO</a>
+        <div><span>IT'S MY TURN… CHECK!</span><strong>CO-OP ALPHA</strong></div>
+        <button id="leaveButton" class="ghost" hidden>LEAVE</button>
+      </header>
+      <section id="lobby" class="screen">
+        <p class="eyebrow">TWO MINDS · ONE BOARD</p>
+        <h1>CO-OP<br /><em>CHECK</em></h1>
+        <p class="intro">같은 1.8초 안에 한 수를 고르면, 두 행동이 함께 판정됩니다.<br />방장은 판정을 맡고 Supabase Realtime은 무료 신호 채널로만 사용합니다.</p>
+        <div class="lobby-actions">
+          <button id="hostButton">방 만들기</button>
+          <label><span>초대 코드</span><input id="roomInput" maxlength="6" placeholder="ABC123" autocapitalize="characters" /></label>
+          <button id="joinButton" class="alt">방 참가</button>
+        </div>
+        <p id="lobbyStatus" class="status">2인 협동 실험 모드 · 랭킹에는 기록되지 않습니다.</p>
+      </section>
+      <section id="gameScreen" class="screen hidden">
+        <div class="matchbar">
+          <div><small>ROOM</small><b id="roomCode">------</b><button id="copyButton" class="copy">COPY</button></div>
+          <div class="timer"><small id="phaseText">WAITING</small><b id="timerText">—</b></div>
+          <div><small>TEAM SCORE</small><b id="scoreText">0</b></div>
+        </div>
+        <canvas id="coopCanvas" aria-label="협동 게임 보드"></canvas>
+        <div id="actionHint" class="action-hint">방 참가자를 기다리는 중입니다.</div>
+        <div class="legend"><i class="cyan"></i>당신 <i class="violet"></i>동료 <i class="red"></i>적 · 처치 시 다음 라운드 보너스 이동</div>
+      </section>
+      <section id="endScreen" class="screen hidden">
+        <p class="eyebrow">CHECKMATE</p>
+        <h2>THE TEAM FALLS.</h2>
+        <p id="endText"></p>
+        <button id="backToLobby">새 방으로</button>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="coop.js"></script>
+  </body>
+</html>
