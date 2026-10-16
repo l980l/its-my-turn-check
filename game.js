@@ -66,8 +66,8 @@
       fusionEyebrow: $("#fusionEyebrow"),
       fusionStatus: $("#fusionStatus"),
       fusionInventory: $("#fusionInventory"),
-      fusionRecipes: $("#fusionRecipes"),
-      fusionHeading: $("#fusionHeading"),
+      fusionPreview: $("#fusionPreview"),
+      fusionConfirm: $("#fusionConfirm"),
       fusionClose: $("#fusionClose"),
       tutorial: $("#tutorialScreen"),
       tutorialButton: $("#tutorialButton"),
@@ -1056,74 +1056,89 @@
     if (action) entry.addEventListener("click", action);
     return entry;
   }
+  function selectedFusion() {
+    const selected = S.fusionSession?.selected || [];
+    if (selected.length !== 2) return null;
+    const inventory = [...S.player.traits, ...S.player.materials];
+    const ids = selected.map((index) => inventory[index]);
+    if (ids.some((id) => !id)) return null;
+    return TraitSystem.availableRecipes(ids)[0] || null;
+  }
   function renderFusion() {
-    let replacing = Boolean(S.pendingReward);
-    ui.fusionTitle.textContent = replacing ? "어떤 특성을 교체할까요?" : "어떤 특성을 합칠까요?";
-    ui.fusionEyebrow.textContent = replacing ? "TRAIT SLOTS · 6 / 6" : "FUSION WORKSHOP · TIER I–IV";
+    const replacing = Boolean(S.pendingReward);
+    const selected = S.fusionSession?.selected || [];
+    const result = replacing ? null : selectedFusion();
+    ui.fusionTitle.textContent = replacing ? "특성 교체" : "특성 융합";
+    ui.fusionEyebrow.textContent = replacing ? "TRAIT SLOTS" : "FUSION";
     ui.fusionStatus.textContent = replacing
-      ? S.pendingReward.name + " 획득 — 교체할 특성을 고르세요. 보상을 포기할 수도 있습니다."
-      : "장착 " + S.player.traits.length + "/6 · 재료 가방 " + S.player.materials.length + "/8 (효과 없음) · 장착 특성을 누른 뒤 가방 특성을 눌러 교체하세요. 도구 하나로 연속 조합할 수 있습니다.";
+      ? S.pendingReward.name + " · 교체할 특성을 선택하세요."
+      : "특성 2개를 선택하세요.";
     ui.fusionInventory.replaceChildren();
     [...S.player.traits, ...S.player.materials].forEach((id, index) => {
-      let card = traitCard(TraitSystem.byId[id], replacing ? () => {
-      if (performance.now() < S.fusionLock) return;
-      if (index < S.player.traits.length) S.player.traits[index] = S.pendingReward.id;
-      else S.player.materials[index - S.player.traits.length] = S.pendingReward.id;
-      S.pendingReward = null;
-      finishUpgrade();
-      closeFusion();
-    } : () => {
-      if (performance.now() < S.fusionLock) return;
-      if (index < S.player.traits.length) {
-        S.fusionSession.selectedSlot = index;
-        renderFusion();
-        ui.fusionStatus.textContent = "교체할 재료 가방의 특성을 선택하세요. 조합을 실행하지 않으면 도구가 남습니다.";
-      } else {
-        let bagIndex = index - S.player.traits.length;
-        if (S.player.traits.length < TraitSystem.SLOT_LIMIT) S.player.traits.push(S.player.materials.splice(bagIndex, 1)[0]);
-        else if (Number.isInteger(S.fusionSession.selectedSlot)) {
-          let slot = S.fusionSession.selectedSlot;
-          [S.player.traits[slot], S.player.materials[bagIndex]] = [S.player.materials[bagIndex], S.player.traits[slot]];
+      const trait = TraitSystem.byId[id];
+      const location = index < S.player.traits.length ? "장착" : "재료";
+      const card = traitCard({ ...trait, recipe: null, desc: location }, () => {
+        if (performance.now() < S.fusionLock) return;
+        if (replacing) {
+          if (index < S.player.traits.length) S.player.traits[index] = S.pendingReward.id;
+          else S.player.materials[index - S.player.traits.length] = S.pendingReward.id;
+          S.pendingReward = null;
+          finishUpgrade();
+          closeFusion();
+          return;
         }
-        S.fusionSession.selectedSlot = null;
+        const selection = S.fusionSession.selected;
+        const existing = selection.indexOf(index);
+        if (existing >= 0) selection.splice(existing, 1);
+        else {
+          if (selection.length === 2) selection.shift();
+          selection.push(index);
+        }
         renderFusion();
-      }
-    });
-      let location = document.createElement("p");
-      location.textContent = index < S.player.traits.length
-        ? S.fusionSession?.selectedSlot === index ? "교체 대상으로 선택됨" : "장착 중"
-        : "가방 · 효과 비활성";
-      card.lastChild.appendChild(location);
+      });
+      card.title = trait.desc;
+      card.classList.toggle("selected", selected.includes(index));
+      card.setAttribute("aria-pressed", String(selected.includes(index)));
       ui.fusionInventory.appendChild(card);
     });
-    ui.fusionRecipes.replaceChildren();
-    ui.fusionHeading.hidden = replacing;
-    if (!replacing) {
-      let recipes = TraitSystem.availableRecipes([...S.player.traits, ...S.player.materials]);
-      recipes.forEach((trait) => ui.fusionRecipes.appendChild(traitCard(trait, () => {
-        if (performance.now() < S.fusionLock) return;
-        // Consume equipped ingredients first; unused bag materials never grant effects.
-        for (let ingredient of trait.recipe) {
-          let index = S.player.traits.indexOf(ingredient);
-          if (index >= 0) S.player.traits.splice(index, 1);
-          else S.player.materials.splice(S.player.materials.indexOf(ingredient), 1);
-        }
-        if (S.player.traits.length < TraitSystem.SLOT_LIMIT) S.player.traits.push(trait.id);
-        else S.player.materials.push(trait.id);
-        S.fusionSession.selectedSlot = null;
-        S.fusionSession.used = true;
-        S.fusionLock = performance.now() + 350;
-        sfx("upgrade");
-        burst(S.player.x, S.player.y, "#e6e9ff", 32);
-        renderFusion();
-      })));
-      if (!recipes.length) ui.fusionRecipes.textContent = "지금은 맞는 재료가 없습니다. 도감에서 조합식을 확인하고 재료를 더 모아보세요.";
+    ui.fusionPreview.textContent = result
+      ? "→ T" + result.tier + " · " + result.name
+      : !replacing && selected.length === 2 ? "조합할 수 없는 특성입니다." : "";
+    ui.fusionConfirm.hidden = replacing;
+    ui.fusionConfirm.disabled = !result;
+    ui.fusionClose.textContent = "취소";
+  }
+  function confirmFusion() {
+    if (S.phase !== "fusion" || !S.fusionSession || S.pendingReward ||
+        performance.now() < S.fusionLock) return;
+    const result = selectedFusion();
+    if (!result) return;
+    const equippedCount = S.player.traits.length;
+    const selected = S.fusionSession.selected;
+    selected.filter((index) => index >= equippedCount).sort((a,b) => b-a)
+      .forEach((index) => S.player.materials.splice(index - equippedCount, 1));
+    selected.filter((index) => index < equippedCount).sort((a,b) => b-a)
+      .forEach((index) => S.player.traits.splice(index, 1));
+    if (S.player.traits.length < TraitSystem.SLOT_LIMIT) S.player.traits.push(result.id);
+    else {
+      // A stronger result from two bag materials can equip without another management screen.
+      const weakest = S.player.traits.reduce((best, id, index, all) =>
+        TraitSystem.byId[id].tier < TraitSystem.byId[all[best]].tier ? index : best, 0);
+      if (result.tier > TraitSystem.byId[S.player.traits[weakest]].tier) {
+        S.player.materials.push(S.player.traits[weakest]);
+        S.player.traits[weakest] = result.id;
+      } else S.player.materials.push(result.id);
     }
-    ui.fusionClose.textContent = replacing ? "이번 보상 포기" : S.fusionSession?.used ? "완료 · 도구 소모" : "닫기 · 도구 남기기";
+    S.fusionSession.selected = [];
+    S.fusionSession.used = true;
+    S.fusionLock = performance.now() + 350;
+    sfx("upgrade");
+    burst(S.player.x, S.player.y, "#e6e9ff", 32);
+    renderFusion();
   }
   function openFusionKit() {
     if (!S.pendingKit || !S.items.includes(S.pendingKit)) { S.pendingKit = null; return; }
-    S.fusionSession = { kit: S.pendingKit, used: false };
+    S.fusionSession = { kit: S.pendingKit, used: false, selected: [] };
     S.pendingKit = null;
     S.phase = "fusion";
     S.fusionLock = performance.now() + 550;
@@ -2842,9 +2857,14 @@
         S.autoElapsed += dt;
         if (S.autoElapsed >= 0.6 && now >= (S.fusionLock || 0)) {
           S.autoElapsed = 0;
-          let recipe = ui.fusionRecipes.querySelector("button");
-          if (recipe && !S.pendingReward) recipe.click();
-          else closeFusion();
+          const inventory = [...S.player.traits, ...S.player.materials];
+          const recipe = !S.pendingReward && TraitSystem.availableRecipes(inventory)[0];
+          if (recipe) {
+            const first = inventory.indexOf(recipe.recipe[0]);
+            const second = inventory.findIndex((id, index) => index !== first && id === recipe.recipe[1]);
+            S.fusionSession.selected = [first, second];
+            confirmFusion();
+          } else closeFusion();
         }
       } else if (S.phase === "risk" && S.autoPlay) {
         S.autoElapsed += dt;
@@ -3097,6 +3117,7 @@
   ui.fusionClose.addEventListener("click", () => {
     if (performance.now() >= (S.fusionLock || 0)) closeFusion();
   });
+  ui.fusionConfirm.addEventListener("click", confirmFusion);
   ui.tutorialPrev.addEventListener("click", () => {
     if (tutorialPage === 0) return;
     tutorialPage--;
