@@ -8,6 +8,11 @@
       level: $("#playerLevel"),
       xpProgress: $("#xpProgress"),
       xpFill: $("#xpProgressFill"),
+      heldSlots: [...document.querySelectorAll(".held-trait-slot")],
+      heldDetails: $("#heldTraitDetails"),
+      heldName: $("#heldTraitName"),
+      heldCopy: $("#heldTraitCopy"),
+      heldClose: $("#heldTraitClose"),
       score: $("#score"),
       phase: $("#phaseLabel"),
       beat: $("#beatText"),
@@ -20,6 +25,7 @@
       rewindLabel: $("#rewindLabel"),
       start: $("#startScreen"),
       upgrade: $("#upgradeScreen"),
+      upgradePanel: $("#upgradeScreen .panel"),
       upgradeEyebrow: $("#upgradeEyebrow"),
       upgradeTitle: $("#upgradeTitle"),
       choices: [...document.querySelectorAll(".upgrade-choice")],
@@ -735,6 +741,7 @@
     S.pendingKit = null;
     S.fusionSession = null;
     S.pendingReward = null;
+    closeHeldTrait();
     ui.fusion.classList.add("hidden");
     S.terrain = [];
     S.wormholeId = 0;
@@ -792,6 +799,37 @@
     ui.xpProgress.setAttribute("aria-valuenow", String(progress));
     ui.xpProgress.setAttribute("aria-valuetext", S.player.xp + " / " + requiredXp);
     ui.score.textContent = S.score.toLocaleString();
+    const traitKey = S.player.traits.join("|");
+    if (S.heldTraitKey !== traitKey) {
+      S.heldTraitKey = traitKey;
+      closeHeldTrait();
+      ui.heldSlots.forEach((button, index) => {
+        const trait = TraitSystem.byId[S.player.traits[index]];
+        button.disabled = !trait;
+        button.innerHTML = trait ? traitIcon(trait.id) : "";
+        button.title = trait ? trait.name : "빈 슬롯";
+        button.setAttribute("aria-label", trait ? trait.name + " 설명" : "빈 특성 슬롯 " + (index + 1));
+        button.setAttribute("aria-expanded", "false");
+        if (trait) button.dataset.tier = String(trait.tier);
+        else delete button.dataset.tier;
+      });
+    }
+  }
+  function closeHeldTrait() {
+    S.heldTraitIndex = null;
+    ui.heldDetails.classList.add("hidden");
+    ui.heldSlots.forEach((button) => button.setAttribute("aria-expanded", "false"));
+  }
+  function toggleHeldTrait(index) {
+    const trait = TraitSystem.byId[S.player?.traits[index]];
+    if (!trait) return;
+    if (S.heldTraitIndex === index) { closeHeldTrait(); return; }
+    S.heldTraitIndex = index;
+    ui.heldName.textContent = trait.name;
+    ui.heldCopy.textContent = trait.desc;
+    ui.heldDetails.dataset.tier = String(trait.tier);
+    ui.heldDetails.classList.remove("hidden");
+    ui.heldSlots.forEach((button, i) => button.setAttribute("aria-expanded", String(i === index)));
   }
   function gainXp(amount) {
     let multiplier = S.player.piece === "king" ? 1.5 : 1;
@@ -1139,6 +1177,7 @@
     S.fusionLock = performance.now() + 350;
     sfx("upgrade");
     burst(S.player.x, S.player.y, "#e6e9ff", 32);
+    hud();
     renderFusion();
   }
   function openFusionKit() {
@@ -1911,6 +1950,7 @@
     ui.hint.textContent = "레벨업 보상을 선택하세요.";
   }
   function renderChoices() {
+    ui.upgradePanel.dataset.mode = S.upgradeMode;
     S.upgradeDescriptionIndex = null;
     ui.upgradeDetail.classList.add("hidden");
     ui.choiceInfo.forEach((button) => {
@@ -1938,7 +1978,7 @@
         }[o];
       } else {
         icon = o.icon;
-        name = "T" + o.tier + " · " + o.name;
+        name = o.name;
         desc = o.desc;
         const inventory = [...S.player.traits, ...S.player.materials];
         if (TraitSystem.availableRecipes([...inventory, o.id]).some((recipe) =>
@@ -1946,6 +1986,9 @@
       }
       b.querySelector("b").innerHTML = S.upgradeMode === "trait" ? traitIcon(o.id) : icon;
       b.querySelector("strong").textContent = name;
+      if (S.upgradeMode === "trait") b.dataset.tier = String(o.tier);
+      else delete b.dataset.tier;
+      b.setAttribute("aria-label", (S.upgradeMode === "trait" ? o.tier + "티어 " : "") + name + " 선택");
       b.querySelector("span").textContent = S.upgradeMode === "trait" ? "" : desc;
       b.querySelector("span").hidden = S.upgradeMode === "trait";
       ui.choiceInfo[i].hidden = S.upgradeMode !== "trait";
@@ -1961,6 +2004,7 @@
     ui.upgradeDetail.classList.toggle("hidden", !expanded);
     ui.choiceInfo.forEach((button, i) => button.setAttribute("aria-expanded", String(expanded && i === index)));
     if (expanded) {
+      ui.upgradeDetail.dataset.tier = String(S.upgradeOptions[index].tier);
       ui.upgradeDetailName.textContent = S.upgradeOptions[index].name;
       ui.upgradeDetailCopy.textContent = ui.choiceInfo[index].dataset.description;
     }
@@ -3242,6 +3286,8 @@
   ui.choiceInfo.forEach((b) =>
     b.addEventListener("click", () => toggleUpgradeDescription(Number(b.dataset.choice))),
   );
+  ui.heldSlots.forEach((button) => button.addEventListener("click", () => toggleHeldTrait(Number(button.dataset.slot))));
+  ui.heldClose.addEventListener("click", closeHeldTrait);
   setBusVolume("bgm", Math.round(audio.bgmVolume / 0.05));
   setBusVolume("sfx", Math.round(audio.sfxVolume / 0.05));
   setOffscreenIndicators(localStorage.getItem("its-my-turn-offscreen-indicators-v1") !== "0");

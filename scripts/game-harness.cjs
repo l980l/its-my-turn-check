@@ -60,7 +60,12 @@ function createGameHarness(options = {}) {
     return elements.get(id);
   };
   const choiceSelectors = new Set([".upgrade-choice", ".upgrade-option", ".upgrade-info"]);
-  const queryAll = (selector) => options.withUpgradeUi && choiceSelectors.has(selector)
+  const queryAll = (selector) => options.withHeldUi && selector === ".held-trait-slot"
+    ? Array.from({length:6}, (_, index) => {
+      const item = element(selector + index);
+      item.dataset.slot = String(index);
+      return item;
+    }) : options.withUpgradeUi && choiceSelectors.has(selector)
     ? Array.from({length:3}, (_, index) => {
       const item = element(selector + index);
       item.dataset.choice = String(index);
