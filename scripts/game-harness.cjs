@@ -26,8 +26,12 @@ class Element {
   set textContent(value) { this.text = value; this.children = []; }
   get textContent() { return this.text || ""; }
   addEventListener(event, handler) { this.handlers[event] = handler; }
-  setAttribute() {}
-  querySelector() { return new Element(); }
+  setAttribute(name, value) { (this.attributes ||= {})[name] = value; }
+  querySelector(selector) {
+    this.queries ||= new Map();
+    if (!this.queries.has(selector)) this.queries.set(selector, new Element());
+    return this.queries.get(selector);
+  }
   querySelectorAll() { return []; }
   focus() {}
   select() {}
@@ -55,6 +59,13 @@ function createGameHarness(options = {}) {
     if (!elements.has(id)) elements.set(id, new Element());
     return elements.get(id);
   };
+  const choiceSelectors = new Set([".upgrade-choice", ".upgrade-option", ".upgrade-info"]);
+  const queryAll = (selector) => options.withUpgradeUi && choiceSelectors.has(selector)
+    ? Array.from({length:3}, (_, index) => {
+      const item = element(selector + index);
+      item.dataset.choice = String(index);
+      return item;
+    }) : [];
   let now = 1000;
   const random = seededRandom(options.seed ?? 20261016);
   const seededMath = Object.create(Math);
@@ -66,7 +77,7 @@ function createGameHarness(options = {}) {
     performance: { now: () => now },
     document: {
       querySelector: element,
-      querySelectorAll: () => [],
+      querySelectorAll: queryAll,
       createElement: () => new Element(),
       documentElement: new Element(),
       addEventListener() {},

@@ -42,6 +42,17 @@
       .choices b {
         margin-left: 0;
       }
+      .upgrade-option { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+      .upgrade-option[hidden] { display: none; }
+      .upgrade-option .upgrade-choice { width: 100%; }
+      .choices .upgrade-info { flex: none; min-height: 32px; width: 100%; margin: 6px 0 0; padding: 6px; border: 0; background: transparent; box-shadow: none; color: #a8c9d4; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+      .choices .upgrade-info[hidden], .choices .upgrade-choice span[hidden] { display: none; }
+      .choices .upgrade-info[aria-expanded="true"] { color: #53f0e4; }
+      .upgrade-detail { margin-top: 16px; padding: 14px; border-top: 1px solid #53f0e444; text-align: left; }
+      .upgrade-detail.hidden { display: none; }
+      .upgrade-detail strong { color: #53f0e4; font-size: 14px; }
+      .upgrade-detail p { margin: 6px 0 0; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+      .upgrade { max-height: 86dvh; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
       @media (max-width: 560px) {
         body {
           max-width: 100%;
@@ -802,7 +813,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.12.3</b> · 2026.10.17</p>
+        <p class="build-version">BUILD <b>v0.12.4</b> · 2026.10.17</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -858,16 +869,20 @@
           <p class="eyebrow" id="upgradeEyebrow">PROMOTION AVAILABLE</p>
           <h2 id="upgradeTitle">어떤 말이 될까요?</h2>
           <div class="choices">
-            <button class="upgrade-choice" data-choice="0">
-              <b>♞</b><strong>KNIGHT</strong
-              ><span>L자 이동 · 착지 충격파</span></button
-            ><button class="upgrade-choice" data-choice="1">
-              <b>♜</b><strong>ROOK</strong
-              ><span>직선 3칸 · 관통 섬광</span></button
-            ><button class="upgrade-choice" data-choice="2">
-              <b>♝</b><strong>BISHOP</strong><span>대각선 3칸 · 대각 폭발</span>
-            </button>
+            <div class="upgrade-option">
+              <button class="upgrade-choice" data-choice="0"><b>♞</b><strong>KNIGHT</strong><span>L자 이동</span></button>
+              <button class="upgrade-info" data-choice="0" type="button" aria-expanded="false" aria-controls="upgradeDetail" hidden>설명</button>
+            </div>
+            <div class="upgrade-option">
+              <button class="upgrade-choice" data-choice="1"><b>♜</b><strong>ROOK</strong><span>직선 3칸 이동</span></button>
+              <button class="upgrade-info" data-choice="1" type="button" aria-expanded="false" aria-controls="upgradeDetail" hidden>설명</button>
+            </div>
+            <div class="upgrade-option">
+              <button class="upgrade-choice" data-choice="2"><b>♝</b><strong>BISHOP</strong><span>대각선 3칸 이동</span></button>
+              <button class="upgrade-info" data-choice="2" type="button" aria-expanded="false" aria-controls="upgradeDetail" hidden>설명</button>
+            </div>
           </div>
+          <div class="upgrade-detail hidden" id="upgradeDetail" aria-live="polite"><strong id="upgradeDetailName"></strong><p id="upgradeDetailCopy"></p></div>
         </div>
       </section>
       <section class="overlay hidden" id="fusionScreen" role="dialog" aria-modal="true" aria-labelledby="fusionTitle">
@@ -953,6 +968,6 @@
       </section>
     </main>
     <script src="traits.js?v=v0.12.1"></script>
-    <script src="game.js?v=v0.12.3"></script>
+    <script src="game.js?v=v0.12.4"></script>
   </body>
 </html>
