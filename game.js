@@ -23,6 +23,11 @@
       upgradeEyebrow: $("#upgradeEyebrow"),
       upgradeTitle: $("#upgradeTitle"),
       choices: [...document.querySelectorAll(".upgrade-choice")],
+      choiceGroups: [...document.querySelectorAll(".upgrade-option")],
+      choiceInfo: [...document.querySelectorAll(".upgrade-info")],
+      upgradeDetail: $("#upgradeDetail"),
+      upgradeDetailName: $("#upgradeDetailName"),
+      upgradeDetailCopy: $("#upgradeDetailCopy"),
       risk: $("#riskScreen"),
       riskAccept: $("#riskAccept"),
       riskDecline: $("#riskDecline"),
@@ -1906,9 +1911,15 @@
     ui.hint.textContent = "레벨업 보상을 선택하세요.";
   }
   function renderChoices() {
+    S.upgradeDescriptionIndex = null;
+    ui.upgradeDetail.classList.add("hidden");
+    ui.choiceInfo.forEach((button) => {
+      button.hidden = true;
+      button.setAttribute("aria-expanded", "false");
+    });
     ui.choices.forEach((b, i) => {
       let o = S.upgradeOptions[i];
-      b.style.display = o ? "block" : "none";
+      ui.choiceGroups[i].hidden = !o;
       if (!o) return;
       let icon, name, desc;
       if (S.upgradeMode === "fork") {
@@ -1935,8 +1946,24 @@
       }
       b.querySelector("b").innerHTML = S.upgradeMode === "trait" ? traitIcon(o.id) : icon;
       b.querySelector("strong").textContent = name;
-      b.querySelector("span").textContent = desc;
+      b.querySelector("span").textContent = S.upgradeMode === "trait" ? "" : desc;
+      b.querySelector("span").hidden = S.upgradeMode === "trait";
+      ui.choiceInfo[i].hidden = S.upgradeMode !== "trait";
+      ui.choiceInfo[i].setAttribute("aria-label", (o.name || name) + " 설명");
+      ui.choiceInfo[i].dataset.description = desc;
     });
+  }
+  function toggleUpgradeDescription(index) {
+    if (S.phase !== "upgrade" || S.upgradeMode !== "trait" || !S.upgradeOptions[index] ||
+        performance.now() < (S.upgradeLock || 0)) return;
+    S.upgradeDescriptionIndex = S.upgradeDescriptionIndex === index ? null : index;
+    const expanded = S.upgradeDescriptionIndex !== null;
+    ui.upgradeDetail.classList.toggle("hidden", !expanded);
+    ui.choiceInfo.forEach((button, i) => button.setAttribute("aria-expanded", String(expanded && i === index)));
+    if (expanded) {
+      ui.upgradeDetailName.textContent = S.upgradeOptions[index].name;
+      ui.upgradeDetailCopy.textContent = ui.choiceInfo[index].dataset.description;
+    }
   }
   function chooseUpgrade(i) {
     let p = S.player,
@@ -2849,7 +2876,7 @@
         ui.meter.style.boxShadow = "0 0 15px #ff5577";
       } else if (S.phase === "upgrade" && S.autoPlay) {
         S.autoElapsed += dt;
-        if (S.autoElapsed >= 0.55 && performance.now() >= (S.upgradeLock || 0)) {
+        if (S.autoElapsed >= 0.55 && performance.now() >= (S.upgradeLock || 0) && S.upgradeDescriptionIndex == null) {
           S.autoElapsed = 0;
           chooseUpgrade(Math.floor(Math.random() * S.upgradeOptions.length));
         }
@@ -3211,6 +3238,9 @@
   );
   ui.choices.forEach((b) =>
     b.addEventListener("click", () => chooseUpgrade(Number(b.dataset.choice))),
+  );
+  ui.choiceInfo.forEach((b) =>
+    b.addEventListener("click", () => toggleUpgradeDescription(Number(b.dataset.choice))),
   );
   setBusVolume("bgm", Math.round(audio.bgmVolume / 0.05));
   setBusVolume("sfx", Math.round(audio.sfxVolume / 0.05));
