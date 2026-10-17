@@ -804,6 +804,7 @@
       S.heldTraitKey = traitKey;
       closeHeldTrait();
       ui.heldSlots.forEach((button, index) => {
+        button.traitAnimation?.cancel();
         const trait = TraitSystem.byId[S.player.traits[index]];
         button.disabled = !trait;
         button.innerHTML = trait ? traitIcon(trait.id) : "";
@@ -835,6 +836,21 @@
     let multiplier = S.player.piece === "king" ? 1.5 : 1;
     S.player.xp = Math.round((S.player.xp + amount * multiplier) * 2) / 2;
   }
+  function flashHeldTraits(ids, chain = S.chain) {
+    const color = COMBO_COLORS[(Math.max(1, chain) - 1) % COMBO_COLORS.length];
+    ui.heldSlots.forEach((button, index) => {
+      if (!ids.has(S.player.traits[index])) return;
+      const icon = button.querySelector(".trait-svg-icon");
+      if (!icon?.animate) return;
+      button.traitAnimation?.cancel();
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      button.traitAnimation = icon.animate([
+        { color, filter: "drop-shadow(0 0 3px " + color + ")", transform: "translateY(0) scale(1)" },
+        { color, filter: "drop-shadow(0 0 5px " + color + ")", transform: reduced ? "none" : "translateY(-3px) scale(1.12)", offset: 0.3 },
+        { color: "var(--tier-color)", filter: "none", transform: "translateY(0) scale(1)" },
+      ], { duration: 320, easing: "ease-out" });
+    });
+  }
   function chainMultiplier(chain) {
     return 1 + Math.min(9, Math.max(0, chain - 1)) * 0.25;
   }
@@ -859,7 +875,7 @@
     }
     showStep(first);
   }
-  function dirs(piece) {
+  function dirs(piece, traits = S.player.traits) {
     let p = S.player,
       king = [
         [0, 1],
@@ -872,7 +888,7 @@
         [-1, -1],
       ],
       base;
-    let augmentation = TraitSystem.movement(p.traits),
+    let augmentation = TraitSystem.movement(traits),
       fieldStride = S.rangeBoostMoves > 0,
       terrainType = terrainAt(p.x, p.y)?.type,
       terrainStride = terrainType === "amplifier",
@@ -1806,6 +1822,15 @@
       dx = Math.sign(m.x - from.x),
       dy = Math.sign(m.y - from.y),
       caught = S.enemies.filter((e) => e.x === m.x && e.y === m.y);
+    const activatedTraits = new Set();
+    const moveX = m.x - from.x, moveY = m.y - from.y;
+    const includesMove = (offsets) => offsets.some(([x, y]) => x === moveX && y === moveY);
+    if (!includesMove(dirs(p.piece, []))) {
+      p.traits.forEach((id) => {
+        const rule = TraitSystem.byId[id].rule;
+        if ((rule.stride || rule.royal) && includesMove(dirs(p.piece, [id]))) activatedTraits.add(id);
+      });
+    }
     p.x = m.x;
     p.y = m.y;
     p.moveNumber = (p.moveNumber || 0) + 1;
@@ -1858,11 +1883,18 @@
       const collateral = damageEnemies(augmentation.targets, combo, struck);
       gained += collateral.kills;
       earned += collateral.points;
-      augmentation.fx.forEach((effect) => effect.targets.forEach((enemy) => {
-        traitFx(effect.type, p.x, p.y, { x2: enemy.x, y2: enemy.y, via: effect.type === "fork" ? knightCorner(p, enemy) : null });
-      }));
+      augmentation.fx.forEach((effect) => {
+        activatedTraits.add(effect.id);
+        effect.targets.forEach((enemy) => {
+          traitFx(effect.type, p.x, p.y, { x2: enemy.x, y2: enemy.y, via: effect.type === "fork" ? knightCorner(p, enemy) : null });
+        });
+      });
     }
     if (augmentation.xp) {
+      p.traits.forEach((id) => {
+        const rule = TraitSystem.byId[id].rule;
+        if (rule.xpEvery && directKilled > 0 && p.directKills % rule.xpEvery === 0) activatedTraits.add(id);
+      });
       gainXp(augmentation.xp);
       traitFx("spark", p.x, p.y);
     }
@@ -1872,6 +1904,7 @@
     }
     if (attacked) sfx("capture", S.chain + Math.max(1, gained));
     hud();
+    flashHeldTraits(activatedTraits, S.chain + gained);
     if (p.xp >= 3 + p.rank * 2) {
       openUpgrade(true, gained);
       return;
@@ -1898,6 +1931,8 @@
       return;
     }
     if (TraitSystem.escape(p.traits, S.wave, p.traitMemory)) {
+      const cooldown = Math.min(...p.traits.map((id) => TraitSystem.byId[id].rule.escape || Infinity));
+      flashHeldTraits(new Set(p.traits.filter((id) => TraitSystem.byId[id].rule.escape === cooldown)));
       S.flash = 1;
       moves();
       traitFx("slip", p.x, p.y);

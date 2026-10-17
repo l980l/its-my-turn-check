@@ -35,6 +35,11 @@ class Element {
   querySelectorAll() { return []; }
   focus() {}
   select() {}
+  animate(frames, options) {
+    const animation = { frames, options, cancelled: false, cancel() { this.cancelled = true; } };
+    (this.animations ||= []).push(animation);
+    return animation;
+  }
   getBoundingClientRect() { return { width: 1280, height: 720, left: 0, top: 0 }; }
   getContext() { return new Proxy({}, { get: () => () => {} }); }
 }
