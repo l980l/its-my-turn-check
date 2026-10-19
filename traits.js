@@ -6,77 +6,84 @@
   "use strict";
 
   const SLOT_LIMIT = 6;
+  const MAX_LEVEL = 5;
 
-  const BASE_TRAITS = [
-    { id: "shockwave", icon: "✦", name: "IMPACT CORE", tier: 1 },
-    { id: "diagonalBurst", icon: "✧", name: "DIAGONAL BURST", tier: 1 },
-    { id: "longStride", icon: "↔", name: "LONG STRIDE", tier: 1 },
-    { id: "royalStep", icon: "♚", name: "ROYAL STEP", tier: 1 },
-    { id: "magnet", icon: "✹", name: "ARC MAGNET", tier: 1 },
-    { id: "chainSpark", icon: "⚡", name: "CHAIN SPARK", tier: 1 },
-    { id: "echoBlade", icon: "➤", name: "ECHO BLADE", tier: 1 },
-    { id: "fork", icon: "♞", name: "FORK", tier: 1 },
-    { id: "crossCheck", icon: "✚", name: "CROSS CHECK", tier: 1 },
-    { id: "slipstream", icon: "〰", name: "SLIPSTREAM", tier: 1 },
+  const MASTERIES = Object.freeze({
+    shockwave: { name:"초신성", requiredXp:110, desc:"보조 타격이 강해지고 주변을 더 넓게 휩쓸어냅니다." },
+    diagonalBurst: { name:"빛의 창", requiredXp:110, desc:"대각선 파동이 강해지고 더 먼 칸까지 닿습니다." },
+    longStride: { name:"거인의 보폭", requiredXp:180, desc:"기본 사거리와 왕의 걸음이 한 단계 더 확장됩니다." },
+    royalStep: { name:"제왕의 행진", requiredXp:180, desc:"왕의 걸음과 기본 사거리가 한 단계 더 확장됩니다." },
+    magnet: { name:"극성 폭풍", requiredXp:110, desc:"약한 적을 끌어당기는 충격이 더 강해집니다." },
+    chainSpark: { name:"전장의 통찰", requiredXp:100, desc:"직접 처치 2회마다 XP 3을 얻습니다." },
+    echoBlade: { name:"메아리 칼날", requiredXp:110, desc:"전방 검격이 강해지고 더 먼 칸까지 닿습니다." },
+    fork: { name:"기사의 심판", requiredXp:110, desc:"나이트 착지점에 강한 연쇄 타격을 남깁니다." },
+    crossCheck: { name:"십자 심판", requiredXp:110, desc:"직선 판정이 강해지고 더 먼 칸까지 닿습니다." },
+    slipstream: { name:"무영보", requiredXp:48, desc:"탈출 재사용 대기시간이 2턴으로 줄어듭니다." },
+    astralCrown: { name:"궤도 폭격", requiredXp:110, desc:"외곽 고리가 3피해의 광역 타격으로 진화합니다." },
+    echoMonarch: { name:"폭풍의 칼날", requiredXp:110, desc:"전방 부채꼴이 강해지고 넓어집니다." },
+    circuitSovereign: { name:"교차 섬멸", requiredXp:110, desc:"교차 포크가 3피해의 광역 타격으로 진화합니다." },
+  });
+  const SYNERGIES = Object.freeze([
+    Object.freeze({ id:"prismaticImpact", name:"무지개 충격", recipe:Object.freeze(["shockwave", "diagonalBurst"]), desc:"긴 이동 뒤 십자 파동", color:"#d66efd", fx:"cross", rule:Object.freeze({ shape:"cross", range:2, maxTargets:3, cooldown:3, minDistance:2 }) }),
+    Object.freeze({ id:"forkedEcho", name:"갈라진 잔향", recipe:Object.freeze(["echoBlade", "fork"]), desc:"전방 부채꼴 잔향", color:"#67e8f9", fx:"echo", rule:Object.freeze({ shape:"fan", range:2, maxTargets:2, cooldown:2 }) }),
+    Object.freeze({ id:"arcCircuit", name:"연쇄 방전", recipe:Object.freeze(["magnet", "chainSpark"]), desc:"주변 연쇄 충격", color:"#facc15", fx:"magnet", rule:Object.freeze({ shape:"adjacent", range:2, maxTargets:2, cooldown:3 }) }),
+    Object.freeze({ id:"royalVector", name:"왕의 진군", recipe:Object.freeze(["longStride", "royalStep"]), desc:"기본 사거리 +1", color:"#86efac", movement:Object.freeze({ stride:1 }) }),
+    Object.freeze({ id:"eclipse", name:"일식", recipe:Object.freeze(["astralCrown", "echoMonarch"]), desc:"넓어진 외곽 고리", color:"#818cf8", fx:"shockwave", rule:Object.freeze({ shape:"ring", range:3, maxTargets:4, cooldown:4 }) }),
+  ]);
+
+  // Four utility traits and nine attack patterns. Sparse attack upgrades alternate
+  // target capacity and reach; utility upgrades change XP cadence, escape cooldown, or movement.
+  const DEFINITIONS = [
+    ["shockwave", "✦", "충격파", "attack", { shape:"adjacent", range:1, targets:1, minDistance:2, fx:"shockwave" }],
+    ["diagonalBurst", "✧", "대각 파동", "attack", { shape:"diagonal", range:[1,1,2,2,2], targets:[1,2,2,3,4], fx:"echo" }],
+    ["longStride", "↔", "큰 걸음", "movement", { stride:[1,1,2,2,2], royal:[0,1,1,2,3] }],
+    ["royalStep", "♚", "왕의 걸음", "movement", { stride:[0,1,1,2,2], royal:[1,1,2,2,3] }],
+    ["magnet", "✹", "자력 충격", "attack", { shape:"adjacent", range:1, targets:1, weakest:true, fx:"magnet" }],
+    ["chainSpark", "⚡", "연쇄의 깨달음", "xp", { every:[8,6,5,4,3], xp:1 }],
+    ["echoBlade", "➤", "잔향검", "attack", { shape:"forward", range:[2,2,3,3,4], targets:[1,2,2,3,3], fx:"echo" }],
+    ["fork", "♞", "기사의 일격", "attack", { shape:"fork", range:2, targets:1, fx:"fork" }],
+    ["crossCheck", "✚", "십자 타격", "attack", { shape:"cross", range:[1,1,2,2,2], targets:[1,2,2,3,4], fx:"cross" }],
+    ["slipstream", "〰", "바람걸음", "escape", { cooldown:[8,7,6,5,4] }],
+    ["astralCrown", "✺", "고리 타격", "attack", { shape:"ring", range:2, targets:1, minChain:3, cooldown:2, fx:"shockwave" }],
+    ["echoMonarch", "✺", "부채날", "attack", { shape:"fan", range:3, targets:1, cooldown:1, fx:"echo" }],
+    ["circuitSovereign", "✺", "교차 타격", "attack", { shape:"forkCross", range:2, targets:1, minChain:2, cooldown:1, fx:"fork" }],
   ];
-
-  // Each ring tier deliberately overlaps its neighbouring recipes. This creates
-  // several routes upward while keeping every fusion deterministic and readable.
-  const RECIPES = [
-    { id: "kineticCrown", icon: "◇", name: "KINETIC CROWN", tier: 2, recipe: ["shockwave", "diagonalBurst"] },
-    { id: "royalVector", icon: "◇", name: "ROYAL VECTOR", tier: 2, recipe: ["longStride", "royalStep"] },
-    { id: "arcRelay", icon: "◇", name: "ARC RELAY", tier: 2, recipe: ["magnet", "chainSpark"] },
-    { id: "forkedEcho", icon: "◇", name: "FORKED ECHO", tier: 2, recipe: ["echoBlade", "fork"] },
-    { id: "crossCurrent", icon: "◇", name: "CROSS CURRENT", tier: 2, recipe: ["crossCheck", "slipstream"] },
-    { id: "tacticalDrift", icon: "◇", name: "TACTICAL DRIFT", tier: 2, recipe: ["longStride", "slipstream"] },
-
-    { id: "prismaticImpact", icon: "⬡", name: "PRISMATIC IMPACT", tier: 3, recipe: ["kineticCrown", "royalVector"] },
-    { id: "sovereignRelay", icon: "⬡", name: "SOVEREIGN RELAY", tier: 3, recipe: ["royalVector", "arcRelay"] },
-    { id: "stormFork", icon: "⬡", name: "STORM FORK", tier: 3, recipe: ["arcRelay", "forkedEcho"] },
-    { id: "echoCurrent", icon: "⬡", name: "ECHO CURRENT", tier: 3, recipe: ["forkedEcho", "crossCurrent"] },
-    { id: "currentDrift", icon: "⬡", name: "CURRENT DRIFT", tier: 3, recipe: ["crossCurrent", "tacticalDrift"] },
-    { id: "crownDrift", icon: "⬡", name: "CROWN DRIFT", tier: 3, recipe: ["tacticalDrift", "kineticCrown"] },
-
-    { id: "astralCrown", icon: "✺", name: "ASTRAL CROWN", tier: 4, recipe: ["prismaticImpact", "sovereignRelay"] },
-    { id: "thunderRegent", icon: "✺", name: "THUNDER REGENT", tier: 4, recipe: ["sovereignRelay", "stormFork"] },
-    { id: "echoMonarch", icon: "✺", name: "ECHO MONARCH", tier: 4, recipe: ["stormFork", "echoCurrent"] },
-    { id: "circuitSovereign", icon: "✺", name: "CIRCUIT SOVEREIGN", tier: 4, recipe: ["echoCurrent", "currentDrift"] },
-    { id: "driftEmperor", icon: "✺", name: "DRIFT EMPEROR", tier: 4, recipe: ["currentDrift", "crownDrift"] },
-    { id: "prismaticEmperor", icon: "✺", name: "PRISMATIC EMPEROR", tier: 4, recipe: ["crownDrift", "prismaticImpact"] },
-  ];
-
-  // Every recipe replaces its ingredients with its own rule. No ancestor effects survive implicitly.
-  const RULES = {
-    shockwave: { shape: "adjacent", range: 1, maxTargets: 1, minDistance: 2, fx: "shockwave" },
-    diagonalBurst: { shape: "diagonal", range: 1, maxTargets: 1, fx: "echo" },
-    longStride: { stride: 1 },
-    royalStep: { royal: 1 },
-    magnet: { shape: "adjacent", range: 1, maxTargets: 1, weakest: true, fx: "magnet" },
-    chainSpark: { xpEvery: 4, xp: 1 },
-    echoBlade: { shape: "forward", range: 2, maxTargets: 1, fx: "echo" },
-    fork: { shape: "fork", range: 2, maxTargets: 1, fx: "fork" },
-    crossCheck: { shape: "cross", range: 1, maxTargets: 1, maxDistance: 1, fx: "cross" },
-    slipstream: { escape: 6 },
-    kineticCrown: { shape: "diagonal", range: 1, maxTargets: 2, fx: "shockwave" },
-    royalVector: { stride: 1, royal: 1 },
-    arcRelay: { shape: "adjacent", range: 2, maxTargets: 2, cooldown: 1, fx: "magnet" },
-    forkedEcho: { shape: "fork", range: 2, maxTargets: 2, fx: "fork" },
-    crossCurrent: { shape: "cross", range: 2, maxTargets: 2, minChain: 2, fx: "cross" },
-    tacticalDrift: { stride: 1, escape: 6 },
-    prismaticImpact: { shape: "diagonal", range: 2, maxTargets: 3, minDistance: 2, stride: 1, fx: "shockwave" },
-    sovereignRelay: { shape: "cross", range: 2, maxTargets: 2, royal: 1, xpEvery: 4, xp: 1, cooldown: 1, fx: "spark" },
-    stormFork: { shape: "fork", range: 2, maxTargets: 3, minChain: 2, fx: "fork" },
-    echoCurrent: { shape: "forward", range: 3, maxTargets: 3, cooldown: 1, fx: "echo" },
-    currentDrift: { stride: 1, escape: 4 },
-    crownDrift: { shape: "adjacent", range: 1, maxTargets: 3, minDistance: 2, cooldown: 1, fx: "shockwave" },
-    astralCrown: { shape: "ring", range: 2, maxTargets: 5, minChain: 3, cooldown: 2, fx: "shockwave" },
-    thunderRegent: { shape: "cross", range: 3, maxTargets: 4, cooldown: 2, fx: "cross" },
-    echoMonarch: { shape: "fan", range: 3, maxTargets: 4, cooldown: 1, fx: "echo" },
-    circuitSovereign: { shape: "forkCross", range: 2, maxTargets: 4, minChain: 2, cooldown: 1, fx: "fork" },
-    driftEmperor: { stride: 2, royal: 1, escape: 5 },
-    prismaticEmperor: { shape: "diagonal", range: 3, maxTargets: 4, minDistance: 2, cooldown: 1, fx: "shockwave" },
-  };
-  const SHAPES = { adjacent: "주변", diagonal: "대각선", cross: "상하좌우", forward: "이동 방향 직선", fork: "나이트 위치", ring: "바깥 고리", fan: "이동 방향 전방 부채꼴", forkCross: "나이트 위치와 인접 상하좌우" };
+  const SHAPES = { adjacent:"주변", diagonal:"대각선", cross:"상하좌우", forward:"이동 방향 직선", fork:"나이트 위치", forkCross:"나이트 위치와 인접 상하좌우", ring:"바깥 고리", fan:"이동 방향 전방 부채꼴" };
+  function levelOf(id, levels) {
+    const value = Number(levels && levels[id]);
+    return Number.isInteger(value) && value >= 1 && value <= MAX_LEVEL ? value : 1;
+  }
+  function freezeRule(growth, base, level, mastered = false, id = "") {
+    const index = level - 1;
+    if (growth === "attack") {
+      const rule = {
+        ...base,
+      range:Array.isArray(base.range) ? base.range[index] : base.range,
+      maxTargets:Array.isArray(base.targets) ? base.targets[index] : base.targets + index,
+        damage:1,
+      };
+      if (mastered) {
+        rule.range = Math.min(4, rule.range + 1);
+        rule.maxTargets = Math.min(8, rule.maxTargets + 2);
+        rule.damage = ["astralCrown", "circuitSovereign"].includes(id) ? 3 : 2;
+        if (rule.cooldown) rule.cooldown = Math.max(0, rule.cooldown - 1);
+        if (rule.minChain) rule.minChain = Math.max(0, rule.minChain - 1);
+        if (rule.minDistance) rule.minDistance = Math.max(0, rule.minDistance - 1);
+      }
+      return Object.freeze(rule);
+    }
+    if (growth === "xp") return Object.freeze(mastered ? { xpEvery:2, xp:3 } : { xpEvery:base.every[index], xp:base.xp });
+    if (growth === "escape") return Object.freeze({ escape:mastered ? 2 : base.cooldown[index] });
+    const rule = { stride:base.stride ? base.stride[index] : 0, royal:base.royal ? base.royal[index] : 0 };
+    if (mastered) {
+      if (id === "longStride") rule.stride = Math.min(4, rule.stride + 1);
+      else {
+        rule.royal = Math.min(4, rule.royal + 1);
+        if (id === "royalStep") rule.directDamage = 2;
+      }
+    }
+    return Object.freeze(rule);
+  }
   function describe(rule) {
     const parts = [];
     if (rule.stride) parts.push(`기본 사거리 +${rule.stride} (나이트는 긴 L자 추가)`);
@@ -84,64 +91,90 @@
     if (rule.shape) {
       const condition = rule.minDistance ? `${rule.minDistance}칸 이상 이동해 ` : rule.maxDistance ? `${rule.maxDistance}칸 이동해 ` : "";
       const chain = rule.minChain ? `CHAIN ${rule.minChain}부터, ` : "";
-      parts.push(`${chain}${condition}직접 처치 시 ${SHAPES[rule.shape]} ${rule.range}칸의 ${rule.weakest ? "내구도가 낮은 " : ""}일반 적 최대 ${rule.maxTargets}기에게 1피해${rule.cooldown ? ` · 재사용 ${rule.cooldown}적 턴` : ""}`);
+      parts.push(`${chain}${condition}직접 처치 시 ${SHAPES[rule.shape]} ${rule.range}칸의 ${rule.weakest ? "내구도가 낮은 " : ""}일반 적 최대 ${rule.maxTargets}기에게 ${rule.damage || 1}피해${rule.cooldown ? ` · 재사용 ${rule.cooldown}적 턴` : ""}`);
     }
     if (rule.xpEvery) parts.push(`직접 처치 ${rule.xpEvery}회마다 XP +${rule.xp}`);
     if (rule.escape) parts.push(`직접 처치 후 비공격 이동을 1회 더 허용 · 전체 탈출 효과 공유 재사용 ${rule.escape}적 턴`);
     return parts.join(" / ");
   }
-  const traits = [...BASE_TRAITS, ...RECIPES].map((trait) => ({ ...trait, rule: Object.freeze(RULES[trait.id]), desc: describe(RULES[trait.id]) }));
-  const byId = Object.freeze(Object.fromEntries(traits.map((trait) => [trait.id, Object.freeze({ ...trait, recipe: trait.recipe && Object.freeze([...trait.recipe]) })])));
-
-  function requireInventory(inventory) {
-    if (!Array.isArray(inventory)) throw new TypeError("inventory must be an array of trait ids");
-    for (const id of inventory) if (!byId[id]) throw new Error(`unknown trait id: ${id}`);
-  }
-
-  function hasIngredients(inventory, ingredients) {
-    const counts = new Map();
-    for (const id of inventory) counts.set(id, (counts.get(id) || 0) + 1);
-    return ingredients.every((id) => {
-      const count = counts.get(id) || 0;
-      if (!count) return false;
-      counts.set(id, count - 1);
-      return true;
+  const traits = DEFINITIONS.map(([id, icon, name, growth, base]) => {
+    const rule = freezeRule(growth, base, 1, false, id);
+    return Object.freeze({ id, icon, name, growth, base:Object.freeze({ ...base }), rule, desc:describe(rule) });
+  });
+  const byId = Object.freeze(Object.fromEntries(traits.map((trait) => [trait.id, trait])));
+  function makeLevel(trait, level, mastered) {
+    const mastery = MASTERIES[trait.id];
+    const rule = freezeRule(trait.growth, trait.base, level, mastered, trait.id);
+    return Object.freeze({
+      id:trait.id, icon:trait.icon, name:mastered ? mastery.name : trait.name,
+      masterName:mastery.name, mastered, level, rule,
+      desc:mastered ? `MASTER · ${mastery.desc}${rule.directDamage ? " / 직접 공격 2피해 (보스는 1피해)" : ""} / ${describe(rule)}` : describe(rule),
     });
   }
-
-  function ancestry(id, seen = new Set()) {
-    if (seen.has(id)) throw new Error(`cyclic trait recipe: ${id}`);
+  const levelCache = Object.freeze(Object.fromEntries(traits.map((trait) => [trait.id, Object.freeze(
+    Array.from({ length:MAX_LEVEL }, (_, index) => Object.freeze([
+      makeLevel(trait, index + 1, false), makeLevel(trait, index + 1, true),
+    ]))
+  )])));
+  function atLevel(id, level = 1, mastered = false) {
     const trait = byId[id];
     if (!trait) throw new Error(`unknown trait id: ${id}`);
-    if (!trait.recipe) return [id];
-    const branch = new Set(seen);
-    branch.add(id);
-    return trait.recipe.flatMap((ingredient) => ancestry(ingredient, branch));
+    const normalized = Number.isInteger(level) && level >= 1 && level <= MAX_LEVEL ? level : 1;
+    return levelCache[trait.id][normalized - 1][mastered ? 1 : 0];
   }
-
-  function availableRecipes(inventory) {
-    requireInventory(inventory);
-    return RECIPES.filter((trait) => hasIngredients(inventory, trait.recipe)).map((trait) => byId[trait.id]);
+  function requireInventory(inventory) {
+    if (!Array.isArray(inventory)) throw new TypeError("inventory must be an array of trait ids");
+    if (new Set(inventory).size !== inventory.length) throw new Error("inventory cannot contain duplicate trait ids");
+    for (const id of inventory) if (!byId[id]) throw new Error(`unknown trait id: ${id}`);
   }
-
-  function fuse(inventory, resultId) {
+  function checkMasteries(player) {
+    const inventory = Array.isArray(player?.traits) ? player.traits : [];
     requireInventory(inventory);
-    const result = byId[resultId];
-    if (!result || !result.recipe) throw new Error(`not a fusion trait: ${resultId}`);
-    if (!hasIngredients(inventory, result.recipe)) throw new Error(`missing ingredients for ${resultId}`);
-
-    const remaining = [...inventory];
-    for (const ingredient of result.recipe) remaining.splice(remaining.indexOf(ingredient), 1);
-    remaining.push(resultId);
-    return remaining;
+    const levels = player.traitLevels || {};
+    const xp = player.traitXp || {};
+    const mastered = player.mastered || {};
+    const unlocked = [];
+    for (const id of inventory) {
+      const mastery = MASTERIES[id];
+      const earned = Number.isInteger(xp[id]) && xp[id] >= 0 ? xp[id] : 0;
+      if (!mastery || mastered[id] || levelOf(id, levels) !== MAX_LEVEL || earned < mastery.requiredXp) continue;
+      mastered[id] = true;
+      unlocked.push(id);
+    }
+    if (unlocked.length && !player.mastered) player.mastered = mastered;
+    return unlocked;
   }
-
-  function movement(inventory) {
+  function creditMastery(player, credits) {
+    const inventory = Array.isArray(player?.traits) ? player.traits : [];
     requireInventory(inventory);
-    return inventory.reduce((result, id) => ({
-      stride: Math.max(result.stride, byId[id].rule.stride || 0),
-      royal: Math.max(result.royal, byId[id].rule.royal || 0),
-    }), { stride: 0, royal: 0 });
+    const owned = new Set(inventory);
+    const valid = [];
+    if (credits && typeof credits === "object" && !Array.isArray(credits)) {
+      for (const [id, count] of Object.entries(credits)) {
+        if (!owned.has(id) || !Number.isInteger(count) || count < 0) continue;
+        if (count > 0) valid.push([id, count]);
+      }
+    }
+    if (valid.length) {
+      player.traitXp ||= {};
+      for (const [id, count] of valid) player.traitXp[id] = (Number.isInteger(player.traitXp[id]) && player.traitXp[id] >= 0 ? player.traitXp[id] : 0) + count;
+    }
+    return checkMasteries(player);
+  }
+  function masteredOf(id, mastered) { return Boolean(mastered && mastered[id]); }
+  function activeSynergies(inventory) {
+    requireInventory(inventory);
+    const owned = new Set(inventory);
+    return SYNERGIES.filter((synergy) => synergy.recipe.every((id) => owned.has(id)));
+  }
+  function movement(inventory, levels = {}, mastered = {}) {
+    requireInventory(inventory);
+    const result = inventory.reduce((result, id) => {
+      const rule = atLevel(id, levelOf(id, levels), masteredOf(id, mastered)).rule;
+      return { stride:Math.max(result.stride, rule.stride || 0), royal:Math.max(result.royal, rule.royal || 0) };
+    }, { stride:0, royal:0 });
+    if (activeSynergies(inventory).some((synergy) => synergy.id === "royalVector")) result.stride = Math.min(4, result.stride + 1);
+    return result;
   }
   function matches(shape, x, y, dx, dy, range) {
     const ax = Math.abs(x), ay = Math.abs(y), distance = Math.max(ax, ay);
@@ -170,87 +203,77 @@
     }
     return true;
   }
-  function resolve(inventory, context, memory) {
+  function targetsForRule(rule, context, dx, dy, used) {
+    return context.enemies.filter((enemy) => !enemy.boss && !used.has(enemy) &&
+      matches(rule.shape, enemy.x - context.to.x, enemy.y - context.to.y, dx, dy, rule.range) &&
+      ((rule.shape === "fork" || rule.shape === "forkCross") ? !context.isWall?.(enemy.x, enemy.y) : clearLine(context.to, enemy, context.isWall)))
+      .sort((a, b) => (rule.weakest ? (a.hp || 1) - (b.hp || 1) : 0) || Math.max(Math.abs(a.x - context.to.x), Math.abs(a.y - context.to.y)) - Math.max(Math.abs(b.x - context.to.x), Math.abs(b.y - context.to.y)) || a.x - b.x || a.y - b.y)
+      .slice(0, rule.maxTargets);
+  }
+  function canTrigger(rule, context, memory, cooldownId, distance) {
+    return rule.shape && (memory.cooldowns[cooldownId] || 0) <= context.wave &&
+      distance >= (rule.minDistance || 0) && distance <= (rule.maxDistance || Infinity) && context.chain >= (rule.minChain || 0);
+  }
+  function resolve(inventory, context, memory, levels = {}, mastered = {}) {
     requireInventory(inventory);
-    const result = { targets: [], xp: 0, fx: [] };
+    const result = { targets:[], xp:0, fx:[], activated:[] };
     if (!context.directKill) return result;
     memory.cooldowns ||= {};
     const dx = Math.sign(context.to.x - context.from.x), dy = Math.sign(context.to.y - context.from.y);
     const distance = Math.max(Math.abs(context.to.x - context.from.x), Math.abs(context.to.y - context.from.y));
     const used = new Set();
-    for (const id of new Set(inventory)) {
-      const rule = byId[id].rule;
+    for (const id of inventory) {
+      const isMastered = masteredOf(id, mastered);
+      const rule = atLevel(id, levelOf(id, levels), isMastered).rule;
       if (rule.escape) memory.escapeReady = true;
-      if (rule.xpEvery && context.directKills % rule.xpEvery === 0) result.xp = Math.max(result.xp, rule.xp);
-      if (!rule.shape || (memory.cooldowns[id] || 0) > context.wave ||
-          distance < (rule.minDistance || 0) || distance > (rule.maxDistance || Infinity) ||
-          context.chain < (rule.minChain || 0)) continue;
-      const targets = context.enemies.filter((enemy) => !enemy.boss && !used.has(enemy) &&
-        matches(rule.shape, enemy.x - context.to.x, enemy.y - context.to.y, dx, dy, rule.range) &&
-        ((rule.shape === "fork" || rule.shape === "forkCross")
-          ? !context.isWall?.(enemy.x, enemy.y)
-          : clearLine(context.to, enemy, context.isWall)))
-        .sort((a, b) => (rule.weakest ? (a.hp || 1) - (b.hp || 1) : 0) ||
-          Math.max(Math.abs(a.x - context.to.x), Math.abs(a.y - context.to.y)) - Math.max(Math.abs(b.x - context.to.x), Math.abs(b.y - context.to.y)) || a.x - b.x || a.y - b.y)
-        .slice(0, rule.maxTargets);
+      if (rule.xpEvery && context.directKills % rule.xpEvery === 0) { result.xp = Math.max(result.xp, rule.xp); result.activated.push(id); }
+      if (!canTrigger(rule, context, memory, id, distance)) continue;
+      const targets = targetsForRule(rule, context, dx, dy, used);
       if (!targets.length) continue;
       targets.forEach((enemy) => used.add(enemy));
       result.targets.push(...targets);
-      result.fx.push({ id, type: rule.fx, targets });
+      result.fx.push({ id, type:rule.fx, targets, damage:rule.damage || 1, ...(isMastered ? { style:"master" } : {}) });
+      result.activated.push(id);
       memory.cooldowns[id] = context.wave + (rule.cooldown || 0);
     }
+    for (const synergy of activeSynergies(inventory)) {
+      if (!synergy.rule || !canTrigger(synergy.rule, context, memory, "synergy:" + synergy.id, distance)) continue;
+      const targets = targetsForRule(synergy.rule, context, dx, dy, used);
+      if (!targets.length) continue;
+      targets.forEach((enemy) => used.add(enemy));
+      result.targets.push(...targets);
+      result.fx.push({ id:synergy.recipe[0], type:synergy.fx, targets, damage:1, style:"synergy", synergy:synergy.id });
+      result.activated.push(synergy.recipe[0]);
+      memory.cooldowns["synergy:" + synergy.id] = context.wave + (synergy.rule.cooldown || 0);
+    }
+    result.activated = [...new Set(result.activated)];
     return result;
   }
-  function escape(inventory, wave, memory) {
+  function escape(inventory, wave, memory, levels = {}, mastered = {}) {
     requireInventory(inventory);
-    const cooldowns = inventory.map((id) => byId[id].rule.escape).filter(Boolean);
+    const cooldowns = inventory.map((id) => atLevel(id, levelOf(id, levels), masteredOf(id, mastered)).rule.escape).filter(Boolean);
     if (!cooldowns.length || !memory.escapeReady || (memory.nextEscapeWave || 0) > wave) return false;
     memory.escapeReady = false;
     memory.nextEscapeWave = wave + Math.min(...cooldowns);
     return true;
   }
-
-  function rewardPool(rank = 0) {
-    const normalizedRank = Number.isFinite(rank) ? rank : 0;
-    return traits.filter((trait) => trait.tier === 1 || (normalizedRank >= 6 && trait.tier === 2));
+  function shuffled(items, random) {
+    const result = [...items];
+    for (let index = result.length - 1; index > 0; index--) {
+      const swap = Math.floor(random() * (index + 1));
+      [result[index], result[swap]] = [result[swap], result[index]];
+    }
+    return result;
   }
-  const PROGRESSION = Object.freeze({ assistRank: 6, middleRank: 20, lateRank: 40, earlyTier2: 0.35, middleTier2: 0.5, lateTier2: 0.65 });
-  function offer(rank = 0, random = Math.random, inventory = []) {
+  function offer(rank = 0, random = Math.random, inventory = [], levels = {}, previous = []) {
     requireInventory(inventory);
-    const chance = rank >= PROGRESSION.lateRank ? PROGRESSION.lateTier2
-      : rank >= PROGRESSION.middleRank ? PROGRESSION.middleTier2 : PROGRESSION.earlyTier2;
-    const tier = rank >= 6 && random() < chance ? 2 : 1;
-    const pool = traits.filter((trait) => trait.tier === tier);
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    const options = pool.slice(0, 3);
-    if (rank >= PROGRESSION.assistRank) {
-      const helpful = pool.filter((trait) => RECIPES.some((recipe) =>
-        recipe.tier === tier + 1 && !inventory.includes(recipe.id) &&
-        recipe.recipe.includes(trait.id) && hasIngredients([...inventory, trait.id], recipe.recipe)));
-      if (helpful.length) {
-        const material = helpful[Math.floor(random() * helpful.length)];
-        if (!options.some((trait) => trait.id === material.id)) options[2] = material;
-      }
-    }
-    return options;
+    const owned = new Set(inventory);
+    const pool = inventory.length < SLOT_LIMIT ? traits.filter((trait) => !owned.has(trait.id)).map((trait) => atLevel(trait.id, 1)) : inventory.filter((id) => levelOf(id, levels) < MAX_LEVEL).map((id) => atLevel(id, levelOf(id, levels) + 1));
+    if (!pool.length) return [];
+    const prior = new Set(previous.map((candidate) => typeof candidate === "string" ? candidate : candidate.id));
+    const fresh = shuffled(pool.filter((trait) => !prior.has(trait.id)), random);
+    const repeated = shuffled(pool.filter((trait) => prior.has(trait.id)), random);
+    return [...fresh, ...repeated].slice(0, Math.min(3, pool.length));
   }
-
-  return Object.freeze({
-    SLOT_LIMIT,
-    traits: Object.freeze(traits.map((trait) => byId[trait.id])),
-    byId,
-    availableRecipes,
-    fuse,
-    movement,
-    resolve,
-    escape,
-    rewardPool,
-    offer,
-    PROGRESSION,
-    ancestry,
-    RULE_VERSION: "v0.12.1",
-  });
+  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), byId, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.14.0" });
 });
