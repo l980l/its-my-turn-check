@@ -2,109 +2,97 @@
 
 const assert = require("node:assert/strict");
 const TraitSystem = require("../traits.js");
-
-const { SLOT_LIMIT, traits, byId, availableRecipes, fuse, movement, resolve, escape, rewardPool, ancestry } = TraitSystem;
+const { SLOT_LIMIT, MAX_LEVEL, traits, byId, atLevel, movement, resolve, escape, offer } = TraitSystem;
 
 assert.equal(SLOT_LIMIT, 6);
-assert.equal(traits.filter((trait) => trait.tier === 1).length, 10);
-assert.equal(traits.filter((trait) => trait.tier === 2).length, 6);
-assert.equal(traits.filter((trait) => trait.tier === 3).length, 6);
-assert.equal(traits.filter((trait) => trait.tier === 4).length, 6);
+assert.equal(MAX_LEVEL, 5);
+assert.equal(traits.length, 13, "the trait pool is the ten base choices plus three distinct patterns");
+assert.equal(new Set(traits.map((trait) => trait.id)).size, traits.length);
+assert.ok(traits.every((trait) => !Object.hasOwn(trait, "tier") && !Object.hasOwn(trait, "recipe")), "tiers and recipes are removed");
+assert.equal(TraitSystem.availableRecipes, undefined);
+assert.equal(TraitSystem.fuse, undefined);
+assert.equal(TraitSystem.ancestry, undefined);
+for (const removedId of ["kineticCrown", "royalVector", "arcRelay", "forkedEcho", "crossCurrent", "tacticalDrift", "prismaticImpact", "sovereignRelay", "stormFork", "echoCurrent", "currentDrift", "crownDrift", "thunderRegent", "driftEmperor", "prismaticEmperor"]) {
+  assert.equal(byId[removedId], undefined, `${removedId} was an old evolution-only choice`);
+}
 
+function power(rule) {
+  if (rule.maxTargets) return rule.maxTargets * 10 + (rule.range || 0);
+  if (rule.xpEvery) return -rule.xpEvery;
+  if (rule.escape) return -rule.escape;
+  return (rule.stride || 0) + (rule.royal || 0);
+}
 for (const trait of traits) {
-  assert.ok(trait.id && trait.name && trait.desc && trait.icon, `${trait.id} needs display metadata`);
-  if (!trait.recipe) continue;
-  assert.ok(trait.rule, `${trait.id} has its own effect rule`);
-  assert.equal(trait.recipe.length, 2, `${trait.id} is a two-material fusion`);
-  for (const ingredient of trait.recipe) {
-    assert.ok(byId[ingredient], `${trait.id} references ${ingredient}`);
-    assert.equal(byId[ingredient].tier, trait.tier - 1, `${trait.id} uses only the prior tier`);
+  assert.ok(trait.id && trait.name && trait.icon && trait.desc && trait.rule, `${trait.id} needs display metadata`);
+  let previousPower = -Infinity;
+  for (let level = 1; level <= MAX_LEVEL; level++) {
+    const upgraded = atLevel(trait.id, level);
+    assert.equal(upgraded.id, trait.id);
+    assert.equal(upgraded.level, level);
+    assert.strictEqual(atLevel(trait.id, level), upgraded, `${trait.id} level ${level} is cached`);
+    assert.ok(upgraded.desc && upgraded.rule, `${trait.id} level ${level} needs a rule and description`);
+    assert.ok(power(upgraded.rule) > previousPower, `${trait.id} level ${level} must be a useful bounded upgrade`);
+    previousPower = power(upgraded.rule);
   }
-  assert.ok(ancestry(trait.id).every((id) => byId[id].tier === 1), `${trait.id} resolves to base traits`);
 }
 
-assert.deepEqual(rewardPool(0).map((trait) => trait.tier).filter((tier) => tier !== 1), []);
-assert.ok(rewardPool(6).some((trait) => trait.tier === 2));
-assert.ok(TraitSystem.offer(5, () => 0).every((trait) => trait.tier === 1));
-assert.ok(TraitSystem.offer(6, () => 0).every((trait) => trait.tier === 2));
-assert.equal(new Set(TraitSystem.offer(6).map((trait) => trait.id)).size, 3);
-assert.ok(TraitSystem.offer(6, () => 0.9, ["shockwave"]).some((trait) => trait.id === "diagonalBurst"), "assisted offer includes the missing recipe material");
-assert.ok(TraitSystem.offer(19, () => 0.49).every((trait) => trait.tier === 1));
-assert.ok(TraitSystem.offer(20, () => 0.49).every((trait) => trait.tier === 2));
-assert.ok(TraitSystem.offer(40, () => 0.6).every((trait) => trait.tier === 2));
-let offerSeed = 20261016;
-const offerRandom = () => { offerSeed = (Math.imul(offerSeed, 1664525) + 1013904223) >>> 0; return offerSeed / 4294967296; };
-for (let i=0; i<256; i++) {
-  const inventory = i % 2 ? ["shockwave"] : ["kineticCrown"];
-  const offered = TraitSystem.offer(40, offerRandom, inventory);
-  assert.equal(offered.length, 3);
-  assert.equal(new Set(offered.map((trait) => trait.id)).size, 3);
-  assert.ok(offered.every((trait) => trait.tier <= 2), "T3/T4 remain fusion-only");
-  const eligible = traits.filter((trait) => trait.tier === offered[0].tier &&
-    availableRecipes([...inventory, trait.id]).some((recipe) => !inventory.includes(recipe.id)));
-  if (eligible.length) assert.ok(offered.some((trait) => eligible.some((candidate) => candidate.id === trait.id)));
+const ids = traits.map((trait) => trait.id);
+const random = () => 0.37;
+const opening = offer(0, random, [], {}, []);
+assert.equal(opening.length, 3);
+assert.ok(opening.every((trait) => trait.level === 1));
+assert.equal(new Set(opening.map((trait) => trait.id)).size, 3);
+const rerolled = offer(0, random, [], {}, opening);
+assert.equal(rerolled.filter((trait) => opening.some((prior) => prior.id === trait.id)).length, 0, "reroll avoids prior candidates when the pool supports it");
+const partial = ids.slice(0, 3);
+assert.ok(offer(0, random, partial).every((trait) => !partial.includes(trait.id)), "empty slots never offer owned traits");
+const full = ids.slice(0, SLOT_LIMIT);
+const levels = Object.fromEntries(full.map((id) => [id, 1]));
+const upgrades = offer(0, random, full, levels);
+assert.equal(upgrades.length, 3);
+assert.ok(upgrades.every((trait) => full.includes(trait.id) && trait.level === 2), "full slots offer upgrades only");
+assert.deepEqual(offer(0, random, full, Object.fromEntries(full.map((id) => [id, MAX_LEVEL]))), [], "all-max builds stop offering traits");
+const sparseLevels = Object.fromEntries(full.map((id, index) => [id, index < 2 ? MAX_LEVEL : 1]));
+const firstSparse = full.slice(2, 5).map((id) => atLevel(id, 2));
+const sparseReroll = offer(0, random, full, sparseLevels, firstSparse);
+assert.ok(sparseReroll.some((trait) => trait.id === full[5]), "reroll keeps the one fresh result even when repeats must fill the row");
+
+assert.deepEqual(movement(["longStride"], { longStride: 1 }), { stride: 1, royal: 0 });
+assert.deepEqual(movement(["longStride"], { longStride: 5 }), { stride: 2, royal: 3 });
+assert.deepEqual(movement(["royalStep"], { royalStep: 5 }), { stride: 2, royal: 3 });
+assert.equal(byId.astralCrown.name, "고리 타격");
+assert.equal(byId.echoMonarch.name, "부채날");
+assert.equal(byId.circuitSovereign.name, "교차 타격");
+for (const [id, cellAtRange] of [["diagonalBurst", (range) => ({ x:range, y:range })], ["crossCheck", (range) => ({ x:range, y:0 })], ["echoBlade", (range) => ({ x:range, y:0 })]]) {
+  for (let level = 2; level <= MAX_LEVEL; level++) {
+    const previous = atLevel(id, level - 1).rule;
+    const current = atLevel(id, level).rule;
+    assert.ok(current.maxTargets > previous.maxTargets || current.range > previous.range, `${id} level ${level} improves a real combat limit`);
+    if (current.range <= previous.range) continue;
+    const rangeEnemy = cellAtRange(current.range);
+    const rangeContext = { from:{ x:-1, y:0 }, to:{ x:0, y:0 }, directKill:true, directKills:1, chain:0, wave:0, enemies:[rangeEnemy] };
+    assert.equal(resolve([id], rangeContext, {}, { [id]:level - 1 }).targets.length, 0, `${id} level ${level - 1} cannot reach its next range cell`);
+    assert.equal(resolve([id], rangeContext, {}, { [id]:level }).targets.length, 1, `${id} level ${level} reaches its new range cell`);
+  }
 }
-
-const materials = ["shockwave", "diagonalBurst", "longStride", "royalStep"];
-const before = [...materials];
-assert.deepEqual(availableRecipes(materials).map((trait) => trait.id), ["kineticCrown", "royalVector"]);
-const fused = fuse(materials, "kineticCrown");
-assert.ok(availableRecipes(materials).every((trait) => trait.desc), "workshop recipes include generated effect descriptions");
-assert.deepEqual(materials, before, "fuse must not mutate its input");
-assert.deepEqual(fused, ["longStride", "royalStep", "kineticCrown"]);
-assert.throws(() => fuse(["shockwave"], "kineticCrown"), /missing ingredients/);
-
-const duplicateMaterials = ["shockwave", "shockwave", "diagonalBurst"];
-assert.deepEqual(fuse(duplicateMaterials, "kineticCrown"), ["shockwave", "kineticCrown"], "only required copies are consumed");
-
-assert.deepEqual(movement(["longStride", "longStride"]), {stride:1, royal:0});
-assert.deepEqual(movement(["royalVector"]), {stride:1, royal:1});
-assert.deepEqual(movement(["kineticCrown"]), {stride:0, royal:0}, "recipes do not silently inherit ancestor effects");
-const nearby = [{x:1,y:1,hp:1}, {x:-1,y:1,hp:1}, {x:2,y:2,hp:1}, {x:8,y:8,hp:1}];
-const combat = {from:{x:-2,y:0},to:{x:0,y:0},directKill:true,directKills:1,chain:3,wave:0,enemies:nearby};
+const enemies = [{ x: 1, y: 1, hp: 1 }, { x: -1, y: 1, hp: 1 }, { x: 2, y: 2, hp: 1 }, { x: 8, y: 8, hp: 1 }, { x: 1, y: -1, boss: true }];
+const combat = { from: { x: -2, y: 0 }, to: { x: 0, y: 0 }, directKill: true, directKills: 5, chain: 3, wave: 0, enemies };
 for (const trait of traits) {
-  const noKill = resolve([trait.id], {...combat, directKill:false}, {});
-  assert.equal(noKill.targets.length, 0, `${trait.id} requires a direct kill`);
-  assert.equal(noKill.xp, 0, `${trait.id} cannot farm durable hits for XP`);
-  assert.equal(resolve([trait.id], combat, {}).targets.length, resolve([trait.id, trait.id], combat, {}).targets.length, "duplicate trait cannot add damage");
-  if (trait.tier === 1 && trait.rule.shape) assert.ok(trait.rule.maxTargets <= 1 && trait.rule.range <= 2);
-  assert.doesNotMatch(trait.desc, /짝수|기본 효과:/);
+  assert.equal(resolve([trait.id], { ...combat, directKill: false }, {}, { [trait.id]: 5 }).targets.length, 0, `${trait.id} requires direct kill`);
+  assert.equal(resolve([trait.id], { ...combat, directKill: false }, {}, { [trait.id]: 5 }).xp, 0, `${trait.id} cannot farm durable hits`);
 }
-assert.equal(resolve(["kineticCrown"], combat, {}).targets.length, 2);
-assert.equal(resolve(["diagonalBurst"], combat, {}).targets.length, 1);
-assert.equal(resolve(["kineticCrown"], {...combat,isWall:() => true}, {}).targets.length, 0, "walls block splash rays");
-assert.equal(resolve(["kineticCrown"], {...combat,enemies:[{x:1,y:1,boss:true}]}, {}).targets.length, 0, "collateral never bypasses boss mechanics");
-assert.equal(resolve(["chainSpark"], {...combat,directKills:3}, {}).xp, 0);
-assert.equal(resolve(["chainSpark"], {...combat,directKills:4}, {}).xp, 1);
-const cooldown = {};
-assert.ok(resolve(["prismaticEmperor"], combat, cooldown).targets.length > 0);
-assert.equal(resolve(["prismaticEmperor"], combat, cooldown).targets.length, 0, "waiting and extra player moves cannot refresh cooldowns");
-assert.ok(resolve(["prismaticEmperor"], {...combat,wave:1}, cooldown).targets.length > 0);
-assert.equal(resolve(["astralCrown"], {...combat,chain:2}, {}).targets.length, 0);
-const escapeMemory = {};
-assert.equal(escape(["slipstream"], 0, escapeMemory), false, "extra move must be earned by a direct kill");
-resolve(["slipstream"], combat, escapeMemory);
-assert.equal(escape(["slipstream"], 0, escapeMemory), true);
-resolve(["slipstream", "currentDrift"], combat, escapeMemory);
-assert.equal(escape(["currentDrift"], 0, escapeMemory), false, "equipping a different escape trait cannot bypass shared cooldown");
-assert.equal(escape(["currentDrift"], 6, escapeMemory), true);
-
-let build = ["shockwave", "diagonalBurst", "longStride", "royalStep"];
-build = fuse(build, "kineticCrown");
-build = fuse(build, "royalVector");
-build = fuse(build, "prismaticImpact");
-assert.deepEqual(build, ["prismaticImpact"]);
-assert.ok(build.length <= SLOT_LIMIT);
-
-const sixTopTierSample = [
-  "astralCrown",
-  "thunderRegent",
-  "echoMonarch",
-  "circuitSovereign",
-  "driftEmperor",
-  "prismaticEmperor",
-];
-assert.equal(sixTopTierSample.length, SLOT_LIMIT, "six tier-four traits fit the final build capacity");
-assert.ok(sixTopTierSample.every((id) => byId[id].tier === 4));
-
+const splash = resolve(["diagonalBurst", "astralCrown"], combat, {}, { diagonalBurst: 5, astralCrown: 5 });
+assert.equal(new Set(splash.targets).size, splash.targets.length, "an enemy only takes one secondary hit per move");
+assert.ok(splash.targets.every((enemy) => !enemy.boss), "collateral never bypasses boss mechanics");
+assert.ok(splash.activated.some((id) => id === "diagonalBurst" || id === "astralCrown"), "only traits that actually hit are activated");
+assert.equal(resolve(["chainSpark"], { ...combat, directKills: 4 }, {}, { chainSpark: 5 }).xp, 0);
+const xp = resolve(["chainSpark"], { ...combat, directKills: 6 }, {}, { chainSpark: 5 });
+assert.equal(xp.xp, 1);
+assert.ok(xp.activated.includes("chainSpark"));
+const memory = {};
+resolve(["slipstream"], combat, memory, { slipstream: 5 });
+assert.equal(escape(["slipstream"], 0, memory, { slipstream: 5 }), true);
+assert.equal(escape(["slipstream"], 0, memory, { slipstream: 5 }), false, "escape uses shared cooldown");
+assert.ok(!resolve(["slipstream"], combat, {}, { slipstream: 5 }).activated.includes("slipstream"), "escape arming does not trigger slot feedback");
+assert.equal(byId.shockwave.name, "충격파");
 console.log("trait system tests passed");

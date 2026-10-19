@@ -9,7 +9,7 @@ const vm = require("node:vm");
 class Element {
   constructor() {
     this.children = [];
-    this.style = { setProperty() {} };
+    this.style = { setProperty(name, value) { this[name] = value; }, removeProperty(name) { delete this[name]; } };
     this.dataset = {};
     this.value = "0";
     this.checked = false;
@@ -35,6 +35,7 @@ class Element {
   querySelectorAll() { return []; }
   focus() {}
   select() {}
+  remove() { this.removed = true; }
   animate(frames, options) {
     const animation = { frames, options, cancelled: false, cancel() { this.cancelled = true; } };
     (this.animations ||= []).push(animation);
@@ -109,7 +110,7 @@ function createGameHarness(options = {}) {
   const boot = "  reset();\n  requestAnimationFrame(tick);";
   const hook = [
     "  reset();",
-    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit };",
+    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick };",
     "  requestAnimationFrame(tick);",
   ].join("\n");
   if (!source.includes(boot)) throw new Error(`game bootstrap marker changed in ${gamePath}`);
