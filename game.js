@@ -413,6 +413,14 @@
       visual: '<div class="tutorial-swatch" style="color:#ff4d6d;background:#ff4d6d"></div><div class="tutorial-swatch" style="color:#ff9f43;background:#ff9f43"></div><div class="tutorial-swatch" style="color:#ffd166;background:#ffd166"></div><div class="tutorial-swatch" style="color:#6ee7b7;background:#6ee7b7"></div><div class="tutorial-swatch" style="color:#53f0e4;background:#53f0e4"></div><div class="tutorial-swatch" style="color:#758bff;background:#758bff"></div><div class="tutorial-swatch" style="color:#d66efd;background:#d66efd"></div>',
     },
     {
+      eyebrow: "ENEMY TRAITS",
+      title: "우상단 배지는 적의 특성입니다",
+      copy: "기물의 색은 내구도, 배지의 모양은 특성을 뜻합니다. 배지를 누르면 설명을 볼 수 있어요.\n\n잔불이 남은 칸에서는 턴을 끝내지 마세요. 다음 적 턴에 폭발합니다.",
+      visual: '<div class="tutorial-codex">' + Object.entries(EnemyTraits.definitions).map(([id, data]) =>
+        '<div class="tutorial-entry"><canvas width="64" height="64" style="width:32px;height:32px;float:right" data-enemy-badge="' + id + '" aria-hidden="true"></canvas><b>' + data.name + '</b><span>' + data.desc + '</span></div>'
+      ).join("") + '</div>',
+    },
+    {
       eyebrow: "FIELD ITEMS",
       title: "아이템은 필드에 따로 나타납니다",
       copy: "아이템은 적을 잡은 자리에 떨어지지 않아요. 적들이 움직인 뒤, 보드의 빈 칸에 가끔 나타납니다.\n\n보드 위에는 동시에 2개 이상의 아이템이 있을 수 없고, 14턴 동안 먹지 않으면 사라집니다.",
@@ -440,6 +448,8 @@
     ui.tutorialTitle.textContent = page.title;
     ui.tutorialCopy.textContent = page.copy;
     ui.tutorialVisual.innerHTML = page.visual;
+    ui.tutorialVisual.querySelectorAll("[data-enemy-badge]").forEach((canvas) =>
+      EnemyTraitIcons.draw(canvas.getContext("2d"), 32, 32, 56, canvas.dataset.enemyBadge));
     ui.tutorialPrev.disabled = tutorialPage === 0;
     ui.tutorialNext.textContent = tutorialPage === TUTORIAL_PAGES.length - 1 ? (tutorialStartsRun ? "시작하기" : "닫기") : "다음";
     ui.tutorialSkip.textContent = tutorialStartsRun ? "건너뛰고 시작" : "닫기";
@@ -735,6 +745,11 @@
     S.phase = "enemy";
     S.elapsed = S.flash = S.wave = S.kills = S.score = S.death = S.chain = S.riskBeats = 0;
     S.items = [];
+    S.emberHazards = [];
+    S.elapsedPlaySeconds = 0;
+    S.difficultyClockAt = performance.now();
+    S.difficultyClockActive = false;
+    $("#devTime").textContent = "+5분 (0분)";
     S.traitRerolls = 2;
     S.discoveredSynergies = [];
     S.growthNotices = [];
@@ -777,8 +792,9 @@
       wave: S.wave,
       score: S.score,
       player: { ...S.player, traits: [...S.player.traits], traitLevels: { ...S.player.traitLevels }, traitXp: { ...S.player.traitXp }, mastered: { ...S.player.mastered } },
-      enemies: S.enemies.map((enemy) => ({ ...enemy, face: enemy.face && { ...enemy.face }, safeCells: enemy.safeCells?.map((cell) => ({ ...cell })) })),
+      enemies: S.enemies.map((enemy) => ({ ...enemy, enemyTraits: EnemyTraits.traitsOf(enemy), face: enemy.face && { ...enemy.face }, safeCells: enemy.safeCells?.map((cell) => ({ ...cell })) })),
       items: S.items.map((item) => ({ ...item })),
+      emberHazards: S.emberHazards.map((hazard) => ({ ...hazard })),
       terrain: S.terrain.map((tile) => ({ ...tile })),
       trail: S.trail.map((trail) => ({ ...trail, via: trail.via && { ...trail.via } })),
       enemyTrail: S.enemyTrail.map((trail) => ({ ...trail, via: trail.via && { ...trail.via } })),
@@ -1132,9 +1148,10 @@
       });
     }
   }
-  function damageEnemies(targets, combo, hitSet, damage = 1) {
+  function damageEnemies(targets, combo, hitSet, damage = 1, source = "direct") {
     let victims = [...new Set(targets)].filter(
-      (e) => S.enemies.includes(e) && !hitSet?.has(e) && (!e.boss || e.bossPhase === "vulnerable"),
+      (e) => S.enemies.includes(e) && !hitSet?.has(e) && (!e.boss || e.bossPhase === "vulnerable") &&
+        (source !== "trait" || !EnemyTraits.isProtected(e, S.enemies)),
     );
     if (!victims.length) return { hits: 0, kills: 0, points: 0, dead: [] };
     victims.forEach((e) => hitSet?.add(e));
@@ -1150,6 +1167,18 @@
       }
     });
     S.enemies = S.enemies.filter((e) => !dead.includes(e));
+    dead.forEach((enemy) => {
+      if (EnemyTraits.has(enemy, "ember")) {
+        if (!S.emberHazards.some((hazard) => hazard.x === enemy.x && hazard.y === enemy.y))
+          S.emberHazards.push({x: enemy.x, y: enemy.y, detonateWave: S.wave + 1});
+      }
+      if (EnemyTraits.has(enemy, "split")) {
+        const children = EnemyTraits.splitChildren(enemy, S.enemies, (x, y) =>
+          (S.player.x === x && S.player.y === y) || Boolean(terrainAt(x, y)) || S.items.some((item) => item.x === x && item.y === y));
+        S.enemies.push(...children.map((child) => ({...child})));
+        if (children.length) burst(enemy.x, enemy.y, "#c084fc", 12);
+      }
+    });
     let sealedBoss = boss(),
       minionKills = dead.filter((e) => !e.boss).length;
     if (sealedBoss?.gimmick === "blood" && sealedBoss.bossPhase === "sealed" && minionKills) {
@@ -1360,8 +1389,8 @@
           ? 2 + Math.floor(Math.pow(Math.random(), 1.65) * (highestTier - 1))
           : 1,
       risk = S.riskBeats > 0;
-    if (risk) maxHp = Math.min(7, maxHp + 1);
-    if (terrainAt(x, y)) return;
+    if (terrainAt(x, y) || S.enemies.some((enemy) => enemy.x === x && enemy.y === y)) return;
+    const enemyTraits = S.wave <= 3 ? [] : EnemyTraits.rollTraits(S.elapsedPlaySeconds, risk, Math.random);
     S.enemies.push({
       x,
       y,
@@ -1370,6 +1399,9 @@
       hp: maxHp,
       maxHp,
       risk,
+      enemyTraits,
+      trait: enemyTraits[0] || null,
+      splitsLeft: enemyTraits.includes("split") ? 2 : 0,
     });
   }
   function boss() {
@@ -1528,7 +1560,7 @@
         [-2, -1],
         [-2, 1],
         [-1, 2],
-      ].map(([x, y]) => ({ x: e.x + x, y: e.y + y })).filter((q) => !isWall(q.x, q.y));
+      ].map(([x, y]) => ({ x: e.x + x, y: e.y + y })).filter((q) => !isWall(q.x, q.y) && !occupied.has(K(q.x, q.y)));
     else if (e.type === "bishop")
       slide([
         [1, 1],
@@ -1571,7 +1603,7 @@
     if (e.type === "knight")
       options = [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]]
         .map(([x, y]) => ({ x: e.x + x, y: e.y + y }))
-        .filter((cell) => !isWall(cell.x, cell.y));
+        .filter((cell) => !isWall(cell.x, cell.y) && !occupied.has(K(cell.x, cell.y)));
     else if (e.type === "bishop") slide([[1, 1], [1, -1], [-1, 1], [-1, -1]]);
     else if (e.type === "rook") slide([[1, 0], [-1, 0], [0, 1], [0, -1]]);
     else if (e.type === "queen") slide(king);
@@ -1583,6 +1615,7 @@
   }
   function projectedEnemyCapture(target) {
     if (S.grace > 0 || S.invincibleBeats > 0) return false;
+    if (S.emberHazards.some((hazard) => hazard.x === target.x && hazard.y === target.y && hazard.detonateWave <= S.wave + 1)) return true;
     let activeBoss = boss(),
       // recover/vulnerable bosses relocate before ordinary enemies move. Keep
       // their future square unknown rather than treating their old square as
@@ -1616,6 +1649,17 @@
     S.wave++;
     let invulnerable = S.invincibleBeats > 0;
     if (invulnerable) S.invincibleBeats--;
+    const detonating = S.emberHazards.filter((hazard) => hazard.detonateWave <= S.wave);
+    S.emberHazards = S.emberHazards.filter((hazard) => hazard.detonateWave > S.wave);
+    detonating.forEach((hazard) => burst(hazard.x, hazard.y, "#ff9f43", 18));
+    if (!invulnerable && S.grace <= 0 && detonating.some((hazard) => hazard.x === S.player.x && hazard.y === S.player.y)) {
+      S.phase = "captured";
+      S.captureTimer = 0.34;
+      S.flash = 0;
+      S.deathReason = "잔불 폭발";
+      ui.hint.textContent = "잔불이 남은 칸에서 턴을 끝냈습니다.";
+      return;
+    }
     S.itemCooldown = Math.max(0, S.itemCooldown - 1);
     S.items = S.items.filter((item) => --item.life > 0);
     S.trail = [];
@@ -1695,6 +1739,10 @@
       return;
     }
     if (captured && invulnerable) burst(S.player.x, S.player.y, "#8eeaff", 20);
+    EnemyTraits.heal(S.enemies).forEach(({healer, target}) => {
+      target.hp = Math.min(target.maxHp, target.hp + 1);
+      S.effects.push({type: "enemyHeal", x: healer.x, y: healer.y, x2: target.x, y2: target.y, life: 0.45, max: 0.45});
+    });
     S.grace = Math.max(0, S.grace - 1);
     let enemySpawns = S.wave % 4 === 0 ? 2 : 1;
     for (let i = 0; i < enemySpawns; i++) spawn();
@@ -1740,7 +1788,7 @@
         : activeBoss?.bossPhase === "vulnerable"
           ? activeBoss.bossName + " 코어 노출! 지금 보스를 밟아 피해를 주세요."
       : S.riskBeats
-        ? "위험 계약 " + S.riskBeats + "박자 남음 — 강화 적 처치 시 XP ×2 · 점수 ×1.5"
+        ? "위험 계약 " + S.riskBeats + "턴 남음 — 특성 적 등장 확률 ×2 · 계약 중 등장한 적 XP ×2 · 점수 ×1.5"
         : "빛나는 칸을 한 번 선택하세요 — 적을 밟으면 XP를 얻습니다.");
   }
   function offerRisk() {
@@ -1753,7 +1801,7 @@
     ui.risk.classList.add("hidden");
     if (accept) {
       S.riskBeats = 10;
-      ui.hint.textContent = "위험 계약 체결 — 강화 적에서 XP ×2 · 점수 ×1.5!";
+      ui.hint.textContent = "위험 계약 체결 — 특성 적 등장 확률 ×2 · 계약 중 등장한 적 XP ×2 · 점수 ×1.5!";
       sfx("capture", 4);
     } else {
       ui.hint.textContent = "계약을 거절했습니다. 안전한 전투를 계속합니다.";
@@ -1845,11 +1893,11 @@
     const augmentation = TraitSystem.resolve(p.traits, {
       from, to: p, directKill: directKilled > 0, directKills: p.directKills,
       chain: S.chain + gained, wave: S.wave,
-      enemies: S.enemies.filter((enemy) => !struck.has(enemy)), isWall,
+      enemies: S.enemies.filter((enemy) => !struck.has(enemy) && !EnemyTraits.isProtected(enemy, S.enemies)), isWall,
     }, p.traitMemory, p.traitLevels, p.mastered);
     if (augmentation.targets.length) {
       augmentation.fx.forEach((effect) => {
-        const collateral = damageEnemies(effect.targets.filter((enemy) => !enemy.boss), combo, struck, effect.damage || 1);
+        const collateral = damageEnemies(effect.targets.filter((enemy) => !enemy.boss), combo, struck, effect.damage || 1, "trait");
         gained += collateral.kills;
         earned += collateral.points;
         credit(effect.id, collateral.kills);
@@ -2343,13 +2391,6 @@
       g.font = "700 " + s * (bossPiece ? 0.94 : 0.62) + "px Georgia, 'Times New Roman', serif";
       g.fillText(enemy ? enemyGlyph[t] : glyph[t], q.x, q.y);
     }
-    if (enemy && risk) {
-      g.fillStyle = "#f45cf4";
-      g.shadowColor = "#f45cf4";
-      g.shadowBlur = 10;
-      g.font = "700 " + s * 0.2 + "px serif";
-      g.fillText("◆", q.x + s * 0.28, q.y - s * 0.3);
-    }
     if (bossPiece) {
       g.strokeStyle = col;
       g.lineWidth = 2;
@@ -2400,6 +2441,44 @@
     g.textBaseline = "middle";
     g.fillText(data.icon, q.x, q.y + s * 0.01);
     g.restore();
+  }
+  function enemyBadge(enemy, protectedSet) {
+    const q = pos(enemy.x, enemy.y), s = size();
+    if (q.x < -s || q.x > W + s || q.y < -s || q.y > H + s) return;
+    if (protectedSet.has(enemy)) EnemyTraitIcons.drawProtection(g, q.x, q.y, s * 0.7);
+    EnemyTraitIcons.layout(q.x, q.y, s, EnemyTraits.traitsOf(enemy)).forEach((badge) =>
+      EnemyTraitIcons.draw(g, badge.x, badge.y, badge.size, badge.id, enemy.splitsLeft));
+  }
+  function inspectEnemy(enemy) {
+    const traits = EnemyTraits.traitsOf(enemy);
+    if (!traits.length) return;
+    closeHeldTrait();
+    ui.heldName.textContent = traits.map((id) => EnemyTraits.definitions[id].name).join(" · ") + " · 적 특성";
+    ui.heldCopy.textContent = traits.map((id) => {
+      const data = EnemyTraits.definitions[id];
+      return (traits.length > 1 ? data.name + "\n" : "") + data.desc;
+    }).join("\n\n") + (traits.includes("split") ? "\n\n남은 분열: " + enemy.splitsLeft + "회" : "");
+    ui.heldDetails.dataset.level = "1";
+    ui.heldDetails.classList.remove("hidden");
+  }
+  function drawEmbers(hazards) {
+    const s = size();
+    hazards.forEach((hazard) => {
+      const q = pos(hazard.x, hazard.y);
+      if (q.x < -s || q.x > W + s || q.y < -s || q.y > H + s) return;
+      g.save();
+      g.fillStyle = "#ff732c35";
+      g.strokeStyle = "#ff9f43";
+      g.lineWidth = 2;
+      g.fillRect(q.x - s * 0.44, q.y - s * 0.44, s * 0.88, s * 0.88);
+      g.strokeRect(q.x - s * 0.44, q.y - s * 0.44, s * 0.88, s * 0.88);
+      g.beginPath();
+      g.moveTo(q.x - s * 0.28, q.y - s * 0.28);g.lineTo(q.x + s * 0.28, q.y + s * 0.28);
+      g.moveTo(q.x + s * 0.28, q.y - s * 0.28);g.lineTo(q.x - s * 0.28, q.y + s * 0.28);
+      g.stroke();
+      g.restore();
+      EnemyTraitIcons.draw(g, q.x, q.y, Math.max(16, Math.min(24, s * 0.3)), "ember");
+    });
   }
   function edgeMoveTargets() {
     if (S.phase !== "player") return [];
@@ -2503,7 +2582,10 @@
       g.restore();
     }
     snapshot.items.forEach(fieldItem);
+    drawEmbers(snapshot.emberHazards || []);
     snapshot.enemies.forEach((enemy) => piece(enemy.x, enemy.y, enemy.type, true, enemy.hp || 1, enemy.maxHp || 1, enemy.risk, enemy.boss, enemy.bossPhase, enemy.bossName, enemy.seals, enemy.enraged));
+    const protectedReplay = EnemyTraits.protectedEnemies(snapshot.enemies);
+    snapshot.enemies.forEach((enemy) => enemyBadge(enemy, protectedReplay));
     piece(snapshot.player.x, snapshot.player.y, snapshot.player.piece);
     g.save();
     g.fillStyle = "#07091be0";
@@ -2539,6 +2621,7 @@
       cy = Math.floor(S.camera.y);
     drawBoardGrid(s, cols, rows, cx, cy);
     S.terrain.forEach(terrainTile);
+    drawEmbers(S.emberHazards);
     let activeBoss = boss();
     if (activeBoss?.bossPhase === "telegraph") {
       let q = pos(activeBoss.x, activeBoss.y),
@@ -2630,7 +2713,13 @@
       g.save();
       g.globalAlpha = Math.max(0, f.life / f.max);
       g.lineCap = "round";
-      if (f.type === "hiddenGrowth") {
+      if (f.type === "enemyHeal") {
+        const target = pos(f.x2, f.y2);
+        g.strokeStyle = "#6ee7b7";
+        g.lineWidth = 2;
+        g.beginPath();g.moveTo(q.x, q.y);g.lineTo(target.x, target.y);g.stroke();
+        EnemyTraitIcons.draw(g, target.x, target.y - s * 0.25, Math.min(24, s * 0.34), "healer");
+      } else if (f.type === "hiddenGrowth") {
         const mastered = f.kind === "mastery" || f.kind === "masterStrike";
         g.globalAlpha *= 0.65;
         g.translate(q.x, q.y);
@@ -2823,10 +2912,14 @@
         g.fillText(target.danger ? "CHECK!" : "BOSS", target.x, target.y - (e.boss ? 20 : 16));
       }
       g.restore();
+      EnemyTraitIcons.layout(target.x, target.y, size(), EnemyTraits.traitsOf(e), {edge: true}).forEach((badge) =>
+        EnemyTraitIcons.draw(g, badge.x, badge.y, badge.size, badge.id, e.splitsLeft));
     });
     if (S.phase === "captured") piece(S.player.x, S.player.y, S.player.piece);
     S.items.forEach(fieldItem);
     S.enemies.forEach((e) => piece(e.x, e.y, e.type, true, e.hp || 1, e.maxHp || 1, e.risk, e.boss, e.bossPhase, e.bossName, e.seals, e.enraged));
+    const protectedLive = EnemyTraits.protectedEnemies(S.enemies);
+    S.enemies.forEach((enemy) => enemyBadge(enemy, protectedLive));
     if (!["dead", "captured"].includes(S.phase)) piece(S.player.x, S.player.y, S.player.piece);
     if (S.phase === "dead") {
       let q = pos(S.player.x, S.player.y),
@@ -2870,7 +2963,20 @@
     });
     g.globalAlpha = 1;
   }
+  function advanceDifficultyClock(now = performance.now()) {
+    const active = S.running && !document.hidden && ["player", "enemy"].includes(S.phase);
+    if (active && S.difficultyClockActive && Number.isFinite(now) && now >= S.difficultyClockAt)
+      S.elapsedPlaySeconds += (now - S.difficultyClockAt) / 1000;
+    S.difficultyClockAt = now;
+    S.difficultyClockActive = active;
+    const minute = Math.floor(S.elapsedPlaySeconds / 60);
+    if (minute !== S.difficultyMinute) {
+      S.difficultyMinute = minute;
+      $("#devTime").textContent = "+5분 (" + minute + "분)";
+    }
+  }
   function tick(now) {
+    advanceDifficultyClock(now);
     let dt = Math.min(0.05, (now - last) / 1000 || 0) * S.devSpeed;
     last = now;
     if (S.running) {
@@ -2979,6 +3085,15 @@
   }
   function tap(e) {
     if (!S.running || S.phase !== "player") return;
+    const bounds = c.getBoundingClientRect(), tx = e.clientX - bounds.left, ty = e.clientY - bounds.top;
+    const inspected = S.enemies.find((enemy) => {
+      const q = pos(enemy.x, enemy.y);
+      return EnemyTraitIcons.layout(q.x, q.y, size(), EnemyTraits.traitsOf(enemy)).some((badge) =>
+        Math.hypot(tx - badge.x, ty - badge.y) <= Math.max(12, badge.size * 0.55));
+    }) || edgeEnemyTargets().find(({e: enemy, x, y}) =>
+      EnemyTraitIcons.layout(x, y, size(), EnemyTraits.traitsOf(enemy), {edge: true}).some((badge) =>
+        Math.hypot(tx - badge.x, ty - badge.y) <= badge.size * 0.6))?.e;
+    if (inspected) { inspectEnemy(inspected); return; }
     let r = c.getBoundingClientRect(),
       s = size(),
       x = (e.clientX - r.left - W / 2) / s + S.camera.x,
@@ -3099,6 +3214,9 @@
       options =
         kind === "piece"
           ? Object.keys(glyph).map((id) => ({ id, icon: glyph[id], name: id.toUpperCase(), desc: pieceInfo[id] }))
+          : kind === "enemy"
+            ? [...EnemyTraits.ids.map((id) => [id]), ...EnemyTraits.ids.flatMap((id, i) => EnemyTraits.ids.slice(i + 1).map((other) => [id, other])), [...EnemyTraits.ids]]
+              .map((ids) => ({id: ids.join("+"), enemyTraits: ids, name: ids.map((id) => EnemyTraits.definitions[id].name).join(" + "), desc: ids.map((id) => EnemyTraits.definitions[id].desc).join(" / "), icon: "♟"}))
           : kind === "boss"
             ? Object.entries(BOSS_TYPES).map(([id, data]) => ({
                 id,
@@ -3107,7 +3225,7 @@
                 desc: id === "rook" ? "가로·세로 관통 예고" : id === "bishop" ? "대각선 관통 예고" : id === "queen" ? "8방향 관통 예고" : id === "bloodQueen" ? "잡몹 4기 처치로 봉인 해제" : "SAFE 구역 도달로 생존",
               }))
             : TRAITS;
-    ui.devPickTitle.textContent = kind === "piece" ? "기물을 즉시 변경" : kind === "boss" ? "소환할 보스를 선택하세요" : kind === "master" ? "달인 진화 테스트" : "특성 획득 / 강화";
+    ui.devPickTitle.textContent = kind === "enemy" ? "특성 적 소환" : kind === "piece" ? "기물을 즉시 변경" : kind === "boss" ? "소환할 보스를 선택하세요" : kind === "master" ? "달인 진화 테스트" : "특성 획득 / 강화";
     ui.devPickOptions.innerHTML = "";
     options.forEach((o) => {
       let b = document.createElement("button"),
@@ -3127,6 +3245,11 @@
         if (kind === "piece") {
           p.piece = o.id;
           ui.hint.textContent = "DEV: " + o.id.toUpperCase() + "로 변경했습니다.";
+        } else if (kind === "enemy") {
+          const cell = S.moves.find((cell) => !S.enemies.some((enemy) => enemy.x === cell.x && enemy.y === cell.y) && !terrainAt(cell.x, cell.y));
+          if (!cell) return;
+          S.enemies.push({x: cell.x, y: cell.y, type: "pawn", hp: 1, maxHp: 1, face: {x: 0, y: 1}, trait: o.enemyTraits[0], enemyTraits: [...o.enemyTraits], splitsLeft: o.enemyTraits.includes("split") ? 2 : 0});
+          ui.hint.textContent = "DEV: " + o.name + " 적을 소환했습니다.";
         } else if (kind === "boss") {
           devBoss(o.id);
         } else if (kind === "master") {
@@ -3183,6 +3306,7 @@
     }
   }
   c.addEventListener("pointerdown", tap);
+  document.addEventListener("visibilitychange", () => advanceDifficultyClock());
   document.addEventListener(
     "wheel",
     (e) => {
@@ -3270,6 +3394,12 @@
   $("#devBoss").addEventListener("click", () => openDevPick("boss"));
   $("#devAuto").addEventListener("click", devAuto);
   $("#devMaster").addEventListener("click", () => openDevPick("master"));
+  $("#devEnemy").addEventListener("click", () => openDevPick("enemy"));
+  $("#devTime").addEventListener("click", () => {
+    if (!S.running || !["player", "enemy"].includes(S.phase)) return;
+    S.elapsedPlaySeconds += 300;
+    $("#devTime").textContent = "+5분 (" + Math.floor(S.elapsedPlaySeconds / 60) + "분)";
+  });
   ui.devVisibilityToggle.addEventListener("click", toggleDevTools);
   $("#devPickClose").addEventListener("click", closeDevPick);
   document.addEventListener("keydown", (e) => {

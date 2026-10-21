@@ -83,6 +83,8 @@ function createGameHarness(options = {}) {
   seededMath.random = random;
   const context = {
     TraitSystem,
+    EnemyTraits: require("../enemy-traits.js"),
+    EnemyTraitIcons: require("../enemy-trait-icons.js"),
     console,
     Math: seededMath,
     performance: { now: () => now },
@@ -110,7 +112,7 @@ function createGameHarness(options = {}) {
   const boot = "  reset();\n  requestAnimationFrame(tick);";
   const hook = [
     "  reset();",
-    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick };",
+    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick, resolveRisk, offerRisk, draw, drawRewind, rememberRewind, inspectEnemy, tap, advanceDifficultyClock };",
     "  requestAnimationFrame(tick);",
   ].join("\n");
   if (!source.includes(boot)) throw new Error(`game bootstrap marker changed in ${gamePath}`);

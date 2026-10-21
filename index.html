@@ -326,6 +326,7 @@
     .tutorial-codex { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 7px; }
     .tutorial-entry { min-height: 48px; padding: 7px 8px; border: 1px solid currentColor; background: #11162d; }
     .tutorial-entry b, .tutorial-entry span { display: block; }
+    .tutorial-entry canvas { position: static; inset: auto; width: 32px; height: 32px; float: right; margin: 0 0 4px 6px; pointer-events: none; }
     .tutorial-entry b { margin-bottom: 3px; font: 700 10px monospace; letter-spacing: .04em; }
     .tutorial-entry span { color: #d2d8ed; font-size: 10px; line-height: 1.25; }
     .tutorial-entry:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -836,7 +837,7 @@
         ><button id="devPiece">[5] PIECE</button
         ><button id="devTrait">[6] TRAIT</button
         ><button id="devBoss">[7] BOSS</button>
-        <button id="devAuto">[8] AUTO OFF</button><button id="devMaster">[9] MASTER</button>
+        <button id="devAuto">[8] AUTO OFF</button><button id="devMaster">[9] MASTER</button><button id="devEnemy">특성 적</button><button id="devTime">+5분 (0분)</button>
       </div>
       <button class="dev-visibility hidden" id="devVisibilityToggle" type="button" aria-expanded="true">HIDE DEV TOOLS</button>
       <div class="sound-control">
@@ -849,7 +850,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.14.2</b> · 2026.10.19</p>
+        <p class="build-version">BUILD <b>v0.15.2</b> · 2026.10.20</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -924,8 +925,8 @@
       <section class="overlay hidden" id="riskScreen" role="dialog" aria-modal="true" aria-labelledby="riskTitle" aria-describedby="riskCost riskReward">
         <div class="panel">
           <h2 id="riskTitle">위험한 계약</h2>
-          <p class="risk-cost" id="riskCost">10턴간 새 적의 내구도 +1</p>
-          <p class="risk-reward" id="riskReward">해당 적 처치 시 XP ×2 · 점수 ×1.5</p>
+          <p class="risk-cost" id="riskCost">10턴간 특성 보유 적 등장 확률 ×2</p>
+          <p class="risk-reward" id="riskReward">해당 기간 등장한 적 처치 시 XP ×2 · 점수 ×1.5</p>
           <div class="risk-options">
             <button id="riskAccept">수락</button>
             <button id="riskDecline">넘기기</button>
@@ -991,7 +992,9 @@
         </div>
       </section>
     </main>
-    <script src="traits.js?v=v0.14.2"></script>
-    <script src="game.js?v=v0.14.2"></script>
+    <script src="traits.js?v=v0.15.2"></script>
+    <script src="enemy-traits.js?v=v0.15.2"></script>
+    <script src="enemy-trait-icons.js?v=v0.15.2"></script>
+    <script src="game.js?v=v0.15.2"></script>
   </body>
 </html>
