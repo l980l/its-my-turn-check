@@ -6,12 +6,12 @@ const dist = join(root, "dist");
 
 await rm(dist, {recursive: true, force: true});
 await mkdir(dist, {recursive: true});
-for (const file of ["index.html", "style.css", "traits.js", "enemy-traits.js", "enemy-trait-icons.js", "game.js", "coop.html", "coop.js", "coop.css"]) {
+for (const file of ["index.html", "style.css", "traits.js", "enemy-traits.js", "enemy-trait-icons.js", "game.js", "coop-runtime.js", "coop-session.js", "coop.html", "coop.js", "coop.css"]) {
   await cp(join(root, file), join(dist, file));
 }
 await cp(join(root, "assets"), join(dist, "assets"), {recursive: true});
 
-const required = ["index.html", "style.css", "traits.js", "enemy-traits.js", "enemy-trait-icons.js", "game.js", "coop.html", "coop.js", "coop.css", "assets"];
+const required = ["index.html", "style.css", "traits.js", "enemy-traits.js", "enemy-trait-icons.js", "game.js", "coop-runtime.js", "coop-session.js", "coop.html", "coop.js", "coop.css", "assets"];
 const present = new Set(await readdir(dist));
 for (const item of required) {
   if (!present.has(item)) throw new Error(`Android web build missing: ${item}`);

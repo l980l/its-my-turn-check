@@ -5,6 +5,9 @@
   "scripts": {
     "test:traits": "node scripts/test-traits.cjs && node scripts/test-hidden-traits.cjs && node scripts/test-hidden-runtime.cjs && node scripts/test-trait-combat.cjs && node scripts/test-trait-progression.cjs && node scripts/test-upgrade-description.cjs && node scripts/test-held-traits.cjs",
     "test:enemies": "node scripts/test-enemy-traits.cjs && node scripts/test-enemy-trait-icons.cjs && node scripts/test-enemy-runtime.cjs",
+    "test:coop-ui": "node scripts/test-coop-ui.cjs",
+    "test:coop-auto": "node scripts/test-coop-session.cjs",
+    "test:coop-session": "node scripts/test-coop-session.cjs",
     "balance:traits": "node scripts/simulate-trait-levels.cjs",
     "balance:hidden": "node scripts/simulate-hidden-growth.cjs",
     "prepare:web": "node scripts/prepare-web.mjs",

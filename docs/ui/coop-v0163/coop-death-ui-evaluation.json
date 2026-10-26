@@ -1,0 +1,1102 @@
+{
+  "schema_version": 1,
+  "unit": "css_px",
+  "evidence": {
+    "timestamp": "2026-10-24T11:03:47.749Z",
+    "source_hashes": {
+      "coop.js": "e5e592a56eeb5cce275ff825460e086b0379a92f6d65120afc7160297bbede43",
+      "coop.css": "67fbae2514586d1a696c148637478639ef008409cb7dd2ecc93639fa1d52f2fe",
+      "coop.html": "870f7c50ffab1575c20aa848e19c65f692b1bb63cf03c02839613719841fae9f",
+      "coop-session.js": "bf83072b7312b978cd5ef98c99f55773821a5f8f832c3a04f1817ccc0b0a29da",
+      "game.js": "e0d4375dd105788f3d2f4fc5ffd792ffe947de074a6e913ad2db9b47f00742a7",
+      "scripts/test-coop-death-browser.mjs": "aa27cdd35c4bd599bcbe54a698a02dc36f9a76e52d3dd02395542bbfe56ac99d"
+    }
+  },
+  "thresholds": {
+    "font_advisory": 14,
+    "target_proxy": 24,
+    "contrast_proxy": 4.5
+  },
+  "captures": [
+    {
+      "id": "personal-death320",
+      "language": "ko",
+      "context": "personal-death",
+      "width": 320,
+      "height": 568,
+      "screenshot": "/tmp/coop-personal-death-320.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 6,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 3,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.5
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "deathReview",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "deathSpectate",
+          "value": 13
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "death320",
+      "language": "ko",
+      "context": "death",
+      "width": 320,
+      "height": 568,
+      "screenshot": "/tmp/coop-death-320.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 9,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 6,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.6666666666666666
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 10,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "endReview0",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "endReview1",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "메인 화면",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "devRestartEnd",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "backToLobby",
+          "value": 13
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "replay320",
+      "language": "ko",
+      "context": "replay",
+      "width": 320,
+      "height": 568,
+      "screenshot": "/tmp/coop-replay-320.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 4,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 4,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.8
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "replayReason",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayPrev",
+          "value": 11
+        },
+        {
+          "check": "small_text",
+          "element": "replayNext",
+          "value": 11
+        },
+        {
+          "check": "small_text",
+          "element": "replayClose",
+          "value": 11
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 1,
+        "inactive_or_occluded_controls": 1
+      }
+    },
+    {
+      "id": "personal-death390",
+      "language": "ko",
+      "context": "personal-death",
+      "width": 390,
+      "height": 844,
+      "screenshot": "/tmp/coop-personal-death-390.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 6,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 3,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.5
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "deathReview",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "deathSpectate",
+          "value": 13
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "death390",
+      "language": "ko",
+      "context": "death",
+      "width": 390,
+      "height": 844,
+      "screenshot": "/tmp/coop-death-390.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 9,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 6,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.6666666666666666
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 10,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "endReview0",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "endReview1",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "메인 화면",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "devRestartEnd",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "backToLobby",
+          "value": 13
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "replay390",
+      "language": "ko",
+      "context": "replay",
+      "width": 390,
+      "height": 844,
+      "screenshot": "/tmp/coop-replay-390.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 4,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 4,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.8
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "replayReason",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayPrev",
+          "value": 11
+        },
+        {
+          "check": "small_text",
+          "element": "replayNext",
+          "value": 11
+        },
+        {
+          "check": "small_text",
+          "element": "replayClose",
+          "value": 11
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 1,
+        "inactive_or_occluded_controls": 1
+      }
+    },
+    {
+      "id": "personal-death844",
+      "language": "ko",
+      "context": "personal-death",
+      "width": 844,
+      "height": 390,
+      "screenshot": "/tmp/coop-personal-death-844.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 6,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 3,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.5
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "deathReason",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "동료가 생존해 있어 게임은 계속됩니다.",
+          "value": 13
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "death844",
+      "language": "ko",
+      "context": "death",
+      "width": 844,
+      "height": 390,
+      "screenshot": "/tmp/coop-death-844.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 9,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 3,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.3333333333333333
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 10,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "endText",
+          "value": 13
+        },
+        {
+          "check": "small_text",
+          "element": "endDeaths",
+          "value": 13
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "replay844",
+      "language": "ko",
+      "context": "replay",
+      "width": 844,
+      "height": 390,
+      "screenshot": "/tmp/coop-replay-844.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 4,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 4,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.8
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "replayReason",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayPrev",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayNext",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayClose",
+          "value": 12
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 1,
+        "inactive_or_occluded_controls": 1
+      }
+    },
+    {
+      "id": "personal-death1440",
+      "language": "ko",
+      "context": "personal-death",
+      "width": 1440,
+      "height": 900,
+      "screenshot": "/tmp/coop-personal-death-1440.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 6,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 1,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.16666666666666666
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 6,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "death1440",
+      "language": "ko",
+      "context": "death",
+      "width": 1440,
+      "height": 900,
+      "screenshot": "/tmp/coop-death-1440.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 9,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 1,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.1111111111111111
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 9,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 10,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "CHECKMATE",
+          "value": 12
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 0,
+        "inactive_or_occluded_controls": 0
+      }
+    },
+    {
+      "id": "replay1440",
+      "language": "ko",
+      "context": "replay",
+      "width": 1440,
+      "height": 900,
+      "screenshot": "/tmp/coop-replay-1440.png",
+      "metrics": {
+        "contrast": {
+          "failed": 0,
+          "measured": 0,
+          "unknown": 4,
+          "rate": null
+        },
+        "small_text": {
+          "failed": 4,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.8
+        },
+        "overflow": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "text_offscreen": {
+          "failed": 0,
+          "measured": 5,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "small_target": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "control_offscreen": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "center_hit": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "empty_label": {
+          "failed": 0,
+          "measured": 2,
+          "unknown": 0,
+          "rate": 0.0
+        },
+        "overlap": {
+          "failed": 0,
+          "measured": 1,
+          "unknown": 0,
+          "rate": 0.0
+        }
+      },
+      "findings": [
+        {
+          "check": "small_text",
+          "element": "replayReason",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayPrev",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayNext",
+          "value": 12
+        },
+        {
+          "check": "small_text",
+          "element": "replayClose",
+          "value": 12
+        }
+      ],
+      "excluded": {
+        "occluded_text": 0,
+        "inactive_contrast": 1,
+        "inactive_or_occluded_controls": 1
+      }
+    }
+  ],
+  "tasks": [],
+  "coverage": {
+    "captures": 12,
+    "resolution_mismatches": 0,
+    "unknown_control_states": 0,
+    "missing_capture_metadata": 0,
+    "task_samples": 0,
+    "unknown_measurements": 76,
+    "measured_checks": 432,
+    "complete": false
+  },
+  "limitations": [
+    "Structural proxies, not a beauty score or WCAG certification",
+    "Human comprehension and enjoyment not measured"
+  ],
+  "status": "findings",
+  "input_sha256": "f7b8ba084386efffc16116bb68121bc06360f50133566dbb129fec7234d58034",
+  "evaluator_sha256": "c7f6347ecc983ce78b24256555785bc7ed96052db1369643610a01902f621d79"
+}

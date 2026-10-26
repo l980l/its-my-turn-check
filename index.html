@@ -850,7 +850,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.15.2</b> · 2026.10.20</p>
+        <p class="build-version">BUILD <b>v0.16.3</b> · 2026.10.24</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -995,6 +995,13 @@
     <script src="traits.js?v=v0.15.2"></script>
     <script src="enemy-traits.js?v=v0.15.2"></script>
     <script src="enemy-trait-icons.js?v=v0.15.2"></script>
-    <script src="game.js?v=v0.15.2"></script>
+    <style>
+      .coop-embedded #startScreen, .coop-embedded #devBar, .coop-embedded #devVisibilityToggle,
+      .coop-embedded #soundToggle, .coop-embedded .meter { display:none !important; }
+      .coop-embedded .overlay { background:rgba(7,9,24,.6); }
+      .coop-replay .hud { display:none !important; }
+    </style>
+    <script src="coop-runtime.js?v=v0.16.3"></script>
+    <script src="game.js?v=v0.16.3"></script>
   </body>
 </html>
