@@ -5,44 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="theme-color" content="#08091a" />
     <title>It's My Turn… Check! — Co-op Alpha</title>
-    <link rel="stylesheet" href="coop.css" />
+    <link rel="preload" as="font" href="assets/fonts/Bungee-Regular.ttf" type="font/ttf" crossorigin />
+    <link rel="preload" as="font" href="assets/fonts/GowunBatang-Regular.ttf" type="font/ttf" crossorigin />
+    <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" type="image/webp" />
+    <link rel="stylesheet" href="coop.css?v=v0.16.3" />
   </head>
   <body>
-    <main id="coopApp">
+    <main id="coopApp" data-screen="lobby">
       <header>
-        <a href="index.html" class="back">← SOLO</a>
-        <div><span>IT'S MY TURN… CHECK!</span><strong>CO-OP ALPHA</strong></div>
-        <button id="leaveButton" class="ghost" hidden>LEAVE</button>
+        <a href="index.html" class="back">← 메인으로</a>
+        <div class="mode-label"><strong>CO-OP ALPHA</strong></div>
+        <button id="leaveButton" class="ghost" hidden>나가기</button>
       </header>
       <section id="lobby" class="screen">
-        <p class="eyebrow">TWO MINDS · ONE BOARD</p>
-        <h1>CO-OP<br /><em>CHECK</em></h1>
-        <p class="intro">같은 1.8초 안에 한 수를 고르면, 두 행동이 함께 판정됩니다.<br />방장은 판정을 맡고 Supabase Realtime은 무료 신호 채널로만 사용합니다.</p>
-        <div class="lobby-actions">
-          <button id="hostButton">방 만들기</button>
-          <label><span>초대 코드</span><input id="roomInput" maxlength="6" placeholder="ABC123" autocapitalize="characters" /></label>
-          <button id="joinButton" class="alt">방 참가</button>
+        <div class="lobby-content">
+          <p class="eyebrow">TWO MINDS · ONE BOARD</p>
+          <h1 class="game-title">IT'S MY TURN…<br />CHECK!</h1>
+          <div class="lobby-actions">
+            <button id="hostButton" class="menu-action">CREATE ROOM</button>
+            <button id="openJoinButton" class="menu-action alt" aria-haspopup="dialog" aria-controls="joinDialog">JOIN ROOM</button>
+            <button id="howToPlayButton" class="menu-action help-action" aria-haspopup="dialog" aria-controls="helpDialog">HOW TO PLAY</button>
+          </div>
+          <p id="lobbyStatus" class="status" role="status" aria-live="polite"></p>
         </div>
-        <p id="lobbyStatus" class="status">2인 협동 실험 모드 · 랭킹에는 기록되지 않습니다.</p>
+        <button id="devButton" class="ghost lobby-dev" type="button">DEV</button>
+        <p class="build-version">BUILD <b>v0.16.3</b> · CO-OP ALPHA</p>
       </section>
+      <dialog id="joinDialog" class="coop-dialog" aria-labelledby="joinTitle">
+        <button id="joinClose" class="dialog-close" type="button" aria-label="초대 코드 입력 닫기">×</button>
+        <h2 id="joinTitle">JOIN ROOM</h2>
+        <form id="joinForm" class="join-fields" novalidate>
+          <label for="roomInput">초대 코드</label>
+          <input id="roomInput" maxlength="6" placeholder="ABC234" autocapitalize="characters" autocomplete="off" spellcheck="false" enterkeyhint="go" aria-describedby="joinStatus" />
+          <p id="joinStatus" class="status" role="status" aria-live="polite"></p>
+          <button id="joinButton" class="menu-action alt" type="submit">JOIN ROOM</button>
+        </form>
+      </dialog>
+      <dialog id="helpDialog" class="coop-dialog" aria-labelledby="helpTitle">
+        <button id="helpClose" class="dialog-close" type="button" aria-label="간단 설명 닫기" autofocus>×</button>
+        <h2 id="helpTitle">HOW TO PLAY</h2>
+        <ol class="help-steps">
+          <li>방을 만들고 친구에게 6자리 초대 코드를 보내세요.</li>
+          <li>친구는 JOIN ROOM에서 코드를 입력하면 됩니다.</li>
+          <li>몬스터가 움직이면 각자 수를 고르세요. P1, P2 순서로 서로의 행동을 봅니다.</li>
+          <li>공격하거나 추가 행동을 얻은 사람은 다시 움직입니다. 둘 다 끝나야 몬스터 턴입니다.</li>
+        </ol>
+        <p class="help-note">2인 협동 알파 · 랭킹에는 기록되지 않습니다.</p>
+        <p class="help-note">DEV를 누르면 접속 없이 로컬 2인 테스트가 시작됩니다. 하단 도구에서 두 말의 자동 플레이를 함께 제어할 수 있습니다.</p>
+      </dialog>
+      <dialog id="deathDialog" class="solo-panel" aria-labelledby="deathTitle">
+        <p class="eyebrow">CHECKMATE</p>
+        <h2 id="deathTitle">CHECKMATE</h2>
+        <p id="deathReason"></p>
+        <p>동료가 생존해 있어 게임은 계속됩니다.</p>
+        <div class="result-actions">
+          <button id="deathReview" class="secondary-button" type="button">사망 직전 10수 보기</button>
+          <button id="deathSpectate" class="primary-button" type="button">동료 관전</button>
+        </div>
+      </dialog>
+      <dialog id="replayDialog" class="replay-dialog" aria-labelledby="replayTitle">
+        <h2 id="replayTitle">사망 직전 10수</h2>
+        <p id="replayReason"></p>
+        <iframe id="replayFrame" title="사망 직전 전개 복기" src="about:blank"></iframe>
+        <div class="replay-actions">
+          <button id="replayPrev" class="ghost" type="button">◀ 이전</button>
+          <span id="replayLabel" aria-live="polite"></span>
+          <button id="replayNext" class="ghost" type="button">이후 ▶</button>
+          <button id="replayClose" class="ghost" type="button">돌아가기</button>
+        </div>
+      </dialog>
       <section id="gameScreen" class="screen hidden">
         <div class="matchbar">
-          <div><small>ROOM</small><b id="roomCode">------</b><button id="copyButton" class="copy">COPY</button></div>
-          <div class="timer"><small id="phaseText">WAITING</small><b id="timerText">—</b></div>
-          <div><small>TEAM SCORE</small><b id="scoreText">0</b></div>
+          <div><small>초대 코드</small><b id="roomCode">------</b><button id="copyButton" class="copy">COPY</button></div>
+          <div class="timer"><small id="phaseText">WAITING</small><progress id="timerText" max="100" value="0" aria-label="남은 이동 선택 시간"></progress></div>
+          <div><small>팀 점수</small><b id="scoreText">0</b></div>
         </div>
-        <canvas id="coopCanvas" aria-label="협동 게임 보드"></canvas>
-        <div id="actionHint" class="action-hint">방 참가자를 기다리는 중입니다.</div>
-        <div class="legend"><i class="cyan"></i>당신 <i class="violet"></i>동료 <i class="red"></i>적 · 처치 시 다음 라운드 보너스 이동</div>
+        <div id="boardViews" class="board-views">
+          <iframe id="coopFrame0" src="index.html?coop=1" title="플레이어 1 게임 시점"></iframe>
+          <iframe id="coopFrame1" src="index.html?coop=1" title="플레이어 2 게임 시점"></iframe>
+        </div>
+        <div class="match-actions">
+          <div id="actionHint" class="action-hint">방 참가자를 기다리는 중입니다.</div>
+          <button id="cameraButton" class="ghost" type="button" disabled>동료 보기</button>
+          <button id="reviewDeathButton" class="ghost" type="button" hidden>사망 직전 10수</button>
+          <button id="autoButton" class="ghost" type="button" aria-pressed="false" aria-label="내 말 자동 플레이">AUTO OFF</button>
+        </div>
+        <div class="legend"><i class="cyan"></i>내 기물 <i class="ally"></i>P1 / P2 동료 · 공격 시 추가 행동</div>
+        <aside id="devTools" class="dev-tools" aria-label="로컬 코옵 개발 도구" hidden>
+          <div class="dev-heading"><strong>LOCAL DEV</strong><button id="devToolsToggle" class="ghost" type="button" aria-expanded="true" aria-controls="devControls">도구 숨기기</button></div>
+          <div id="devControls" class="dev-controls">
+            <button id="devAutoBoth" type="button" aria-pressed="true">AUTO BOTH ON</button>
+            <button id="devAuto0" type="button" aria-pressed="true">P1 AUTO ON</button>
+            <button id="devAuto1" type="button" aria-pressed="true">P2 AUTO ON</button>
+            <button id="devPause" type="button" aria-pressed="false">일시정지</button>
+            <button id="devStep" type="button">다음 단계</button>
+            <button id="devSpeed" type="button">SPEED ×1</button>
+            <button id="devPlayer" type="button">조작 P1</button>
+            <button id="devPiece" type="button">기물 나이트</button>
+            <button id="devXp" type="button">+ XP</button>
+            <label class="dev-hp">특성<select id="devTraitSelect" aria-label="개발용 특성 선택"></select></label>
+            <button id="devTrait" type="button">특성 획득/강화</button>
+            <label class="dev-hp">보스<select id="devBossSelect"><option value="rook">아이언 룩</option><option value="bloodQueen">블러드 퀸</option><option value="bishop">비숍</option><option value="checkmateBishop">체크메이트 비숍</option><option value="queen">퀸</option></select></label>
+            <button id="devBoss" type="button">보스 소환</button>
+            <label class="dev-hp">적 내구도<select id="devEnemyHp"><option value="1">1</option><option value="2">2</option><option value="7">7</option></select></label>
+            <button id="devSpawnpawn" type="button">+ PAWN</button>
+            <button id="devSpawnrook" type="button">+ ROOK</button>
+            <button id="devClear" type="button">적 지우기</button>
+            <button id="devRestart" type="button">다시 시작</button>
+          </div>
+        </aside>
       </section>
       <section id="endScreen" class="screen hidden">
-        <p class="eyebrow">CHECKMATE</p>
-        <h2>THE TEAM FALLS.</h2>
-        <p id="endText"></p>
-        <button id="backToLobby">새 방으로</button>
+        <div class="solo-panel">
+          <p class="eyebrow">CHECKMATE</p>
+          <h2>THE BOARD REMEMBERS.</h2>
+          <p id="endText" role="status"></p>
+          <p id="endDeaths"></p>
+          <div class="end-reviews">
+            <button id="endReview0" class="secondary-button" type="button" disabled>P1 사망 직전 10수</button>
+            <button id="endReview1" class="secondary-button" type="button" disabled>P2 사망 직전 10수</button>
+          </div>
+          <div class="result-actions">
+            <a class="secondary-button" href="index.html">메인 화면</a>
+            <button id="devRestartEnd" class="secondary-button" type="button" hidden>로컬 테스트 다시 시작</button>
+            <button id="backToLobby" class="primary-button" type="button">새 방으로 돌아가기 ↻</button>
+          </div>
+        </div>
       </section>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="coop.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="coop-session.js?v=v0.16.3"></script>
+    <script src="coop.js?v=v0.16.3"></script>
   </body>
 </html>

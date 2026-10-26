@@ -181,6 +181,7 @@
       riskBeats: 0,
       showOffscreenIndicators: true,
     };
+  let coopSession = null, coopExecuting = false;
   let W = 0,
     H = 0,
     D = 1,
@@ -694,7 +695,7 @@
     if (!audio.ctx || audio.timer) return;
     let notes = [110, 0, 164.81, 196, 220, 196, 164.81, 0, 130.81, 0, 196, 246.94, 261.63, 246.94, 196, 0];
     let loop = () => {
-      if (!S.running) { audio.timer = null; return; }
+      if (!S.running || coopSession?.suspended) { audio.timer = null; return; }
       let n = notes[audio.step % notes.length];
       if (n) tone(n * 2, 0.16, "triangle", 0.055, 0.995, "bgm");
       if (audio.step % 4 === 0) tone(n || 110, 0.22, "sine", 0.08, 0.98, "bgm");
@@ -786,6 +787,7 @@
     hud();
   }
   function rememberRewind(label) {
+    if (coopSession) return;
     if (!S.running || ["dead", "rewind"].includes(S.phase)) return;
     let snapshot = {
       label,
@@ -1066,6 +1068,10 @@
       x: Math.max(1, ...S.moves.map((m) => Math.abs(m.x - p.x))),
       y: Math.max(1, ...S.moves.map((m) => Math.abs(m.y - p.y))),
     };
+    if (coopSession) S.moves = S.moves.filter(m => {
+      const exit = wormholeExit(m.x, m.y) || m;
+      return !coopSession.roster.some(p => p !== S.player && p.alive && ((p.x===m.x&&p.y===m.y)||(p.x===exit.x&&p.y===exit.y)));
+    });
   }
   function terrainAt(x, y) {
     return S.terrain.find((t) => t.x === x && t.y === y);
@@ -1389,7 +1395,7 @@
           ? 2 + Math.floor(Math.pow(Math.random(), 1.65) * (highestTier - 1))
           : 1,
       risk = S.riskBeats > 0;
-    if (terrainAt(x, y) || S.enemies.some((enemy) => enemy.x === x && enemy.y === y)) return;
+    if (terrainAt(x, y) || S.enemies.some((enemy) => enemy.x === x && enemy.y === y) || coopSession?.roster.some(p=>p.alive&&p.x===x&&p.y===y)) return;
     const enemyTraits = S.wave <= 3 ? [] : EnemyTraits.rollTraits(S.elapsedPlaySeconds, risk, Math.random);
     S.enemies.push({
       x,
@@ -1443,7 +1449,7 @@
       for (let step = 1; step <= 2; step++) {
         let q = { x: e.x + dx * step, y: e.y + dy * step };
         if (isWall(q.x, q.y) || occupied.has(K(q.x, q.y))) break;
-        if (dist(q, S.player) >= 3) choices.push(q);
+        if (dist(q, S.player) >= 3 && !coopSession?.roster.some(p=>p.alive&&p.x===q.x&&p.y===q.y)) choices.push(q);
       }
     });
     if (!choices.length) return false;
@@ -1464,7 +1470,7 @@
       spots = [[0, -4], [4, 0], [0, 4], [-4, 0]]
         .sort(() => Math.random() - 0.5)
         .map(([x, y]) => ({ x: p.x + x, y: p.y + y })),
-      q = spots.find((spot) => !terrainAt(spot.x, spot.y) && !S.enemies.some((e) => e.x === spot.x && e.y === spot.y));
+      q = spots.find((spot) => !terrainAt(spot.x, spot.y) && !S.enemies.some((e) => e.x === spot.x && e.y === spot.y) && (!coopSession || !coopSession.players().some((ally) => ally.alive && ally.x === spot.x && ally.y === spot.y)));
     if (!q) return;
     S.enemies.push({
       x: q.x,
@@ -1797,6 +1803,7 @@
     ui.hint.textContent = "위험 계약을 수락하거나 거절하세요.";
   }
   function resolveRisk(accept) {
+    if (coopSession && !coopExecuting) { coopSession.request({type:"risk",index:accept}); return; }
     if (S.phase !== "risk") return;
     ui.risk.classList.add("hidden");
     if (accept) {
@@ -1809,6 +1816,7 @@
     beginPlayerTurn();
   }
   function playerMove(m) {
+    if (coopSession && !coopExecuting) { coopSession.request({type:"move",move:{x:m.x,y:m.y}}); return; }
     if (S.phase !== "player") return;
     rememberRewind("YOUR MOVE");
     let p = S.player,
@@ -2005,6 +2013,7 @@
     return eligible.length > S.upgradeOptions.length;
   }
   function rerollTraits() {
+    if (coopSession && !coopExecuting) { coopSession.request({type:"reroll"}); return; }
     if (S.phase !== "upgrade" || performance.now() < (S.upgradeLock || 0) || !canRerollTraits()) return;
     const previous = S.upgradeOptions.map((option) => option.id);
     S.traitRerolls--;
@@ -2102,6 +2111,7 @@
     }
   }
   function chooseUpgrade(index) {
+    if (coopSession && !coopExecuting) { coopSession.request({type:"upgrade",index}); return; }
     if (S.phase !== "upgrade" || performance.now() < (S.upgradeLock || 0)) return;
     const p = S.player, option = S.upgradeOptions[index];
     if (!option) return;
@@ -2696,13 +2706,18 @@
       g.beginPath();
       let a = pos(S.trail[0].x1, S.trail[0].y1);
       g.moveTo(a.x, a.y);
+      let previousTrail=null;
       S.trail.forEach((t) => {
+        if(coopSession&&previousTrail&&(previousTrail.x2!==t.x1||previousTrail.y2!==t.y1)){
+          const start=pos(t.x1,t.y1);g.moveTo(start.x,start.y);
+        }
         let b = pos(t.x2, t.y2);
         if (t.via) {
           let v = pos(t.via.x, t.via.y);
           g.lineTo(v.x, v.y);
         }
         g.lineTo(b.x, b.y);
+        previousTrail=t;
       });
       g.stroke();
       g.restore();
@@ -2822,7 +2837,7 @@
         ),
         safeTarget = activeBoss?.bossPhase === "sanctuary" && activeBoss.safeCells?.some((cell) => cell.x === m.x && cell.y === m.y),
         sanctuaryUnsafe = activeBoss?.bossPhase === "sanctuary" && !safeTarget,
-        active = S.phase === "player",
+        active = coopSession ? coopSession.interactive : S.phase === "player",
         a = active
           ? 0.2 + 0.19 * Math.sin(performance.now() / 100) + S.flash * 0.35
           : 0.07;
@@ -2920,7 +2935,15 @@
     S.enemies.forEach((e) => piece(e.x, e.y, e.type, true, e.hp || 1, e.maxHp || 1, e.risk, e.boss, e.bossPhase, e.bossName, e.seals, e.enraged));
     const protectedLive = EnemyTraits.protectedEnemies(S.enemies);
     S.enemies.forEach((enemy) => enemyBadge(enemy, protectedLive));
-    if (!["dead", "captured"].includes(S.phase)) piece(S.player.x, S.player.y, S.player.piece);
+    if (!["dead", "captured"].includes(S.phase) && (!coopSession || S.player.alive)) piece(S.player.x, S.player.y, S.player.piece);
+    if (coopSession) {
+      drawCoopAlly();
+      if(coopSession.replaying)for(const [i,p] of coopSession.roster.entries())if(!p.alive){
+        const q=pos(p.x,p.y),r=size()*.2;g.save();g.strokeStyle="#ff5577";g.lineWidth=3;
+        g.beginPath();g.moveTo(q.x-r,q.y-r);g.lineTo(q.x+r,q.y+r);g.moveTo(q.x+r,q.y-r);g.lineTo(q.x-r,q.y+r);g.stroke();
+        g.fillStyle="#ffb6c8";g.font="12px 'Gowun Batang'";g.textAlign="center";g.fillText("P"+(i+1),q.x,q.y-r-6);g.restore();
+      }
+    }
     if (S.phase === "dead") {
       let q = pos(S.player.x, S.player.y),
         t = 1 - S.death / 1.1;
@@ -2964,7 +2987,7 @@
     g.globalAlpha = 1;
   }
   function advanceDifficultyClock(now = performance.now()) {
-    const active = S.running && !document.hidden && ["player", "enemy"].includes(S.phase);
+    const active = S.running && !document.hidden && !coopSession?.paused && ["player", "enemy"].includes(S.phase);
     if (active && S.difficultyClockActive && Number.isFinite(now) && now >= S.difficultyClockAt)
       S.elapsedPlaySeconds += (now - S.difficultyClockAt) / 1000;
     S.difficultyClockAt = now;
@@ -2975,14 +2998,39 @@
       $("#devTime").textContent = "+5분 (" + minute + "분)";
     }
   }
+  function drawCoopAlly() {
+    const allyIndex=1-coopSession.view,ally = coopSession.roster[allyIndex];
+    if (!ally?.alive) return;
+    const q=pos(ally.x,ally.y), s=size(), onScreen=q.x>30&&q.x<W-30&&q.y>75&&q.y<H-30;
+    g.save();
+    const color="#f1ffff",label="P"+(allyIndex+1);
+    g.shadowColor=color;g.shadowBlur=30;
+    if (onScreen) {
+      drawPrePiece(ally.piece,q.x,q.y,s*.54,color);
+      g.font="bold 11px 'Gowun Batang'";g.textAlign="center";g.textBaseline="bottom";g.fillStyle=color;
+      g.fillText(label,q.x,q.y-s*.32);
+    }
+    else {
+      const dx=q.x-W/2,dy=q.y-H/2,scale=Math.min(Math.max(16,W/2-32)/Math.max(1,Math.abs(dx)),Math.max(16,H/2-80)/Math.max(1,Math.abs(dy)));
+      const x=W/2+dx*scale,y=H/2+dy*scale,angle=Math.atan2(dy,dx);
+      g.shadowBlur=14;g.fillStyle="#0d1330";g.strokeStyle=color;g.lineWidth=2;
+      g.beginPath();g.arc(x,y,13,0,Math.PI*2);g.fill();g.stroke();
+      g.font="bold 11px 'Gowun Batang'";g.textAlign="center";g.textBaseline="middle";g.fillStyle=color;g.fillText(label,x,y);
+      g.translate(x,y);g.rotate(angle);g.beginPath();g.moveTo(25,0);g.lineTo(17,-5);g.lineTo(17,5);g.closePath();g.fill();
+    }
+    g.restore();
+  }
   function tick(now) {
+    if (coopSession?.suspended) {last=now;requestAnimationFrame(tick);return;}
+    if (coopSession?.replaying) {last=now;draw();requestAnimationFrame(tick);return;}
     advanceDifficultyClock(now);
     let dt = Math.min(0.05, (now - last) / 1000 || 0) * S.devSpeed;
     last = now;
     if (S.running) {
       advanceGrowthNotice(dt);
-      S.camera.x += (S.player.x - S.camera.x) * Math.min(1, dt * 8);
-      S.camera.y += (S.player.y - S.camera.y) * Math.min(1, dt * 8);
+      const cameraTarget=coopSession ? coopSession.roster[coopSession.focus] || S.player : S.player;
+      S.camera.x += (cameraTarget.x - S.camera.x) * Math.min(1, dt * 8);
+      S.camera.y += (cameraTarget.y - S.camera.y) * Math.min(1, dt * 8);
       S.flash = Math.max(0, S.flash - dt * 1.8);
       if (S.optimized) {
         let particleCount = 0;
@@ -3024,7 +3072,7 @@
         ui.meter.style.background = "#f45cf4";
         ui.meter.style.boxShadow = "0 0 15px #f45cf4";
         ui.beat.textContent = Math.max(0, S.beat - S.elapsed).toFixed(1) + "s";
-        if (S.elapsed >= S.beat) enemyBeat();
+        if (S.elapsed >= S.beat && !coopSession) enemyBeat();
       } else if (S.phase === "player") {
         let comboColor = S.displayChain
           ? COMBO_COLORS[(S.displayChain - 1) % COMBO_COLORS.length]
@@ -3084,7 +3132,8 @@
     requestAnimationFrame(tick);
   }
   function tap(e) {
-    if (!S.running || S.phase !== "player") return;
+    if (coopSession && !coopSession.interactive) return;
+    if (!S.running || (coopSession ? !coopSession.interactive : S.phase !== "player")) return;
     const bounds = c.getBoundingClientRect(), tx = e.clientX - bounds.left, ty = e.clientY - bounds.top;
     const inspected = S.enemies.find((enemy) => {
       const q = pos(enemy.x, enemy.y);
@@ -3444,6 +3493,16 @@
   ui.bgmVolumeRange.addEventListener("input", (e) => setBusVolume("bgm", Number(e.target.value)));
   ui.sfxVolumeRange.addEventListener("input", (e) => setBusVolume("sfx", Number(e.target.value)));
   ui.offscreenIndicatorToggle.addEventListener("change", (e) => setOffscreenIndicators(e.target.checked));
+  if (window.CoopRuntime && window.location?.search.includes("coop=1")) {
+    document.documentElement.classList.add("coop-embedded");
+    coopSession = window.CoopRuntime.create({S,ui,executing:value=>{coopExecuting=value;},fn:{
+      reset,hud,moves,playerMove,chooseUpgrade,renderChoices,resolveRisk,rerollTraits,autoMove,
+      spawn,spawnBoss,spawnTerrainByWave,spawnFieldItem,offerRisk,deathBurst,toward,boss,advanceBoss,bossLineThreat,chooseSafeCells,knightCorner,
+      devXp,openDevPick,audio:startBgm,replayUi:()=>document.documentElement.classList.add("coop-replay"),now:()=>performance.now(),catalog:TraitSystem.traits.map(t=>({id:t.id,name:t.name})),
+      heal:()=>EnemyTraits.heal(S.enemies).forEach(({healer,target})=>{target.hp=Math.min(target.maxHp,target.hp+1);S.effects.push({type:"enemyHeal",x:healer.x,y:healer.y,x2:target.x,y2:target.y,life:.45,max:.45});}),
+    }});
+    window.CoopGame=coopSession;
+  }
   reset();
   requestAnimationFrame(tick);
 })();

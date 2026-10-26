@@ -1,0 +1,160 @@
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === "object" && module.exports) module.exports = api;
+  else root.CoopRuntime = api;
+})(typeof window === "object" ? window : globalThis, function () {
+  "use strict";
+  const copy = value => JSON.parse(JSON.stringify(value));
+  const fields = ["chain","displayChain","grace","invincibleBeats","rangeBoostMoves","extendedMoves","traitRerolls"];
+  function create({S, ui, fn, executing}) {
+    const clock=()=>fn.now();
+    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true };
+    const save = slot => { if(slot>=0)api.turns[slot]=Object.fromEntries(fields.map(key=>[key,S[key]])); };
+    function use(slot, operation) {
+      const previous = api.roster.indexOf(S.player); save(previous);
+      S.player=api.roster[slot];Object.assign(S,api.turns[slot]);
+      try { executing(true);return operation(); }
+      finally { save(slot); executing(false); if(previous>=0){S.player=api.roster[previous];Object.assign(S,api.turns[previous]);} }
+    }
+    function refresh() {
+      if(!api.roster.length)return;
+      const slot=Math.min(api.view,api.roster.length-1);
+      save(api.roster.indexOf(S.player));S.player=api.roster[slot];Object.assign(S,api.turns[slot]);
+      fn.moves();fn.hud();
+      ui.upgrade.classList.toggle("hidden",S.phase!=="upgrade"||api.pendingOwner!==slot);
+      ui.risk.classList.toggle("hidden",S.phase!=="risk"||api.pendingOwner!==slot);
+      if(S.phase==="upgrade"&&api.pendingOwner===slot)fn.renderChoices();
+    }
+    api.players = () => api.roster;
+    api.catalog = fn.catalog;
+    api.audio = () => fn.audio();
+    api.choiceReady = () => clock()>=(S.upgradeLock||0);
+    api.request = message => { if(api.interactive||message.type!=="move")api.onInput({...message,slot:api.view}); };
+    api.start = () => {
+      api.suspended=false;api.replaying=false;
+      api.roster=[];api.turns=[];fn.reset();S.running=true;S.autoPlay=false;S.dev=false;S.runTicket=null;
+      const original=copy(S.player); const defaults=Object.fromEntries(fields.map(key=>[key,S[key]]));
+      api.roster=[{...copy(original),x:-2,y:0,alive:true},{...copy(original),x:2,y:0,alive:true}];
+      api.turns=[copy(defaults),copy(defaults)];S.player=api.roster[0];api.view=0;api.focus=0;api.pendingOwner=null;
+      S.camera={x:-2,y:0};ui.start.classList.add("hidden");ui.over.classList.add("hidden");refresh();
+    };
+    api.moves = slot => !api.roster[slot]?.alive ? [] : use(slot,()=>{fn.moves();return copy(S.moves);});
+    api.act = (slot,move) => {
+      if(!api.moves(slot).some(m=>m.x===move.x&&m.y===move.y))return {retained:false,pending:false};
+      const result=use(slot,()=>{S.phase="player";fn.playerMove(move);return {retained:S.phase==="player",pending:S.phase==="upgrade"};});
+      api.pendingOwner=result.pending?slot:null;refresh();return result;
+    };
+    api.pending = () => api.pendingOwner==null ? null : {slot:api.pendingOwner,kind:S.phase==="risk"?"risk":"upgrade"};
+    api.choose = (slot,index,kind) => {
+      if(slot!==api.pendingOwner)return null;
+      let accepted=false;
+      const result=use(slot,()=>{
+        if(S.phase==="risk"&&kind==="risk"){fn.resolveRisk(Boolean(index));accepted=true;}
+        else if(S.phase==="upgrade"&&clock()>=(S.upgradeLock||0)){
+          if(kind==="reroll")fn.rerollTraits();else if(Number.isInteger(index)&&S.upgradeOptions[index])fn.chooseUpgrade(index);else return null;
+          accepted=true;
+        }
+        return {pending:S.phase==="upgrade",retained:S.phase==="player"};
+      });
+      if(!accepted)return null;
+      if(!result.pending)api.pendingOwner=null;refresh();return result;
+    };
+    api.auto = slot => use(slot,()=>{
+      const previousPhase=S.phase,previousAuto=S.autoPlay,previousInput=api.onInput,previousInteractive=api.interactive;
+      let selected=null;api.onInput=m=>{if(m.type==="move")selected={x:m.move.x,y:m.move.y};};
+      try { executing(false);api.interactive=true;S.phase="player";S.autoPlay=true;fn.moves();fn.autoMove();return selected; }
+      finally {api.onInput=previousInput;api.interactive=previousInteractive;S.phase=previousPhase;S.autoPlay=previousAuto;executing(true);}
+    });
+    const kill = (slot,reason) => { const p=api.roster[slot];if(!p?.alive)return;p.alive=false;p.deathReason=reason;fn.deathBurst(p.x,p.y); };
+    api.enemyTurn = () => {
+      save(api.roster.indexOf(S.player));
+      S.wave++;S.elapsed=0;S.trail=[];S.enemyTrail=[];S.displayChain=S.chain=0;
+      clearTimeout(S.comboStepTimer);clearTimeout(S.comboHideTimer);ui.combo.classList.remove("show");
+      S.itemCooldown=Math.max(0,S.itemCooldown-1);S.items=S.items.filter(item=>--item.life>0);
+      const hazards=S.emberHazards.filter(h=>h.detonateWave<=S.wave);S.emberHazards=S.emberHazards.filter(h=>h.detonateWave>S.wave);
+      const protectedSlots=api.turns.map(t=>t.invincibleBeats>0||t.grace>0);
+      api.turns.forEach(t=>{t.chain=t.displayChain=0;t.invincibleBeats=Math.max(0,t.invincibleBeats-1);t.grace=Math.max(0,t.grace-1);});
+      Object.assign(S,api.turns[api.roster.indexOf(S.player)]);
+      api.roster.forEach((p,i)=>{if(!protectedSlots[i]&&hazards.some(h=>h.x===p.x&&h.y===p.y))kill(i,"잔불 폭발");});
+      const live=()=>api.roster.map((p,i)=>({p,i})).filter(({p})=>p.alive);
+      const nearest=e=>live().sort((a,b)=>Math.abs(a.p.x-e.x)+Math.abs(a.p.y-e.y)-Math.abs(b.p.x-e.x)-Math.abs(b.p.y-e.y))[0];
+      const boss=fn.boss();
+      if(boss&&live().length){
+        const before=boss.bossPhase,target=nearest(boss);
+        // Evaluate a shared telegraph against both players before advancing it once.
+        const victims=live().filter(({p})=>before==="telegraph"?fn.bossLineThreat(boss,p):before==="sanctuary"&&boss.safeCells?.length?!boss.safeCells.some(c=>c.x===p.x&&c.y===p.y):false);
+        use(target.i,()=>fn.advanceBoss());
+        for(const {i} of victims)if(!protectedSlots[i])kill(i,boss.bossName);
+        if(victims.length&&["telegraph","sanctuary"].includes(before)){boss.bossPhase="vulnerable";}
+      }
+      const used=new Set();
+      for(const e of S.enemies.filter(e=>!e.boss)){
+        const target=nearest(e);if(!target)break;
+        const from={x:e.x,y:e.y},next=fn.toward(e,target.p),key=next.x+","+next.y;
+        const victim=live().find(({p})=>p.x===next.x&&p.y===next.y);
+        if(used.has(key))continue;
+        if(victim&&protectedSlots[victim.i])continue;
+        e.x=next.x;e.y=next.y;used.add(key);
+        if(from.x!==e.x||from.y!==e.y)S.enemyTrail.push({x1:from.x,y1:from.y,x2:e.x,y2:e.y,via:e.type==="knight"?fn.knightCorner(from,e):null});
+        if(victim)kill(victim.i,e.type.toUpperCase()+"에게 잡힘");
+      }
+      fn.heal();
+      const survivors=live();
+      if(survivors.length){
+        // Original spawn/rank/durability/trait/item/terrain rules, around alternating survivors.
+        use(survivors[S.wave%survivors.length].i,()=>{
+          for(let i=0;i<(S.wave%4===0?2:1);i++)fn.spawn();
+          if(S.wave%30===0)fn.spawnBoss();fn.spawnTerrainByWave();
+          if(Math.random()<1-Math.pow(.92,S.wave%4===0?2:1))fn.spawnFieldItem();
+          if(S.riskBeats>0)S.riskBeats--;
+          if(S.wave%20===0){fn.offerRisk();api.pendingOwner=survivors[0].i;}else S.phase="player";
+        });
+      }else S.phase="coopover";
+      const activeBoss=fn.boss();
+      if(activeBoss?.bossPhase==="sanctuary"&&!activeBoss.safeCells.length){
+        const cells=[];
+        for(const {i} of live())use(i,()=>{fn.moves();fn.chooseSafeCells(activeBoss);cells.push(...activeBoss.safeCells);});
+        activeBoss.safeCells=cells.filter((c,i)=>cells.findIndex(q=>q.x===c.x&&q.y===c.y)===i);
+      }
+      refresh();
+    };
+    api.snapshot = () => {
+      save(api.roster.indexOf(S.player));
+      const world=copy(S);for(const key of ["comboStepTimer","comboHideTimer","runTicket","player","camera"])delete world[key];
+      return {world,players:copy(api.roster),turns:copy(api.turns),pendingOwner:api.pendingOwner,clock:clock(),rewardLabels:{title:ui.upgradeTitle.textContent,eyebrow:ui.upgradeEyebrow.textContent}};
+    };
+    api.apply = snapshot => {
+      const camera=S.camera;Object.assign(S,copy(snapshot.world));S.camera=camera;
+      api.roster=copy(snapshot.players);api.turns=copy(snapshot.turns);api.pendingOwner=snapshot.pendingOwner;
+      S.player=api.roster[api.view];Object.assign(S,api.turns[api.view]);
+      if(snapshot.rewardLabels){ui.upgradeTitle.textContent=snapshot.rewardLabels.title;ui.upgradeEyebrow.textContent=snapshot.rewardLabels.eyebrow;}
+      if(S.phase==="upgrade")S.upgradeLock=clock()+Math.max(0,(snapshot.world.upgradeLock||0)-snapshot.clock);
+      refresh();
+    };
+    api.present = ({view=0,focus=view,interactive=false,paused=false}={}) => {api.suspended=false;api.paused=paused;api.view=view;api.focus=focus;api.interactive=interactive;refresh();};
+    api.replay = (snapshot,view) => {
+      fn.replayUi?.();
+      api.view=view;api.apply(snapshot);S.phase="coopreplay";S.autoPlay=false;
+      api.present({view,focus:view,interactive:false,paused:true});
+      S.moves=[];S.particles=[];S.effects=[];S.camera={x:S.player.x,y:S.player.y};api.replaying=true;
+    };
+    api.debug = (action,value,slot=api.view) => use(slot,()=>{
+      if(action==="piece"&&["pawn","knight","bishop","rook","queen","king"].includes(value))S.player.piece=value;
+      if(action==="xp")fn.devXp();
+      if(action==="trait"&&fn.catalog.some(t=>t.id===value)){
+        if(S.player.traits.includes(value))S.player.traitLevels[value]=Math.min(5,(S.player.traitLevels[value]||1)+1);
+        else if(S.player.traits.length<6){S.player.traits.push(value);S.player.traitLevels[value]=1;}
+      }
+      if(action==="boss")fn.spawnBoss(value||"rook");
+      if(action==="clear")S.enemies=[];
+      if(action==="spawn"){
+        fn.moves();const m=S.moves.find(m=>!S.enemies.some(e=>e.x===m.x&&e.y===m.y));
+        if(m)S.enemies.push({...m,type:value.type,face:{x:0,y:1},hp:value.hp,maxHp:value.hp,enemyTraits:[]});
+      }
+      if(S.phase==="upgrade"||S.phase==="devpick")api.pendingOwner=slot;
+      fn.moves();fn.hud();
+    });
+    return api;
+  }
+  return {create};
+});
