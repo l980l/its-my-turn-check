@@ -10,6 +10,7 @@
     "test:coop-session": "node scripts/test-coop-session.cjs",
     "balance:traits": "node scripts/simulate-trait-levels.cjs",
     "balance:hidden": "node scripts/simulate-hidden-growth.cjs",
+    "balance:coop": "node scripts/simulate-coop-balance.cjs",
     "prepare:web": "node scripts/prepare-web.mjs",
     "sync:android": "npm run prepare:web && npx cap sync android",
     "open:android": "npm run sync:android && npx cap open android"

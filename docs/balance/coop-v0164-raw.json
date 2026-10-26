@@ -1,0 +1,5681 @@
+{
+ "profile": "coop-balance-v1",
+ "seed": 20261026,
+ "runs": 48,
+ "waveCap": 600,
+ "secondsPerWave": 3.34,
+ "policy": "game autoMove for every player; first reward option; contracts declined",
+ "metrics": {
+  "firstDeathWave": "wave of the first capture per run (solo: the only capture); unit run",
+  "teamDeathWave": "wave when no player remains; unit run",
+  "killsPerWave": "team kills / teamDeathWave; unit run",
+  "enemiesPerLivingPlayer": "mean over enemy turns of non-boss enemies / living players; unit run",
+  "finalRank": "rank per player at end; unit player"
+ },
+ "limit": "Fixed auto policy; seeds are paired across variants but not human players. Survival waves are not play time or fun.",
+ "runtimes": {
+  "solo, coop_unsorted (v0.16.3)": {
+   "game": "e0d4375dd105788f",
+   "coopRuntime": "58842e897876e5fd",
+   "coopSession": "bf83072b7312b978",
+   "traits": "120a8ee41c910c6a",
+   "enemyTraits": "8bb338d9e40bc877",
+   "dirty": [
+    "?? .ai-wiki.yml",
+    "?? CODEX_AI_COLLABORATION_PORTFOLIO.md",
+    "?? docs/ai-wiki/",
+    "?? docs/portfolio/",
+    "?? scripts/simulate-coop-balance.cjs"
+   ]
+  },
+  "coop (v0.16.4 nearest-first), s15, s2": {
+   "game": "e0d4375dd105788f",
+   "coopRuntime": "824a1884a3b74fbe",
+   "coopSession": "bf83072b7312b978",
+   "traits": "120a8ee41c910c6a",
+   "enemyTraits": "8bb338d9e40bc877",
+   "dirty": [
+    "M coop-runtime.js",
+    " M scripts/game-harness.cjs",
+    "?? .ai-wiki.yml",
+    "?? CODEX_AI_COLLABORATION_PORTFOLIO.md",
+    "?? docs/ai-wiki/",
+    "?? docs/portfolio/",
+    "?? scripts/simulate-coop-balance.cjs"
+   ]
+  }
+ },
+ "variants": {
+  "solo": {
+   "runs": 48,
+   "capped": 9,
+   "firstDeathWave": {
+    "p10": 39,
+    "p50": 101,
+    "p90": 600,
+    "mean": 217
+   },
+   "teamDeathWave": {
+    "p10": 39,
+    "p50": 101,
+    "p90": 600,
+    "mean": 217
+   },
+   "killsPerWave": {
+    "p10": 0.71,
+    "p50": 1.12,
+    "p90": 1.63,
+    "mean": 1.17
+   },
+   "score": {
+    "p10": 4100,
+    "p50": 33200,
+    "p90": 495100,
+    "mean": 144146.35
+   },
+   "enemiesPerLivingPlayer": {
+    "p10": 12.41,
+    "p50": 16.04,
+    "p90": 22.76,
+    "mean": 17.13
+   },
+   "finalRank": {
+    "p10": 4,
+    "p50": 10,
+    "p90": 32,
+    "mean": 14.29
+   },
+   "deathReasons": {
+    "BISHOP에게 잡힘": 3,
+    "PAWN에게 잡힘": 11,
+    "ROOK에게 잡힘": 8,
+    "보스 심판": 5,
+    "QUEEN에게 잡힘": 9,
+    "KING에게 잡힘": 3
+   }
+  },
+  "coop_unsorted": {
+   "runs": 48,
+   "capped": 0,
+   "firstDeathWave": {
+    "p10": 27,
+    "p50": 54,
+    "p90": 95,
+    "mean": 57.75
+   },
+   "teamDeathWave": {
+    "p10": 50,
+    "p50": 85,
+    "p90": 121,
+    "mean": 86.25
+   },
+   "killsPerWave": {
+    "p10": 0.86,
+    "p50": 0.99,
+    "p90": 1.17,
+    "mean": 1.01
+   },
+   "score": {
+    "p10": 6100,
+    "p50": 17400,
+    "p90": 43150,
+    "mean": 20593.23
+   },
+   "enemiesPerLivingPlayer": {
+    "p10": 8.12,
+    "p50": 11.12,
+    "p90": 13.95,
+    "mean": 11.18
+   },
+   "finalRank": {
+    "p10": 2,
+    "p50": 5,
+    "p90": 8,
+    "mean": 5.22
+   },
+   "deathReasons": {
+    "PAWN에게 잡힘": 18,
+    "ROOK에게 잡힘": 24,
+    "QUEEN에게 잡힘": 20,
+    "BISHOP에게 잡힘": 25,
+    "KNIGHT에게 잡힘": 5,
+    "KING에게 잡힘": 4
+   }
+  },
+  "coop": {
+   "runs": 48,
+   "capped": 14,
+   "firstDeathWave": {
+    "p10": 28,
+    "p50": 63,
+    "p90": 275,
+    "mean": 115.02
+   },
+   "teamDeathWave": {
+    "p10": 54,
+    "p50": 191,
+    "p90": 600,
+    "mean": 287.33
+   },
+   "killsPerWave": {
+    "p10": 0.9,
+    "p50": 1.3,
+    "p90": 1.69,
+    "mean": 1.3
+   },
+   "score": {
+    "p10": 9925,
+    "p50": 85250,
+    "p90": 482175,
+    "mean": 180551.56
+   },
+   "enemiesPerLivingPlayer": {
+    "p10": 7.87,
+    "p50": 15.74,
+    "p90": 23.29,
+    "mean": 16
+   },
+   "finalRank": {
+    "p10": 2,
+    "p50": 8,
+    "p90": 28,
+    "mean": 11.04
+   },
+   "deathReasons": {
+    "BISHOP에게 잡힘": 8,
+    "QUEEN에게 잡힘": 17,
+    "ROOK에게 잡힘": 9,
+    "PAWN에게 잡힘": 29,
+    "CHECKMATE BISHOP": 9,
+    "KING에게 잡힘": 6,
+    "KNIGHT에게 잡힘": 1
+   }
+  },
+  "s15": {
+   "runs": 48,
+   "capped": 16,
+   "firstDeathWave": {
+    "p10": 29,
+    "p50": 75,
+    "p90": 431,
+    "mean": 141.96
+   },
+   "teamDeathWave": {
+    "p10": 59,
+    "p50": 241,
+    "p90": 600,
+    "mean": 323.75
+   },
+   "killsPerWave": {
+    "p10": 1.29,
+    "p50": 1.59,
+    "p90": 2.14,
+    "mean": 1.64
+   },
+   "score": {
+    "p10": 11950,
+    "p50": 140225,
+    "p90": 554275,
+    "mean": 247171.88
+   },
+   "enemiesPerLivingPlayer": {
+    "p10": 13.1,
+    "p50": 17.63,
+    "p90": 32.67,
+    "mean": 19.51
+   },
+   "finalRank": {
+    "p10": 3,
+    "p50": 10,
+    "p90": 30,
+    "mean": 13.85
+   },
+   "deathReasons": {
+    "CHECKMATE BISHOP": 11,
+    "ROOK에게 잡힘": 15,
+    "PAWN에게 잡힘": 19,
+    "BISHOP에게 잡힘": 7,
+    "QUEEN에게 잡힘": 16,
+    "KNIGHT에게 잡힘": 3,
+    "KING에게 잡힘": 6
+   }
+  },
+  "s2": {
+   "runs": 48,
+   "capped": 14,
+   "firstDeathWave": {
+    "p10": 29,
+    "p50": 51,
+    "p90": 213,
+    "mean": 94.19
+   },
+   "teamDeathWave": {
+    "p10": 75,
+    "p50": 170,
+    "p90": 600,
+    "mean": 317.17
+   },
+   "killsPerWave": {
+    "p10": 1.46,
+    "p50": 1.71,
+    "p90": 2.18,
+    "mean": 1.77
+   },
+   "score": {
+    "p10": 27400,
+    "p50": 114925,
+    "p90": 548550,
+    "mean": 242954.17
+   },
+   "enemiesPerLivingPlayer": {
+    "p10": 15.84,
+    "p50": 19.38,
+    "p90": 43.88,
+    "mean": 24.38
+   },
+   "finalRank": {
+    "p10": 4,
+    "p50": 10,
+    "p90": 31,
+    "mean": 13.97
+   },
+   "deathReasons": {
+    "PAWN에게 잡힘": 17,
+    "CHECKMATE BISHOP": 8,
+    "QUEEN에게 잡힘": 24,
+    "ROOK에게 잡힘": 10,
+    "BISHOP에게 잡힘": 9,
+    "KING에게 잡힘": 7,
+    "KNIGHT에게 잡힘": 6
+   }
+  }
+ },
+ "raw": {
+  "solo": [
+   {
+    "mode": "solo",
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 248,
+    "teamDeath": 248,
+    "kills": 351,
+    "score": 145650,
+    "ranks": [
+     18
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 19.31451612903226,
+    "peakEnemies": 33
+   },
+   {
+    "mode": "solo",
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 60,
+    "teamDeath": 60,
+    "kills": 59,
+    "score": 10375,
+    "ranks": [
+     7
+    ],
+    "traits": [
+     5
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.016666666666667,
+    "peakEnemies": 21
+   },
+   {
+    "mode": "solo",
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1038,
+    "score": 545925,
+    "ranks": [
+     34
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 21.593333333333334,
+    "peakEnemies": 45
+   },
+   {
+    "mode": "solo",
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 43,
+    "kills": 39,
+    "score": 4925,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 12.348837209302326,
+    "peakEnemies": 16
+   },
+   {
+    "mode": "solo",
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 123,
+    "kills": 131,
+    "score": 40475,
+    "ranks": [
+     11
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP의 심판"
+    ],
+    "pressurePerLiving": 18.390243902439025,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "solo",
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 108,
+    "teamDeath": 108,
+    "kills": 119,
+    "score": 49200,
+    "ranks": [
+     10
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.944444444444445,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 327,
+    "teamDeath": 327,
+    "kills": 455,
+    "score": 212675,
+    "ranks": [
+     22
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP의 심판"
+    ],
+    "pressurePerLiving": 21.724770642201836,
+    "peakEnemies": 49
+   },
+   {
+    "mode": "solo",
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 101,
+    "teamDeath": 101,
+    "kills": 113,
+    "score": 36475,
+    "ranks": [
+     10
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 17.821782178217823,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "solo",
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 42,
+    "kills": 30,
+    "score": 4100,
+    "ranks": [
+     4
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.571428571428573,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "solo",
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 93,
+    "teamDeath": 93,
+    "kills": 117,
+    "score": 24150,
+    "ranks": [
+     10
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.763440860215052,
+    "peakEnemies": 26
+   },
+   {
+    "mode": "solo",
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 34,
+    "kills": 24,
+    "score": 3225,
+    "ranks": [
+     4
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 14.5,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "solo",
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 42,
+    "kills": 35,
+    "score": 4950,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 14.238095238095237,
+    "peakEnemies": 21
+   },
+   {
+    "mode": "solo",
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 85,
+    "kills": 97,
+    "score": 21650,
+    "ranks": [
+     8
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.388235294117647,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 353,
+    "teamDeath": 353,
+    "kills": 501,
+    "score": 223925,
+    "ranks": [
+     22
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 19.929178470254957,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "solo",
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 72,
+    "teamDeath": 72,
+    "kills": 69,
+    "score": 17400,
+    "ranks": [
+     7
+    ],
+    "traits": [
+     5
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 15.125,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20379811,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1045,
+    "score": 531450,
+    "ranks": [
+     33
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 16.511666666666667,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "solo",
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 155,
+    "teamDeath": 155,
+    "kills": 195,
+    "score": 68050,
+    "ranks": [
+     13
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP의 심판"
+    ],
+    "pressurePerLiving": 22.761290322580646,
+    "peakEnemies": 40
+   },
+   {
+    "mode": "solo",
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 527,
+    "teamDeath": 527,
+    "kills": 868,
+    "score": 404075,
+    "ranks": [
+     30
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 31.740037950664135,
+    "peakEnemies": 66
+   },
+   {
+    "mode": "solo",
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 39,
+    "teamDeath": 39,
+    "kills": 35,
+    "score": 4550,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.179487179487179,
+    "peakEnemies": 18
+   },
+   {
+    "mode": "solo",
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 465,
+    "teamDeath": 465,
+    "kills": 663,
+    "score": 332350,
+    "ranks": [
+     27
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 17.810752688172045,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "solo",
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 39,
+    "teamDeath": 39,
+    "kills": 27,
+    "score": 3675,
+    "ranks": [
+     4
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.333333333333334,
+    "peakEnemies": 23
+   },
+   {
+    "mode": "solo",
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 115,
+    "teamDeath": 115,
+    "kills": 130,
+    "score": 33200,
+    "ranks": [
+     10
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 14.773913043478261,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 926,
+    "score": 442525,
+    "ranks": [
+     31
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 27.235,
+    "peakEnemies": 71
+   },
+   {
+    "mode": "solo",
+    "seed": 20443163,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 970,
+    "score": 485000,
+    "ranks": [
+     34
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 19.676666666666666,
+    "peakEnemies": 46
+   },
+   {
+    "mode": "solo",
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 884,
+    "score": 416050,
+    "ranks": [
+     31
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 25.351666666666667,
+    "peakEnemies": 77
+   },
+   {
+    "mode": "solo",
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 145,
+    "teamDeath": 145,
+    "kills": 173,
+    "score": 67900,
+    "ranks": [
+     12
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP의 심판"
+    ],
+    "pressurePerLiving": 16.041379310344826,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "solo",
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 45,
+    "kills": 42,
+    "score": 7375,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 16.444444444444443,
+    "peakEnemies": 26
+   },
+   {
+    "mode": "solo",
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 978,
+    "score": 512700,
+    "ranks": [
+     33
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 17.491666666666667,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "solo",
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 45,
+    "kills": 40,
+    "score": 5475,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 13.088888888888889,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "solo",
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 129,
+    "teamDeath": 129,
+    "kills": 171,
+    "score": 70125,
+    "ranks": [
+     13
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 15.643410852713178,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "solo",
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 980,
+    "score": 473975,
+    "ranks": [
+     32
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 16.773333333333333,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "solo",
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 581,
+    "teamDeath": 581,
+    "kills": 940,
+    "score": 423825,
+    "ranks": [
+     31
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP의 심판"
+    ],
+    "pressurePerLiving": 28.330464716006883,
+    "peakEnemies": 72
+   },
+   {
+    "mode": "solo",
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 52,
+    "kills": 50,
+    "score": 8575,
+    "ranks": [
+     6
+    ],
+    "traits": [
+     4
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 14.403846153846153,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 36,
+    "teamDeath": 36,
+    "kills": 22,
+    "score": 2650,
+    "ranks": [
+     3
+    ],
+    "traits": [
+     2
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.38888888888889,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 24,
+    "kills": 10,
+    "score": 1225,
+    "ranks": [
+     2
+    ],
+    "traits": [
+     1
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.75,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "solo",
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 121,
+    "kills": 153,
+    "score": 50150,
+    "ranks": [
+     12
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 14.256198347107437,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 948,
+    "score": 502025,
+    "ranks": [
+     31
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 21.048333333333332,
+    "peakEnemies": 53
+   },
+   {
+    "mode": "solo",
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 43,
+    "kills": 45,
+    "score": 7950,
+    "ranks": [
+     6
+    ],
+    "traits": [
+     4
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.30232558139535,
+    "peakEnemies": 21
+   },
+   {
+    "mode": "solo",
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 139,
+    "teamDeath": 139,
+    "kills": 169,
+    "score": 62050,
+    "ranks": [
+     12
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 15.510791366906474,
+    "peakEnemies": 25
+   },
+   {
+    "mode": "solo",
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 52,
+    "kills": 50,
+    "score": 7775,
+    "ranks": [
+     6
+    ],
+    "traits": [
+     4
+    ],
+    "reasons": [
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 12.711538461538462,
+    "peakEnemies": 19
+   },
+   {
+    "mode": "solo",
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 59,
+    "kills": 49,
+    "score": 7575,
+    "ranks": [
+     6
+    ],
+    "traits": [
+     4
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.83050847457627,
+    "peakEnemies": 25
+   },
+   {
+    "mode": "solo",
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1019,
+    "score": 495100,
+    "ranks": [
+     31
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     null
+    ],
+    "pressurePerLiving": 22.41,
+    "peakEnemies": 44
+   },
+   {
+    "mode": "solo",
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 43,
+    "kills": 37,
+    "score": 5125,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 13.372093023255815,
+    "peakEnemies": 19
+   },
+   {
+    "mode": "solo",
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 49,
+    "kills": 45,
+    "score": 6025,
+    "ranks": [
+     6
+    ],
+    "traits": [
+     4
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.408163265306122,
+    "peakEnemies": 21
+   },
+   {
+    "mode": "solo",
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 196,
+    "teamDeath": 196,
+    "kills": 245,
+    "score": 103550,
+    "ranks": [
+     15
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.994897959183675,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "solo",
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 47,
+    "kills": 48,
+    "score": 6400,
+    "ranks": [
+     6
+    ],
+    "traits": [
+     4
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 10.787234042553191,
+    "peakEnemies": 16
+   },
+   {
+    "mode": "solo",
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 51,
+    "kills": 46,
+    "score": 7200,
+    "ranks": [
+     5
+    ],
+    "traits": [
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 14.901960784313726,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "solo",
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 88,
+    "teamDeath": 88,
+    "kills": 89,
+    "score": 18250,
+    "ranks": [
+     8
+    ],
+    "traits": [
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.147727272727273,
+    "peakEnemies": 26
+   }
+  ],
+  "coop_unsorted": [
+   {
+    "mode": "coop",
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 42,
+    "kills": 32,
+    "score": 4325,
+    "ranks": [
+     4,
+     2
+    ],
+    "traits": [
+     3,
+     1
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 9.804878048780488,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 65,
+    "kills": 68,
+    "score": 18300,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 8.328125,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "coop",
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 96,
+    "teamDeath": 115,
+    "kills": 121,
+    "score": 23025,
+    "ranks": [
+     6,
+     8
+    ],
+    "traits": [
+     4,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 12.337719298245615,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 33,
+    "teamDeath": 50,
+    "kills": 45,
+    "score": 6100,
+    "ranks": [
+     5,
+     1
+    ],
+    "traits": [
+     3,
+     0
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 9.795918367346939,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "coop",
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 93,
+    "kills": 88,
+    "score": 20250,
+    "ranks": [
+     5,
+     6
+    ],
+    "traits": [
+     3,
+     4
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 13.070652173913043,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 75,
+    "teamDeath": 86,
+    "kills": 86,
+    "score": 13575,
+    "ranks": [
+     5,
+     6
+    ],
+    "traits": [
+     3,
+     4
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 8.841176470588236,
+    "peakEnemies": 28
+   },
+   {
+    "mode": "coop",
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 77,
+    "kills": 81,
+    "score": 13425,
+    "ranks": [
+     4,
+     7
+    ],
+    "traits": [
+     3,
+     5
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 10.006578947368421,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "coop",
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 71,
+    "kills": 82,
+    "score": 18375,
+    "ranks": [
+     7,
+     4
+    ],
+    "traits": [
+     5,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 9.957142857142857,
+    "peakEnemies": 19
+   },
+   {
+    "mode": "coop",
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 45,
+    "kills": 28,
+    "score": 3550,
+    "ranks": [
+     3,
+     1
+    ],
+    "traits": [
+     2,
+     0
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.306818181818182,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 90,
+    "kills": 89,
+    "score": 19075,
+    "ranks": [
+     6,
+     5
+    ],
+    "traits": [
+     4,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 9.00561797752809,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 121,
+    "kills": 136,
+    "score": 50925,
+    "ranks": [
+     2,
+     11
+    ],
+    "traits": [
+     1,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.183333333333334,
+    "peakEnemies": 26
+   },
+   {
+    "mode": "coop",
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 65,
+    "kills": 65,
+    "score": 10125,
+    "ranks": [
+     7,
+     2
+    ],
+    "traits": [
+     5,
+     1
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 11.4609375,
+    "peakEnemies": 19
+   },
+   {
+    "mode": "coop",
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 22,
+    "teamDeath": 47,
+    "kills": 43,
+    "score": 5100,
+    "ranks": [
+     2,
+     5
+    ],
+    "traits": [
+     1,
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 10.706521739130435,
+    "peakEnemies": 19
+   },
+   {
+    "mode": "coop",
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 97,
+    "kills": 112,
+    "score": 29425,
+    "ranks": [
+     3,
+     9
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 13.151041666666666,
+    "peakEnemies": 27
+   },
+   {
+    "mode": "coop",
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 66,
+    "teamDeath": 90,
+    "kills": 88,
+    "score": 15050,
+    "ranks": [
+     3,
+     7
+    ],
+    "traits": [
+     2,
+     5
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 11.213483146067416,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 70,
+    "kills": 61,
+    "score": 8975,
+    "ranks": [
+     3,
+     5
+    ],
+    "traits": [
+     2,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 10.471014492753623,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 70,
+    "kills": 68,
+    "score": 12200,
+    "ranks": [
+     2,
+     6
+    ],
+    "traits": [
+     1,
+     4
+    ],
+    "reasons": [
+     "KNIGHT에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.753623188405797,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 65,
+    "kills": 63,
+    "score": 18750,
+    "ranks": [
+     3,
+     6
+    ],
+    "traits": [
+     2,
+     4
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 11.5703125,
+    "peakEnemies": 21
+   },
+   {
+    "mode": "coop",
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 97,
+    "teamDeath": 111,
+    "kills": 95,
+    "score": 22275,
+    "ranks": [
+     6,
+     5
+    ],
+    "traits": [
+     4,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 13.49090909090909,
+    "peakEnemies": 45
+   },
+   {
+    "mode": "coop",
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 103,
+    "kills": 112,
+    "score": 23825,
+    "ranks": [
+     5,
+     7
+    ],
+    "traits": [
+     3,
+     5
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.995098039215685,
+    "peakEnemies": 28
+   },
+   {
+    "mode": "coop",
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 89,
+    "teamDeath": 98,
+    "kills": 107,
+    "score": 23575,
+    "ranks": [
+     7,
+     5
+    ],
+    "traits": [
+     5,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 8.695876288659793,
+    "peakEnemies": 35
+   },
+   {
+    "mode": "coop",
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 46,
+    "kills": 38,
+    "score": 4750,
+    "ranks": [
+     3,
+     4
+    ],
+    "traits": [
+     2,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 5.822222222222222,
+    "peakEnemies": 21
+   },
+   {
+    "mode": "coop",
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 80,
+    "kills": 70,
+    "score": 11075,
+    "ranks": [
+     6,
+     2
+    ],
+    "traits": [
+     4,
+     1
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.018987341772153,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 99,
+    "kills": 93,
+    "score": 18900,
+    "ranks": [
+     5,
+     6
+    ],
+    "traits": [
+     3,
+     4
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 13.51530612244898,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 75,
+    "teamDeath": 141,
+    "kills": 194,
+    "score": 65650,
+    "ranks": [
+     12,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.910714285714286,
+    "peakEnemies": 35
+   },
+   {
+    "mode": "coop",
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 73,
+    "kills": 74,
+    "score": 13400,
+    "ranks": [
+     7,
+     2
+    ],
+    "traits": [
+     5,
+     1
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 10.347222222222221,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "coop",
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 105,
+    "kills": 112,
+    "score": 31200,
+    "ranks": [
+     9,
+     2
+    ],
+    "traits": [
+     6,
+     1
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.177884615384615,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 64,
+    "teamDeath": 75,
+    "kills": 74,
+    "score": 16150,
+    "ranks": [
+     6,
+     4
+    ],
+    "traits": [
+     4,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 8.121621621621621,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "coop",
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 64,
+    "kills": 61,
+    "score": 14150,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 8.023809523809524,
+    "peakEnemies": 25
+   },
+   {
+    "mode": "coop",
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 68,
+    "teamDeath": 81,
+    "kills": 80,
+    "score": 17400,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 8.69375,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 106,
+    "teamDeath": 115,
+    "kills": 116,
+    "score": 28300,
+    "ranks": [
+     7,
+     6
+    ],
+    "traits": [
+     5,
+     4
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 10.175438596491228,
+    "peakEnemies": 35
+   },
+   {
+    "mode": "coop",
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 124,
+    "kills": 145,
+    "score": 43150,
+    "ranks": [
+     12,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 14.467479674796747,
+    "peakEnemies": 26
+   },
+   {
+    "mode": "coop",
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 66,
+    "kills": 73,
+    "score": 16425,
+    "ranks": [
+     8,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 10.96923076923077,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "coop",
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 63,
+    "teamDeath": 85,
+    "kills": 83,
+    "score": 15275,
+    "ranks": [
+     4,
+     6
+    ],
+    "traits": [
+     3,
+     4
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 13.232142857142858,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 62,
+    "kills": 61,
+    "score": 11125,
+    "ranks": [
+     6,
+     2
+    ],
+    "traits": [
+     4,
+     1
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 10.62295081967213,
+    "peakEnemies": 26
+   },
+   {
+    "mode": "coop",
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 95,
+    "teamDeath": 96,
+    "kills": 113,
+    "score": 25550,
+    "ranks": [
+     7,
+     6
+    ],
+    "traits": [
+     5,
+     4
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 6.9526315789473685,
+    "peakEnemies": 20
+   },
+   {
+    "mode": "coop",
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 58,
+    "kills": 51,
+    "score": 7000,
+    "ranks": [
+     4,
+     3
+    ],
+    "traits": [
+     3,
+     2
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 10.105263157894736,
+    "peakEnemies": 23
+   },
+   {
+    "mode": "coop",
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 114,
+    "kills": 128,
+    "score": 33325,
+    "ranks": [
+     4,
+     9
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "KNIGHT에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.853982300884956,
+    "peakEnemies": 25
+   },
+   {
+    "mode": "coop",
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 89,
+    "kills": 86,
+    "score": 20550,
+    "ranks": [
+     7,
+     3
+    ],
+    "traits": [
+     5,
+     2
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 12.267045454545455,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 79,
+    "teamDeath": 85,
+    "kills": 90,
+    "score": 15525,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 8.511904761904763,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 97,
+    "teamDeath": 133,
+    "kills": 162,
+    "score": 38200,
+    "ranks": [
+     9,
+     7
+    ],
+    "traits": [
+     6,
+     5
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.897727272727273,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 70,
+    "teamDeath": 126,
+    "kills": 154,
+    "score": 43850,
+    "ranks": [
+     10,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 12.332,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 50,
+    "teamDeath": 116,
+    "kills": 130,
+    "score": 30200,
+    "ranks": [
+     5,
+     8
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 13.947826086956521,
+    "peakEnemies": 27
+   },
+   {
+    "mode": "coop",
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 95,
+    "teamDeath": 120,
+    "kills": 131,
+    "score": 50850,
+    "ranks": [
+     10,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 11.373949579831933,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 73,
+    "kills": 73,
+    "score": 10650,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 6.1875,
+    "peakEnemies": 9.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 71,
+    "teamDeath": 82,
+    "kills": 74,
+    "score": 10725,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 9.944444444444445,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 100,
+    "kills": 93,
+    "score": 27650,
+    "ranks": [
+     7,
+     4
+    ],
+    "traits": [
+     5,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 11.121212121212121,
+    "peakEnemies": 33
+   },
+   {
+    "mode": "coop",
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 25,
+    "teamDeath": 61,
+    "kills": 50,
+    "score": 7225,
+    "ranks": [
+     5,
+     1
+    ],
+    "traits": [
+     3,
+     0
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.75,
+    "peakEnemies": 27
+   }
+  ],
+  "coop": [
+   {
+    "mode": "coop",
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 275,
+    "teamDeath": 276,
+    "kills": 359,
+    "score": 145900,
+    "ranks": [
+     15,
+     11
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.834545454545454,
+    "peakEnemies": 44
+   },
+   {
+    "mode": "coop",
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 67,
+    "teamDeath": 600,
+    "kills": 895,
+    "score": 375375,
+    "ranks": [
+     5,
+     28
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 28.29,
+    "peakEnemies": 66
+   },
+   {
+    "mode": "coop",
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 63,
+    "teamDeath": 69,
+    "kills": 64,
+    "score": 10825,
+    "ranks": [
+     5,
+     4
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 9.375,
+    "peakEnemies": 27
+   },
+   {
+    "mode": "coop",
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 919,
+    "score": 408025,
+    "ranks": [
+     23,
+     19
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 17.3725,
+    "peakEnemies": 46.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 74,
+    "teamDeath": 98,
+    "kills": 96,
+    "score": 20475,
+    "ranks": [
+     7,
+     4
+    ],
+    "traits": [
+     5,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.958762886597938,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 377,
+    "teamDeath": 600,
+    "kills": 838,
+    "score": 356100,
+    "ranks": [
+     24,
+     13
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 31.7775,
+    "peakEnemies": 97
+   },
+   {
+    "mode": "coop",
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1015,
+    "score": 408750,
+    "ranks": [
+     23,
+     22
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 17.393333333333334,
+    "peakEnemies": 32.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 33,
+    "teamDeath": 200,
+    "kills": 218,
+    "score": 61150,
+    "ranks": [
+     3,
+     15
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 33.11557788944724,
+    "peakEnemies": 62
+   },
+   {
+    "mode": "coop",
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 83,
+    "teamDeath": 123,
+    "kills": 153,
+    "score": 42475,
+    "ranks": [
+     10,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 15.557377049180328,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20332297,
+    "capped": true,
+    "firstDeath": 70,
+    "teamDeath": 600,
+    "kills": 986,
+    "score": 489700,
+    "ranks": [
+     32,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     null,
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.335833333333333,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 209,
+    "kills": 277,
+    "score": 100850,
+    "ranks": [
+     4,
+     15
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 14.834134615384615,
+    "peakEnemies": 26
+   },
+   {
+    "mode": "coop",
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 137,
+    "teamDeath": 307,
+    "kills": 447,
+    "score": 186950,
+    "ranks": [
+     9,
+     20
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.21078431372549,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 298,
+    "kills": 419,
+    "score": 220350,
+    "ranks": [
+     19,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.060606060606062,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 51,
+    "kills": 50,
+    "score": 7200,
+    "ranks": [
+     5,
+     2
+    ],
+    "traits": [
+     3,
+     1
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 7.09,
+    "peakEnemies": 18
+   },
+   {
+    "mode": "coop",
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 70,
+    "teamDeath": 70,
+    "kills": 66,
+    "score": 11150,
+    "ranks": [
+     5,
+     4
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 7.3768115942028984,
+    "peakEnemies": 11.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 92,
+    "teamDeath": 135,
+    "kills": 158,
+    "score": 61850,
+    "ranks": [
+     11,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 12.5,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20387730,
+    "capped": true,
+    "firstDeath": 183,
+    "teamDeath": 600,
+    "kills": 1024,
+    "score": 445150,
+    "ranks": [
+     11,
+     29
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 17.6925,
+    "peakEnemies": 44
+   },
+   {
+    "mode": "coop",
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 37,
+    "kills": 30,
+    "score": 3625,
+    "ranks": [
+     2,
+     3
+    ],
+    "traits": [
+     1,
+     2
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 6.694444444444445,
+    "peakEnemies": 9.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 84,
+    "teamDeath": 143,
+    "kills": 181,
+    "score": 61225,
+    "ranks": [
+     7,
+     11
+    ],
+    "traits": [
+     5,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 12.612676056338028,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 96,
+    "kills": 117,
+    "score": 27150,
+    "ranks": [
+     5,
+     8
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 12.16842105263158,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 67,
+    "teamDeath": 69,
+    "kills": 62,
+    "score": 9925,
+    "ranks": [
+     5,
+     4
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 7.867647058823529,
+    "peakEnemies": 25
+   },
+   {
+    "mode": "coop",
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 191,
+    "kills": 258,
+    "score": 94600,
+    "ranks": [
+     3,
+     16
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.4,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 27,
+    "teamDeath": 600,
+    "kills": 1059,
+    "score": 525175,
+    "ranks": [
+     38,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     null,
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 26.921666666666667,
+    "peakEnemies": 74
+   },
+   {
+    "mode": "coop",
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 289,
+    "kills": 393,
+    "score": 163675,
+    "ranks": [
+     1,
+     20
+    ],
+    "traits": [
+     0,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 17.49652777777778,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 54,
+    "kills": 54,
+    "score": 12725,
+    "ranks": [
+     6,
+     2
+    ],
+    "traits": [
+     4,
+     1
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 10.943396226415095,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "coop",
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 63,
+    "teamDeath": 192,
+    "kills": 273,
+    "score": 116525,
+    "ranks": [
+     3,
+     15
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 15.913612565445026,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 36,
+    "teamDeath": 600,
+    "kills": 934,
+    "score": 433350,
+    "ranks": [
+     2,
+     32
+    ],
+    "traits": [
+     1,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 20.201666666666668,
+    "peakEnemies": 43
+   },
+   {
+    "mode": "coop",
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 124,
+    "kills": 157,
+    "score": 45350,
+    "ranks": [
+     11,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.760162601626018,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 103,
+    "kills": 121,
+    "score": 31475,
+    "ranks": [
+     10,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 12.47549019607843,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 135,
+    "teamDeath": 167,
+    "kills": 217,
+    "score": 85250,
+    "ranks": [
+     9,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 10.918674698795181,
+    "peakEnemies": 28
+   },
+   {
+    "mode": "coop",
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 124,
+    "kills": 111,
+    "score": 23100,
+    "ranks": [
+     8,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 19.24390243902439,
+    "peakEnemies": 50
+   },
+   {
+    "mode": "coop",
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 271,
+    "kills": 365,
+    "score": 132875,
+    "ranks": [
+     18,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 19.014814814814816,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 22,
+    "teamDeath": 600,
+    "kills": 1063,
+    "score": 506500,
+    "ranks": [
+     33,
+     0
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     null,
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.279166666666665,
+    "peakEnemies": 38
+   },
+   {
+    "mode": "coop",
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 82,
+    "teamDeath": 135,
+    "kills": 170,
+    "score": 62500,
+    "ranks": [
+     11,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 11.66044776119403,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 187,
+    "teamDeath": 600,
+    "kills": 981,
+    "score": 466300,
+    "ranks": [
+     28,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.691666666666666,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 885,
+    "score": 281950,
+    "ranks": [
+     22,
+     19
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 23.294166666666666,
+    "peakEnemies": 47
+   },
+   {
+    "mode": "coop",
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 32,
+    "teamDeath": 435,
+    "kills": 636,
+    "score": 291100,
+    "ranks": [
+     25,
+     2
+    ],
+    "traits": [
+     6,
+     1
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 19.035714285714285,
+    "peakEnemies": 39
+   },
+   {
+    "mode": "coop",
+    "seed": 20554029,
+    "capped": true,
+    "firstDeath": 35,
+    "teamDeath": 600,
+    "kills": 1024,
+    "score": 497075,
+    "ranks": [
+     32,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     null,
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 17.5275,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 241,
+    "teamDeath": 600,
+    "kills": 956,
+    "score": 454125,
+    "ranks": [
+     28,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.060833333333335,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 133,
+    "kills": 153,
+    "score": 64900,
+    "ranks": [
+     11,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 14.696969696969697,
+    "peakEnemies": 27
+   },
+   {
+    "mode": "coop",
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 145,
+    "teamDeath": 163,
+    "kills": 198,
+    "score": 48650,
+    "ranks": [
+     9,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 14.648148148148149,
+    "peakEnemies": 46
+   },
+   {
+    "mode": "coop",
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 78,
+    "teamDeath": 381,
+    "kills": 539,
+    "score": 230750,
+    "ranks": [
+     6,
+     24
+    ],
+    "traits": [
+     4,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 20.49736842105263,
+    "peakEnemies": 49
+   },
+   {
+    "mode": "coop",
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 54,
+    "kills": 61,
+    "score": 9875,
+    "ranks": [
+     7,
+     1
+    ],
+    "traits": [
+     5,
+     0
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.59433962264151,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 167,
+    "kills": 206,
+    "score": 82350,
+    "ranks": [
+     4,
+     13
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 20.1355421686747,
+    "peakEnemies": 38
+   },
+   {
+    "mode": "coop",
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 33,
+    "kills": 26,
+    "score": 3375,
+    "ranks": [
+     4,
+     2
+    ],
+    "traits": [
+     3,
+     1
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 6.8125,
+    "peakEnemies": 16
+   },
+   {
+    "mode": "coop",
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 213,
+    "teamDeath": 600,
+    "kills": 970,
+    "score": 482175,
+    "ranks": [
+     11,
+     30
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 15.7375,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 39,
+    "teamDeath": 64,
+    "kills": 56,
+    "score": 13350,
+    "ranks": [
+     4,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 10.412698412698413,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 131,
+    "kills": 158,
+    "score": 53200,
+    "ranks": [
+     11,
+     2
+    ],
+    "traits": [
+     6,
+     1
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.496153846153845,
+    "peakEnemies": 26
+   }
+  ],
+  "s15": [
+   {
+    "mode": "coop",
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 121,
+    "kills": 192,
+    "score": 68925,
+    "ranks": [
+     10,
+     8
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 13.808333333333334,
+    "peakEnemies": 26.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 121,
+    "kills": 170,
+    "score": 58725,
+    "ranks": [
+     13,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 15.1,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 108,
+    "teamDeath": 426,
+    "kills": 725,
+    "score": 322275,
+    "ranks": [
+     26,
+     7
+    ],
+    "traits": [
+     6,
+     5
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.895294117647058,
+    "peakEnemies": 45
+   },
+   {
+    "mode": "coop",
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 75,
+    "teamDeath": 297,
+    "kills": 478,
+    "score": 194500,
+    "ranks": [
+     22,
+     7
+    ],
+    "traits": [
+     6,
+     5
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 20.88006756756757,
+    "peakEnemies": 39
+   },
+   {
+    "mode": "coop",
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 59,
+    "kills": 76,
+    "score": 11950,
+    "ranks": [
+     7,
+     3
+    ],
+    "traits": [
+     5,
+     2
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 13.508620689655173,
+    "peakEnemies": 27
+   },
+   {
+    "mode": "coop",
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 135,
+    "teamDeath": 600,
+    "kills": 1086,
+    "score": 500400,
+    "ranks": [
+     34,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 17.703333333333333,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1285,
+    "score": 484700,
+    "ranks": [
+     30,
+     23
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 32.8,
+    "peakEnemies": 66
+   },
+   {
+    "mode": "coop",
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 139,
+    "kills": 219,
+    "score": 65125,
+    "ranks": [
+     11,
+     8
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 17.706521739130434,
+    "peakEnemies": 55
+   },
+   {
+    "mode": "coop",
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 121,
+    "kills": 184,
+    "score": 80975,
+    "ranks": [
+     11,
+     6
+    ],
+    "traits": [
+     6,
+     4
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 18.729166666666668,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 161,
+    "kills": 231,
+    "score": 72750,
+    "ranks": [
+     13,
+     4
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.746875,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 180,
+    "teamDeath": 600,
+    "kills": 1163,
+    "score": 549875,
+    "ranks": [
+     14,
+     32
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 18.743333333333332,
+    "peakEnemies": 45
+   },
+   {
+    "mode": "coop",
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 117,
+    "teamDeath": 241,
+    "kills": 382,
+    "score": 140225,
+    "ranks": [
+     10,
+     16
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 21.75625,
+    "peakEnemies": 43
+   },
+   {
+    "mode": "coop",
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 131,
+    "kills": 216,
+    "score": 58375,
+    "ranks": [
+     9,
+     9
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 15.934615384615384,
+    "peakEnemies": 44
+   },
+   {
+    "mode": "coop",
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 257,
+    "kills": 366,
+    "score": 166175,
+    "ranks": [
+     2,
+     18
+    ],
+    "traits": [
+     1,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 17.6171875,
+    "peakEnemies": 35
+   },
+   {
+    "mode": "coop",
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 49,
+    "kills": 55,
+    "score": 7200,
+    "ranks": [
+     4,
+     4
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 11.166666666666666,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 123,
+    "kills": 170,
+    "score": 60050,
+    "ranks": [
+     10,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 16.307377049180328,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20387730,
+    "capped": true,
+    "firstDeath": 84,
+    "teamDeath": 600,
+    "kills": 975,
+    "score": 397125,
+    "ranks": [
+     8,
+     30
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 33.00083333333333,
+    "peakEnemies": 70
+   },
+   {
+    "mode": "coop",
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 433,
+    "kills": 634,
+    "score": 274900,
+    "ranks": [
+     5,
+     25
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 23.8125,
+    "peakEnemies": 55
+   },
+   {
+    "mode": "coop",
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 156,
+    "teamDeath": 600,
+    "kills": 1115,
+    "score": 554275,
+    "ranks": [
+     32,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.33,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 431,
+    "teamDeath": 445,
+    "kills": 990,
+    "score": 461700,
+    "ranks": [
+     25,
+     17
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.042792792792792,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 103,
+    "kills": 144,
+    "score": 33250,
+    "ranks": [
+     3,
+     10
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "KNIGHT에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.186274509803923,
+    "peakEnemies": 30
+   },
+   {
+    "mode": "coop",
+    "seed": 20427325,
+    "capped": true,
+    "firstDeath": 129,
+    "teamDeath": 600,
+    "kills": 968,
+    "score": 428400,
+    "ranks": [
+     30,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 43.3125,
+    "peakEnemies": 95
+   },
+   {
+    "mode": "coop",
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 21,
+    "teamDeath": 42,
+    "kills": 49,
+    "score": 8450,
+    "ranks": [
+     2,
+     5
+    ],
+    "traits": [
+     1,
+     3
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 14.865853658536585,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 44,
+    "kills": 51,
+    "score": 7200,
+    "ranks": [
+     5,
+     3
+    ],
+    "traits": [
+     3,
+     2
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 11.151162790697674,
+    "peakEnemies": 28
+   },
+   {
+    "mode": "coop",
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 33,
+    "teamDeath": 600,
+    "kills": 943,
+    "score": 446225,
+    "ranks": [
+     3,
+     38
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "KNIGHT에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 32.6725,
+    "peakEnemies": 102
+   },
+   {
+    "mode": "coop",
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 187,
+    "kills": 302,
+    "score": 118725,
+    "ranks": [
+     7,
+     15
+    ],
+    "traits": [
+     5,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 23.524193548387096,
+    "peakEnemies": 50
+   },
+   {
+    "mode": "coop",
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 275,
+    "teamDeath": 600,
+    "kills": 1192,
+    "score": 561575,
+    "ranks": [
+     32,
+     15
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 15.530833333333334,
+    "peakEnemies": 28
+   },
+   {
+    "mode": "coop",
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1395,
+    "score": 599900,
+    "ranks": [
+     27,
+     26
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 20.060833333333335,
+    "peakEnemies": 39.5
+   },
+   {
+    "mode": "coop",
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 59,
+    "teamDeath": 600,
+    "kills": 953,
+    "score": 462275,
+    "ranks": [
+     29,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     null,
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 19.45,
+    "peakEnemies": 43
+   },
+   {
+    "mode": "coop",
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 163,
+    "kills": 263,
+    "score": 74900,
+    "ranks": [
+     10,
+     11
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 17.064814814814813,
+    "peakEnemies": 51
+   },
+   {
+    "mode": "coop",
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 93,
+    "teamDeath": 231,
+    "kills": 361,
+    "score": 135850,
+    "ranks": [
+     8,
+     15
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 23.404347826086955,
+    "peakEnemies": 60
+   },
+   {
+    "mode": "coop",
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 335,
+    "teamDeath": 374,
+    "kills": 806,
+    "score": 360975,
+    "ranks": [
+     19,
+     19
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 21.762734584450403,
+    "peakEnemies": 90
+   },
+   {
+    "mode": "coop",
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 349,
+    "teamDeath": 600,
+    "kills": 1202,
+    "score": 542900,
+    "ranks": [
+     20,
+     27
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 15.678333333333333,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 104,
+    "teamDeath": 277,
+    "kills": 421,
+    "score": 169000,
+    "ranks": [
+     8,
+     17
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 19.708333333333332,
+    "peakEnemies": 38
+   },
+   {
+    "mode": "coop",
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 462,
+    "teamDeath": 600,
+    "kills": 1160,
+    "score": 487875,
+    "ranks": [
+     26,
+     23
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 46.51166666666666,
+    "peakEnemies": 124
+   },
+   {
+    "mode": "coop",
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 30,
+    "teamDeath": 600,
+    "kills": 1024,
+    "score": 473175,
+    "ranks": [
+     31,
+     4
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     null,
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 18.301666666666666,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1401,
+    "score": 597150,
+    "ranks": [
+     29,
+     23
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 14.644166666666667,
+    "peakEnemies": 24
+   },
+   {
+    "mode": "coop",
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 434,
+    "kills": 625,
+    "score": 268775,
+    "ranks": [
+     26,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 29.488452655889144,
+    "peakEnemies": 68
+   },
+   {
+    "mode": "coop",
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 50,
+    "teamDeath": 600,
+    "kills": 1059,
+    "score": 525825,
+    "ranks": [
+     4,
+     33
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 16.755,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 86,
+    "kills": 131,
+    "score": 23775,
+    "ranks": [
+     5,
+     8
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 16.17058823529412,
+    "peakEnemies": 33
+   },
+   {
+    "mode": "coop",
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 129,
+    "kills": 222,
+    "score": 65500,
+    "ranks": [
+     10,
+     9
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 13.09765625,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 109,
+    "kills": 141,
+    "score": 31875,
+    "ranks": [
+     3,
+     10
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 16.51851851851852,
+    "peakEnemies": 27
+   },
+   {
+    "mode": "coop",
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 287,
+    "teamDeath": 600,
+    "kills": 1206,
+    "score": 600525,
+    "ranks": [
+     33,
+     14
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 18.780833333333334,
+    "peakEnemies": 57
+   },
+   {
+    "mode": "coop",
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 212,
+    "kills": 313,
+    "score": 132475,
+    "ranks": [
+     6,
+     16
+    ],
+    "traits": [
+     4,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 19.47867298578199,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 43,
+    "kills": 56,
+    "score": 8250,
+    "ranks": [
+     4,
+     4
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 9.702380952380953,
+    "peakEnemies": 22
+   },
+   {
+    "mode": "coop",
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 22,
+    "teamDeath": 145,
+    "kills": 176,
+    "score": 55050,
+    "ranks": [
+     2,
+     12
+    ],
+    "traits": [
+     1,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 16.822916666666668,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 121,
+    "kills": 172,
+    "score": 43950,
+    "ranks": [
+     6,
+     10
+    ],
+    "traits": [
+     4,
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.633333333333333,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 106,
+    "teamDeath": 116,
+    "kills": 204,
+    "score": 70200,
+    "ranks": [
+     10,
+     8
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 11.556521739130435,
+    "peakEnemies": 28
+   }
+  ],
+  "s2": [
+   {
+    "mode": "coop",
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 121,
+    "kills": 186,
+    "score": 51225,
+    "ranks": [
+     4,
+     11
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 18.725,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 39,
+    "teamDeath": 75,
+    "kills": 128,
+    "score": 32550,
+    "ranks": [
+     10,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 16.22972972972973,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 600,
+    "teamDeath": 600,
+    "kills": 1675,
+    "score": 685925,
+    "ranks": [
+     28,
+     29
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     null
+    ],
+    "pressurePerLiving": 43.884166666666665,
+    "peakEnemies": 72
+   },
+   {
+    "mode": "coop",
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 113,
+    "kills": 187,
+    "score": 46975,
+    "ranks": [
+     5,
+     11
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 16.294642857142858,
+    "peakEnemies": 25
+   },
+   {
+    "mode": "coop",
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 160,
+    "teamDeath": 600,
+    "kills": 1000,
+    "score": 386525,
+    "ranks": [
+     13,
+     29
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 57.310833333333335,
+    "peakEnemies": 128
+   },
+   {
+    "mode": "coop",
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 76,
+    "kills": 133,
+    "score": 27125,
+    "ranks": [
+     10,
+     4
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.153333333333332,
+    "peakEnemies": 31
+   },
+   {
+    "mode": "coop",
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 50,
+    "teamDeath": 161,
+    "kills": 241,
+    "score": 76250,
+    "ranks": [
+     13,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 19.378125,
+    "peakEnemies": 39
+   },
+   {
+    "mode": "coop",
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 129,
+    "kills": 220,
+    "score": 76075,
+    "ranks": [
+     13,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 18.18359375,
+    "peakEnemies": 46
+   },
+   {
+    "mode": "coop",
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 322,
+    "kills": 458,
+    "score": 150525,
+    "ranks": [
+     5,
+     19
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 38.35202492211838,
+    "peakEnemies": 72
+   },
+   {
+    "mode": "coop",
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 129,
+    "teamDeath": 143,
+    "kills": 356,
+    "score": 114925,
+    "ranks": [
+     14,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "KNIGHT에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 15.838028169014084,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 34,
+    "teamDeath": 600,
+    "kills": 1045,
+    "score": 535125,
+    "ranks": [
+     41,
+     3
+    ],
+    "traits": [
+     6,
+     2
+    ],
+    "reasons": [
+     null,
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 38.64416666666666,
+    "peakEnemies": 89
+   },
+   {
+    "mode": "coop",
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 99,
+    "teamDeath": 297,
+    "kills": 541,
+    "score": 219875,
+    "ranks": [
+     10,
+     19
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 19.25506756756757,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 34,
+    "teamDeath": 600,
+    "kills": 1001,
+    "score": 503450,
+    "ranks": [
+     3,
+     31
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 20.9575,
+    "peakEnemies": 42
+   },
+   {
+    "mode": "coop",
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 60,
+    "teamDeath": 143,
+    "kills": 260,
+    "score": 75200,
+    "ranks": [
+     8,
+     14
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 18.489436619718308,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 119,
+    "teamDeath": 600,
+    "kills": 1135,
+    "score": 516350,
+    "ranks": [
+     10,
+     34
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 17.305,
+    "peakEnemies": 46
+   },
+   {
+    "mode": "coop",
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 117,
+    "kills": 185,
+    "score": 49225,
+    "ranks": [
+     7,
+     10
+    ],
+    "traits": [
+     5,
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 26.155172413793103,
+    "peakEnemies": 49
+   },
+   {
+    "mode": "coop",
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 101,
+    "kills": 185,
+    "score": 48375,
+    "ranks": [
+     7,
+     10
+    ],
+    "traits": [
+     5,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 18.21,
+    "peakEnemies": 38
+   },
+   {
+    "mode": "coop",
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 421,
+    "teamDeath": 429,
+    "kills": 1082,
+    "score": 380175,
+    "ranks": [
+     25,
+     22
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 47.08177570093458,
+    "peakEnemies": 184
+   },
+   {
+    "mode": "coop",
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 85,
+    "teamDeath": 600,
+    "kills": 1126,
+    "score": 548550,
+    "ranks": [
+     9,
+     32
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 19.56,
+    "peakEnemies": 41
+   },
+   {
+    "mode": "coop",
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 170,
+    "kills": 275,
+    "score": 88150,
+    "ranks": [
+     15,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 23.310650887573964,
+    "peakEnemies": 38
+   },
+   {
+    "mode": "coop",
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 55,
+    "kills": 89,
+    "score": 12150,
+    "ranks": [
+     5,
+     5
+    ],
+    "traits": [
+     3,
+     3
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 15.055555555555555,
+    "peakEnemies": 36
+   },
+   {
+    "mode": "coop",
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 125,
+    "kills": 197,
+    "score": 74250,
+    "ranks": [
+     13,
+     4
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "CHECKMATE BISHOP",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 16.33467741935484,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 119,
+    "teamDeath": 600,
+    "kills": 1091,
+    "score": 508275,
+    "ranks": [
+     31,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 22.468333333333334,
+    "peakEnemies": 49
+   },
+   {
+    "mode": "coop",
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 62,
+    "kills": 120,
+    "score": 27400,
+    "ranks": [
+     8,
+     6
+    ],
+    "traits": [
+     6,
+     4
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 12.672131147540984,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 102,
+    "teamDeath": 460,
+    "kills": 780,
+    "score": 302875,
+    "ranks": [
+     11,
+     27
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 44.75381263616558,
+    "peakEnemies": 91
+   },
+   {
+    "mode": "coop",
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 13,
+    "teamDeath": 61,
+    "kills": 76,
+    "score": 13000,
+    "ranks": [
+     8,
+     0
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 13.291666666666666,
+    "peakEnemies": 23
+   },
+   {
+    "mode": "coop",
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 106,
+    "kills": 184,
+    "score": 44825,
+    "ranks": [
+     7,
+     11
+    ],
+    "traits": [
+     5,
+     6
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 17.15714285714286,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 72,
+    "teamDeath": 600,
+    "kills": 1097,
+    "score": 558875,
+    "ranks": [
+     10,
+     33
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 18.064166666666665,
+    "peakEnemies": 43
+   },
+   {
+    "mode": "coop",
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 139,
+    "teamDeath": 600,
+    "kills": 1142,
+    "score": 590350,
+    "ranks": [
+     36,
+     11
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 25.716666666666665,
+    "peakEnemies": 53
+   },
+   {
+    "mode": "coop",
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 384,
+    "kills": 622,
+    "score": 286650,
+    "ranks": [
+     24,
+     6
+    ],
+    "traits": [
+     6,
+     4
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 23.502610966057443,
+    "peakEnemies": 50
+   },
+   {
+    "mode": "coop",
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 167,
+    "kills": 263,
+    "score": 88700,
+    "ranks": [
+     5,
+     15
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 19.43975903614458,
+    "peakEnemies": 38
+   },
+   {
+    "mode": "coop",
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 33,
+    "kills": 39,
+    "score": 4625,
+    "ranks": [
+     4,
+     3
+    ],
+    "traits": [
+     3,
+     2
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 15.703125,
+    "peakEnemies": 34
+   },
+   {
+    "mode": "coop",
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 56,
+    "teamDeath": 129,
+    "kills": 224,
+    "score": 64575,
+    "ranks": [
+     6,
+     12
+    ],
+    "traits": [
+     4,
+     6
+    ],
+    "reasons": [
+     "ROOK에게 잡힘",
+     "CHECKMATE BISHOP"
+    ],
+    "pressurePerLiving": 16.48828125,
+    "peakEnemies": 29
+   },
+   {
+    "mode": "coop",
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 240,
+    "teamDeath": 600,
+    "kills": 1330,
+    "score": 582500,
+    "ranks": [
+     20,
+     31
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 27.585,
+    "peakEnemies": 69
+   },
+   {
+    "mode": "coop",
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 212,
+    "teamDeath": 556,
+    "kills": 1167,
+    "score": 496700,
+    "ranks": [
+     18,
+     29
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "BISHOP에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 34.23963963963964,
+    "peakEnemies": 83
+   },
+   {
+    "mode": "coop",
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 31,
+    "teamDeath": 600,
+    "kills": 860,
+    "score": 389250,
+    "ranks": [
+     30,
+     2
+    ],
+    "traits": [
+     6,
+     1
+    ],
+    "reasons": [
+     null,
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 34.560833333333335,
+    "peakEnemies": 100
+   },
+   {
+    "mode": "coop",
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 133,
+    "kills": 229,
+    "score": 72950,
+    "ranks": [
+     13,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "KNIGHT에게 잡힘"
+    ],
+    "pressurePerLiving": 17.84469696969697,
+    "peakEnemies": 39
+   },
+   {
+    "mode": "coop",
+    "seed": 20554029,
+    "capped": true,
+    "firstDeath": 53,
+    "teamDeath": 600,
+    "kills": 989,
+    "score": 448450,
+    "ranks": [
+     30,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     null,
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 29.860833333333332,
+    "peakEnemies": 61
+   },
+   {
+    "mode": "coop",
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 421,
+    "kills": 717,
+    "score": 316525,
+    "ranks": [
+     27,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "QUEEN에게 잡힘"
+    ],
+    "pressurePerLiving": 24.56904761904762,
+    "peakEnemies": 49
+   },
+   {
+    "mode": "coop",
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 213,
+    "teamDeath": 600,
+    "kills": 1149,
+    "score": 465650,
+    "ranks": [
+     18,
+     28
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     null
+    ],
+    "pressurePerLiving": 34.1275,
+    "peakEnemies": 95
+   },
+   {
+    "mode": "coop",
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 20,
+    "teamDeath": 481,
+    "kills": 759,
+    "score": 369075,
+    "ranks": [
+     32,
+     1
+    ],
+    "traits": [
+     6,
+     0
+    ],
+    "reasons": [
+     "KNIGHT에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 27.765625,
+    "peakEnemies": 65
+   },
+   {
+    "mode": "coop",
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 107,
+    "kills": 156,
+    "score": 40175,
+    "ranks": [
+     4,
+     10
+    ],
+    "traits": [
+     3,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 16.54245283018868,
+    "peakEnemies": 32
+   },
+   {
+    "mode": "coop",
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 124,
+    "teamDeath": 431,
+    "kills": 784,
+    "score": 328975,
+    "ranks": [
+     26,
+     11
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 22.35232558139535,
+    "peakEnemies": 47
+   },
+   {
+    "mode": "coop",
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 93,
+    "kills": 158,
+    "score": 38700,
+    "ranks": [
+     10,
+     5
+    ],
+    "traits": [
+     6,
+     3
+    ],
+    "reasons": [
+     "KING에게 잡힘",
+     "BISHOP에게 잡힘"
+    ],
+    "pressurePerLiving": 17.592391304347824,
+    "peakEnemies": 33
+   },
+   {
+    "mode": "coop",
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 110,
+    "teamDeath": 139,
+    "kills": 303,
+    "score": 92750,
+    "ranks": [
+     13,
+     10
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     "QUEEN에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 17.51086956521739,
+    "peakEnemies": 37
+   },
+   {
+    "mode": "coop",
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 32,
+    "teamDeath": 383,
+    "kills": 634,
+    "score": 276975,
+    "ranks": [
+     3,
+     25
+    ],
+    "traits": [
+     2,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "PAWN에게 잡힘"
+    ],
+    "pressurePerLiving": 28.81151832460733,
+    "peakEnemies": 79
+   },
+   {
+    "mode": "coop",
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 283,
+    "teamDeath": 600,
+    "kills": 1239,
+    "score": 513325,
+    "ranks": [
+     32,
+     15
+    ],
+    "traits": [
+     6,
+     6
+    ],
+    "reasons": [
+     null,
+     "ROOK에게 잡힘"
+    ],
+    "pressurePerLiving": 48.32666666666667,
+    "peakEnemies": 97
+   },
+   {
+    "mode": "coop",
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 101,
+    "kills": 165,
+    "score": 40675,
+    "ranks": [
+     6,
+     10
+    ],
+    "traits": [
+     4,
+     6
+    ],
+    "reasons": [
+     "PAWN에게 잡힘",
+     "KING에게 잡힘"
+    ],
+    "pressurePerLiving": 17.74,
+    "peakEnemies": 29
+   }
+  ]
+ }
+}

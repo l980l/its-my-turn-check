@@ -6,9 +6,11 @@
   "use strict";
   const copy = value => JSON.parse(JSON.stringify(value));
   const fields = ["chain","displayChain","grace","invincibleBeats","rangeBoostMoves","extendedMoves","traitRerolls"];
+  // Co-op tuning, measured by scripts/simulate-coop-balance.cjs.
+  const BALANCE = Object.freeze({spawnScale:1});
   function create({S, ui, fn, executing}) {
     const clock=()=>fn.now();
-    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true };
+    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true, balance:{...BALANCE} };
     const save = slot => { if(slot>=0)api.turns[slot]=Object.fromEntries(fields.map(key=>[key,S[key]])); };
     function use(slot, operation) {
       const previous = api.roster.indexOf(S.player); save(previous);
@@ -32,7 +34,7 @@
     api.request = message => { if(api.interactive||message.type!=="move")api.onInput({...message,slot:api.view}); };
     api.start = () => {
       api.suspended=false;api.replaying=false;
-      api.roster=[];api.turns=[];fn.reset();S.running=true;S.autoPlay=false;S.dev=false;S.runTicket=null;
+      api.roster=[];api.turns=[];fn.reset();S.coopSpawnCarry=0;S.running=true;S.autoPlay=false;S.dev=false;S.runTicket=null;
       const original=copy(S.player); const defaults=Object.fromEntries(fields.map(key=>[key,S[key]]));
       api.roster=[{...copy(original),x:-2,y:0,alive:true},{...copy(original),x:2,y:0,alive:true}];
       api.turns=[copy(defaults),copy(defaults)];S.player=api.roster[0];api.view=0;api.focus=0;api.pendingOwner=null;
@@ -88,7 +90,9 @@
         if(victims.length&&["telegraph","sanctuary"].includes(before)){boss.bossPhase="vulnerable";}
       }
       const used=new Set();
-      for(const e of S.enemies.filter(e=>!e.boss)){
+      // Same order as solo: nearest enemies claim cells first.
+      const dist=e=>{const t=nearest(e);return t?Math.abs(t.p.x-e.x)+Math.abs(t.p.y-e.y):0;};
+      for(const e of S.enemies.filter(e=>!e.boss).sort((a,b)=>dist(a)-dist(b))){
         const target=nearest(e);if(!target)break;
         const from={x:e.x,y:e.y},next=fn.toward(e,target.p),key=next.x+","+next.y;
         const victim=live().find(({p})=>p.x===next.x&&p.y===next.y);
@@ -103,9 +107,13 @@
       if(survivors.length){
         // Original spawn/rank/durability/trait/item/terrain rules, around alternating survivors.
         use(survivors[S.wave%survivors.length].i,()=>{
-          for(let i=0;i<(S.wave%4===0?2:1);i++)fn.spawn();
+          // Two-player pressure scales the solo spawn count; the fractional part carries over.
+          const base=S.wave%4===0?2:1,scale=survivors.length>1?api.balance.spawnScale:1;
+          S.coopSpawnCarry=(S.coopSpawnCarry||0)+base*scale;
+          const spawns=Math.floor(S.coopSpawnCarry+1e-9);S.coopSpawnCarry-=spawns;
+          for(let i=0;i<spawns;i++)fn.spawn();
           if(S.wave%30===0)fn.spawnBoss();fn.spawnTerrainByWave();
-          if(Math.random()<1-Math.pow(.92,S.wave%4===0?2:1))fn.spawnFieldItem();
+          if(Math.random()<1-Math.pow(.92,base))fn.spawnFieldItem();
           if(S.riskBeats>0)S.riskBeats--;
           if(S.wave%20===0){fn.offerRisk();api.pendingOwner=survivors[0].i;}else S.phase="player";
         });
@@ -156,5 +164,5 @@
     });
     return api;
   }
-  return {create};
+  return {create, BALANCE};
 });

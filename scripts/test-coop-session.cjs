@@ -94,6 +94,18 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   assert.equal(S.enemies[0].x,0);assert.equal(S.enemies[0].y,0,"capturing enemy occupies victim's cell");
 }
 {
+  // Listed far-first, the king would step into the rook's line; solo order moves the nearer rook first.
+  const {h,e,S}=setup();e.roster[1].x=0;e.roster[1].y=-6;e.turns.forEach(t=>t.grace=0);S.grace=0;
+  const piece=(x,y,type)=>({...pawn(x,y),type});S.enemies=[piece(-1,-4,"king"),piece(0,-4,"rook")];
+  S.player=e.roster[1];assert.equal(h.game.projectedEnemyCapture(e.roster[1]),true,"solo prediction expects the rook capture");S.player=e.roster[0];
+  e.enemyTurn();assert.equal(e.roster[1].alive,false,"co-op enemies move nearest-first like solo");assert.equal(e.roster[0].alive,true);
+}
+{
+  const {e,S}=setup();S.enemies=[];e.balance.spawnScale=1.5;S.wave=0;let spawned=0;
+  for(let i=0;i<4;i++){const before=S.enemies.length;e.enemyTurn();spawned+=S.enemies.length-before;}
+  assert.ok(spawned>=6&&spawned<=7,"x1.5 over waves 1-4 (base 1+1+1+2) attempts 7 spawns; a blocked cell may drop one");assert.equal(S.coopSpawnCarry,.5);
+}
+{
   const {e,S}=setup();S.wave=11;e.enemyTurn();assert.equal(S.wave,12);assert.ok(S.terrain.some(t=>t.type==="wall"));
   e.debug("boss","rook",1);assert.ok(S.enemies.some(e=>e.boss));
   const snapshot=e.snapshot();const other=setup();other.e.apply(snapshot);other.e.present({view:1});
