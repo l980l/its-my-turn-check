@@ -70,11 +70,15 @@ function coop(seed, balance) {
   const session = Session.create(e, () => {}, () => h.now());
   const enemyTurn = e.enemyTurn;
   const pressure = [];
-  let firstDeath = null;
+  let firstDeath = null, aloneWaves = 0, revives = 0, wasLiving = 2;
   e.enemyTurn = () => {
     S.elapsedPlaySeconds = S.wave * SECONDS_PER_WAVE;
+    const before = e.players().filter(p => p.alive).length;
+    if (before > wasLiving) revives += before - wasLiving;
     enemyTurn();
     const living = e.players().filter(p => p.alive).length;
+    wasLiving = living;
+    if (living === 1) aloneWaves++;
     if (living) pressure.push(S.enemies.filter(x => !x.boss).length / living);
     if (firstDeath == null && living < 2) firstDeath = S.wave;
   };
@@ -98,7 +102,7 @@ function coop(seed, balance) {
   const capped = session.flow().phase !== "over";
   return {mode: "coop", seed, capped, firstDeath: firstDeath ?? S.wave, teamDeath: S.wave, kills: S.kills, score: S.score,
     ranks: players.map(p => p.rank), traits: players.map(p => p.traits.length), reasons: players.map(p => p.deathReason || null),
-    pressurePerLiving: mean(pressure), peakEnemies: Math.max(0, ...pressure)};
+    pressurePerLiving: mean(pressure), peakEnemies: Math.max(0, ...pressure), aloneWaves, revives};
 }
 
 function summarize(rows) {
@@ -110,11 +114,15 @@ function summarize(rows) {
     firstDeathWave: dist(pick("firstDeath")), teamDeathWave: dist(pick("teamDeath")),
     killsPerWave: dist(rows.map(r => round(r.kills / Math.max(1, r.teamDeath)))),
     score: dist(pick("score")), enemiesPerLivingPlayer: dist(rows.map(r => round(r.pressurePerLiving))),
-    finalRank: dist(rows.flatMap(r => r.ranks)), deathReasons: reasons};
+    finalRank: dist(rows.flatMap(r => r.ranks)), deathReasons: reasons,
+    ...(rows[0].aloneWaves == null ? {} : {aloneWaves: dist(pick("aloneWaves")), revives: dist(pick("revives"))})};
 }
 
 function run(variants) {
-  const seeds = Array.from({length: RUNS}, (_, i) => SEED + i * 7919);
+  // SHARD=k/n runs every n-th seed starting at k, so long runs can be split
+  // across processes and merged; seeds stay paired with unsharded runs.
+  const [shard, shards] = (process.env.SHARD || "0/1").split("/").map(Number);
+  const seeds = Array.from({length: RUNS}, (_, i) => SEED + i * 7919).filter((_, i) => i % shards === shard);
   const out = {profile: "coop-balance-v1", seed: SEED, runs: RUNS, waveCap: WAVE_CAP, secondsPerWave: SECONDS_PER_WAVE,
     policy: "game autoMove for every player; first reward option; contracts declined",
     runtime: {game: sha("game.js"), coopRuntime: sha("coop-runtime.js"), coopSession: sha("coop-session.js"), traits: sha("traits.js"), enemyTraits: sha("enemy-traits.js"), dirty: dirty()},
@@ -124,6 +132,8 @@ function run(variants) {
       killsPerWave: "team kills / teamDeathWave; unit run",
       enemiesPerLivingPlayer: "mean over enemy turns of non-boss enemies / living players; unit run",
       finalRank: "rank per player at end; unit player",
+      aloneWaves: "co-op enemy turns that end with exactly one living player (the other spectates); unit run",
+      revives: "co-op reward revives taken; the auto policy always takes the first option, so every offer is taken; unit run",
     },
     limit: "Fixed auto policy; seeds are paired across variants but not human players. Survival waves are not play time or fun.",
     variants: {}, raw: {}};

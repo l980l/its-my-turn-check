@@ -101,6 +101,34 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   e.enemyTurn();assert.equal(e.roster[1].alive,false,"co-op enemies move nearest-first like solo");assert.equal(e.roster[0].alive,true);
 }
 {
+  // Reward revive: the survivor may trade a level-up reward for the fallen ally.
+  const {h,e,S}=setup();S.enemies=[pawn(5,1)];e.roster[1].alive=false;e.roster[1].deathReason="PAWN에게 잡힘";e.turns[1].grace=0;
+  const before={piece:e.roster[1].piece,rank:e.roster[1].rank};
+  e.debug("xp",null,0);assert.equal(e.pending().slot,0);assert.equal(S.upgradeMode,"revive");
+  assert.equal(S.upgradeOptions[0].kind,"revive");assert.match(h.elements.get("#upgradeTitle").textContent,/P2/);
+  h.advance(700);const rank=e.roster[0].rank,r=e.choose(0,0,"upgrade");
+  assert.equal(r.pending,false);assert.equal(e.roster[1].alive,true);assert.equal(e.roster[1].deathReason,undefined);
+  assert.equal(Math.max(Math.abs(e.roster[1].x-e.roster[0].x),Math.abs(e.roster[1].y-e.roster[0].y)),1,"revived next to the survivor");
+  assert.ok(!(e.roster[1].x===5&&e.roster[1].y===1),"never revived onto an enemy");
+  assert.deepEqual({piece:e.roster[1].piece,rank:e.roster[1].rank},before,"revived ally keeps its piece and rank");
+  assert.equal(e.turns[1].grace,2,"revived ally is briefly uncapturable");assert.equal(e.roster[0].rank,rank+1,"the level still counts");
+  S.enemies=[pawn(e.roster[1].x,e.roster[1].y+1)];e.turns[0].grace=5;e.enemyTurn();assert.equal(e.roster[1].alive,true,"grace protects right after revive");
+}
+{
+  const {h,e,S}=setup();S.enemies=[];e.roster[1].alive=false;e.debug("xp",null,0);
+  const held=S.upgradeHeld.mode;h.advance(700);e.choose(0,1,"upgrade");
+  assert.equal(S.upgradeMode,held,"declining shows the original reward");assert.equal(e.roster[1].alive,false);
+  assert.equal(e.pending().slot,0,"the reward is still pending");
+}
+{
+  const {e,S}=setup();S.enemies=[];e.roster[1].alive=false;e.roster[0].rank=0;e.debug("xp",null,0);
+  assert.equal(S.upgradeMode,"piece","the first promotion is never traded for a revive");
+}
+{
+  const {e,S}=setup();S.enemies=[];e.roster[1].alive=false;e.roster[0].rank=10;
+  e.roster.forEach(p=>p.alive=true);e.debug("xp",null,0);assert.notEqual(S.upgradeMode,"revive","no revive offer while both live");
+}
+{
   const {e,S}=setup();S.enemies=[];e.balance.spawnScale=1.5;S.wave=0;let spawned=0;
   for(let i=0;i<4;i++){const before=S.enemies.length;e.enemyTurn();spawned+=S.enemies.length-before;}
   assert.ok(spawned>=6&&spawned<=7,"x1.5 over waves 1-4 (base 1+1+1+2) attempts 7 spawns; a blocked cell may drop one");assert.equal(S.coopSpawnCarry,.5);
@@ -183,4 +211,15 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   while(s.flow().phase!=="over"){time=s.flow().deadline;s.update();}
   for(const record of s.replays()){assert.equal(record.frames.length,11,"ten actions plus the preceding scene");assert.equal(record.frames[0].game.world.wave,5);assert.equal(record.frames.at(-1).game.world.wave,15);}
 }
-console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay and isolated replay renderer");
+{
+  let time=0,turn=0;const players=[{alive:true},{alive:true}];
+  const engine={start(){},players:()=>players,pending:()=>null,moves:()=>[],
+    enemyTurn(){turn++;if(turn===2){players[1].alive=false;players[1].deathReason="first";}if(turn===3)players[1].alive=true;if(turn===5){players[1].alive=false;players[1].deathReason="second";}},
+    snapshot:()=>({world:{wave:turn,trail:[],enemyTrail:[]},players:structuredClone(players)})};
+  const s=Session.create(engine,()=>{},()=>time);s.start();
+  const until=n=>{while(turn<n){time=s.flow().deadline;s.update();}};
+  until(2);assert.equal(s.replays()[1].reason,"first");
+  until(3);assert.equal(s.replays()[1],null,"a revive clears the old death record");
+  until(5);assert.equal(s.replays()[1].reason,"second","a later death records a fresh replay");
+}
+console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive and isolated replay renderer");

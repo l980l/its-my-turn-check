@@ -32,6 +32,11 @@
     if(!players.some(p=>p.alive)||remote.flow.phase==="over"){
       if($("#deathDialog").open)$("#deathDialog").close();return;
     }
+    if(players[view]?.alive&&deathNotified[view]){
+      // Revived by the ally: close the death views so the player can move again.
+      deathNotified[view]=false;
+      for(const id of ["deathDialog","replayDialog"])if($("#"+id).open)$("#"+id).close();
+    }
     if(!players[view]?.alive&&!deathNotified[view]){
       deathNotified[view]=true;reviewSlot=view;
       $("#deathTitle").textContent="P"+(view+1)+" · CHECKMATE";
@@ -62,7 +67,7 @@
   function packet(){return session?{runId,flow:structuredClone(session.flow()),game:apis[0].snapshot(),paused,speed,...(session.flow().phase==="over"?{replays}: {})}:remote;}
   function publish(){
     if(!session)return;
-    session.replays().forEach((record,i)=>{if(record&&!sentReplays[i]){replays[i]=record;sentReplays[i]=true;if(!localDev)send("death-replay",{slot:i,record});}});
+    session.replays().forEach((record,i)=>{if(!record&&sentReplays[i]){replays[i]=null;sentReplays[i]=false;}if(record&&!sentReplays[i]){replays[i]=record;sentReplays[i]=true;if(!localDev)send("death-replay",{slot:i,record});}});
     remote=packet();render(remote);if(!localDev)send("state",{snapshot:remote});
   }
   function present(api,view,flow){

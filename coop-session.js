@@ -22,7 +22,10 @@
       if(!game.world.trail?.length&&history.length)game.world.trail=structuredClone(history.at(-1).game.world.trail||[]);
       history.push({label,actor,game});
       if(history.length>11)history.shift(); // ten resolved actions plus their preceding scene
-      engine.players().forEach((p,i)=>{if(!p.alive&&!deaths[i])deaths[i]={reason:p.deathReason||"적에게 잡혔습니다",wave:game.world.wave,frames:structuredClone(history)};});
+      engine.players().forEach((p,i)=>{
+        if(!p.alive&&!deaths[i])deaths[i]={reason:p.deathReason||"적에게 잡혔습니다",wave:game.world.wave,frames:structuredClone(history)};
+        else if(p.alive&&deaths[i])deaths[i]=null; // revived: a later death records a fresh replay
+      });
     }
     function planning(slot) {
       flow.phase = "planning"; flow.actor = null; flow.current = slot; flow.eligible = [slot];
