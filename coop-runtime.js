@@ -67,6 +67,23 @@
       try { executing(false);api.interactive=true;S.phase="player";S.autoPlay=true;fn.moves();fn.autoMove();return selected; }
       finally {api.onInput=previousInput;api.interactive=previousInteractive;S.phase=previousPhase;S.autoPlay=previousAuto;executing(true);}
     });
+    // A revived ally keeps its piece, rank and traits and is briefly uncapturable.
+    const REVIVE_GRACE = 2;
+    api.fallenAlly = () => {
+      const i=api.roster.findIndex(p=>p!==S.player&&!p.alive);
+      return i>=0&&S.player.alive?{slot:i,label:"P"+(i+1)}:null;
+    };
+    api.reviveAlly = () => {
+      const fallen=api.fallenAlly();if(!fallen)return null;
+      const ally=api.roster[fallen.slot],me=S.player,taken=(x,y)=>fn.terrainAt(x,y)||S.enemies.some(e=>e.x===x&&e.y===y)||(me.x===x&&me.y===y);
+      let cell=null;
+      for(let r=1;r<=6&&!cell;r++)for(let dy=-r;dy<=r&&!cell;dy++)for(let dx=-r;dx<=r&&!cell;dx++)
+        if(Math.max(Math.abs(dx),Math.abs(dy))===r&&!taken(me.x+dx,me.y+dy))cell={x:me.x+dx,y:me.y+dy};
+      cell||={x:me.x,y:me.y+4};
+      ally.x=cell.x;ally.y=cell.y;ally.alive=true;delete ally.deathReason;
+      api.turns[fallen.slot].grace=Math.max(api.turns[fallen.slot].grace||0,REVIVE_GRACE);
+      return {...fallen,x:ally.x,y:ally.y};
+    };
     const kill = (slot,reason) => { const p=api.roster[slot];if(!p?.alive)return;p.alive=false;p.deathReason=reason;fn.deathBurst(p.x,p.y); };
     api.enemyTurn = () => {
       save(api.roster.indexOf(S.player));

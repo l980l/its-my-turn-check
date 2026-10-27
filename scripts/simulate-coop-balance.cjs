@@ -13,9 +13,9 @@ const ROOT = path.resolve(__dirname, "..");
 const SEED = 20261026;
 const RUNS = Number(process.env.RUNS || 48);
 const WAVE_CAP = Number(process.env.WAVE_CAP || 600);
-// Enemy traits scale with play seconds. Both modes use the co-op round pace
-// (1.8s plan + 2 x (0.22s focus + 0.34s follow) + 0.42s enemy) so only the
-// player count differs between them.
+// Enemy traits scale with play seconds. Both modes use one assumed wave pace
+// (about 1s of thought + 0.22s focus + 0.34s follow per player, then 0.42s
+// enemy) so only the player count differs between them.
 const SECONDS_PER_WAVE = 3.34;
 
 const sha = file => crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, file))).digest("hex").slice(0, 16);
@@ -70,11 +70,15 @@ function coop(seed, balance) {
   const session = Session.create(e, () => {}, () => h.now());
   const enemyTurn = e.enemyTurn;
   const pressure = [];
-  let firstDeath = null;
+  let firstDeath = null, aloneWaves = 0, revives = 0, wasLiving = 2;
   e.enemyTurn = () => {
     S.elapsedPlaySeconds = S.wave * SECONDS_PER_WAVE;
+    const before = e.players().filter(p => p.alive).length;
+    if (before > wasLiving) revives += before - wasLiving;
     enemyTurn();
     const living = e.players().filter(p => p.alive).length;
+    wasLiving = living;
+    if (living === 1) aloneWaves++;
     if (living) pressure.push(S.enemies.filter(x => !x.boss).length / living);
     if (firstDeath == null && living < 2) firstDeath = S.wave;
   };
@@ -98,7 +102,7 @@ function coop(seed, balance) {
   const capped = session.flow().phase !== "over";
   return {mode: "coop", seed, capped, firstDeath: firstDeath ?? S.wave, teamDeath: S.wave, kills: S.kills, score: S.score,
     ranks: players.map(p => p.rank), traits: players.map(p => p.traits.length), reasons: players.map(p => p.deathReason || null),
-    pressurePerLiving: mean(pressure), peakEnemies: Math.max(0, ...pressure)};
+    pressurePerLiving: mean(pressure), peakEnemies: Math.max(0, ...pressure), aloneWaves, revives};
 }
 
 function summarize(rows) {
@@ -110,11 +114,15 @@ function summarize(rows) {
     firstDeathWave: dist(pick("firstDeath")), teamDeathWave: dist(pick("teamDeath")),
     killsPerWave: dist(rows.map(r => round(r.kills / Math.max(1, r.teamDeath)))),
     score: dist(pick("score")), enemiesPerLivingPlayer: dist(rows.map(r => round(r.pressurePerLiving))),
-    finalRank: dist(rows.flatMap(r => r.ranks)), deathReasons: reasons};
+    finalRank: dist(rows.flatMap(r => r.ranks)), deathReasons: reasons,
+    ...(rows[0].aloneWaves == null ? {} : {aloneWaves: dist(pick("aloneWaves")), revives: dist(pick("revives"))})};
 }
 
 function run(variants) {
-  const seeds = Array.from({length: RUNS}, (_, i) => SEED + i * 7919);
+  // SHARD=k/n runs every n-th seed starting at k, so long runs can be split
+  // across processes and merged; seeds stay paired with unsharded runs.
+  const [shard, shards] = (process.env.SHARD || "0/1").split("/").map(Number);
+  const seeds = Array.from({length: RUNS}, (_, i) => SEED + i * 7919).filter((_, i) => i % shards === shard);
   const out = {profile: "coop-balance-v1", seed: SEED, runs: RUNS, waveCap: WAVE_CAP, secondsPerWave: SECONDS_PER_WAVE,
     policy: "game autoMove for every player; first reward option; contracts declined",
     runtime: {game: sha("game.js"), coopRuntime: sha("coop-runtime.js"), coopSession: sha("coop-session.js"), traits: sha("traits.js"), enemyTraits: sha("enemy-traits.js"), dirty: dirty()},
@@ -124,11 +132,17 @@ function run(variants) {
       killsPerWave: "team kills / teamDeathWave; unit run",
       enemiesPerLivingPlayer: "mean over enemy turns of non-boss enemies / living players; unit run",
       finalRank: "rank per player at end; unit player",
+      aloneWaves: "co-op enemy turns that end with exactly one living player (the other spectates); unit run",
+      revives: "co-op reward revives taken; the auto policy always takes the first option, so every offer is taken; unit run",
     },
     limit: "Fixed auto policy; seeds are paired across variants but not human players. Survival waves are not play time or fun.",
     variants: {}, raw: {}};
   for (const [name, fn] of Object.entries(variants)) {
-    const rows = seeds.map(fn);
+    const rows = seeds.map((seed, i) => {
+      const row = fn(seed);
+      process.stderr.write(`${name} ${i + 1}/${seeds.length}: wave ${row.teamDeath}${row.capped ? " (cap)" : ""}\n`);
+      return row;
+    });
     out.variants[name] = summarize(rows);
     out.raw[name] = rows;
     process.stderr.write(`${name}: done\n`);

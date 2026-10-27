@@ -47,14 +47,18 @@ try {
     assert.equal(await text("roomCode"), "LOCAL DEV");
     assert.equal(await text("devAutoBoth"), "AUTO BOTH ON");
     assert.equal(await ev("document.querySelector('#timerText').tagName"), "PROGRESS");
+    // AUTO answers within 0.28s, so watch an unanswered 1.8s turn window instead.
+    await click("#devAutoBoth"); assert.equal(await text("devAutoBoth"), "AUTO BOTH OFF");
+    for (let i=0; i<200; i++) { if (/TURN$/.test(await text("phaseText")) && await ev("document.querySelector('#timerText').value") > 40) break; await wait(20); }
     const initialBar = await ev("document.querySelector('#timerText').value");
     await wait(200);
-    assert.ok(await ev("document.querySelector('#timerText').value") < initialBar, "remaining-time bar decreases during planning");
+    assert.ok(await ev("document.querySelector('#timerText').value") < initialBar, "remaining-time bar decreases during a turn");
     assert.equal(await text("timerText"), "", "seconds are not rendered");
     await click("#devPause");
     const frozen = await text("actionHint"), frozenBar = await ev("document.querySelector('#timerText').value"); await wait(300);
     assert.equal(await text("actionHint"), frozen, "paused state is stable");
     assert.equal(await ev("document.querySelector('#timerText').value"), frozenBar, "bar freezes while paused");
+    await click("#devAutoBoth"); assert.equal(await text("devAutoBoth"), "AUTO BOTH ON");
     const m = await ev(`(()=>{const box=e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]};const root=document.querySelector('#gameScreen'),canvas=document.querySelector('#boardViews'),tools=document.querySelector('#devTools');return {width:innerWidth,height:innerHeight,canvas:box(canvas),tools:box(tools),overflow:root.scrollWidth>root.clientWidth+1,textOverflow:[...root.querySelectorAll('button,strong,small')].filter(e=>e.getBoundingClientRect().height&&e.scrollWidth>e.clientWidth+1).map(e=>e.id),channelCalls,controls:[...tools.querySelectorAll('button')].filter(e=>e.getBoundingClientRect().height).map(e=>({id:e.id,rect:box(e)}))}})()`);
     assert.equal(m.width, width); assert.equal(m.height, height);
     assert.equal(m.overflow, false); assert.deepEqual(m.textOverflow, []);

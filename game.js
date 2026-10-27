@@ -2042,6 +2042,19 @@
       ui.upgradeEyebrow.textContent = "LEVEL " + (p.rank + 1);
       ui.upgradeTitle.textContent = "이번에는 무엇을 고를까요?";
     } else setTraitReward();
+    // Co-op: a fallen ally can be revived instead of taking this reward. The
+    // first promotion is never offered, so nobody stays a pawn forever.
+    const fallen = p.rank > 0 && coopSession?.fallenAlly();
+    if (fallen) {
+      S.upgradeHeld = {mode: S.upgradeMode, options: S.upgradeOptions, eyebrow: ui.upgradeEyebrow.textContent, title: ui.upgradeTitle.textContent};
+      S.upgradeMode = "revive";
+      S.upgradeOptions = [
+        {kind: "revive", icon: "♙", name: fallen.label + " 부활", desc: "이번 보상 대신 동료가 내 옆에서 돌아옵니다"},
+        {kind: "reward", icon: "✦", name: "내 보상 받기", desc: "동료는 그대로 두고 이번 보상을 받습니다"},
+      ];
+      ui.upgradeEyebrow.textContent = "ALLY DOWN";
+      ui.upgradeTitle.textContent = fallen.label + "를 살릴까요?";
+    }
     S.phase = "upgrade";
     S.upgradeContinueTurn = continueTurn;
     S.upgradeChainGain = chainGain;
@@ -2115,6 +2128,24 @@
     if (S.phase !== "upgrade" || performance.now() < (S.upgradeLock || 0)) return;
     const p = S.player, option = S.upgradeOptions[index];
     if (!option) return;
+    if (S.upgradeMode === "revive") {
+      const held = S.upgradeHeld;
+      S.upgradeHeld = null;
+      if (option.kind === "revive") {
+        const ally = coopSession.reviveAlly();
+        finishUpgrade();
+        ui.hint.textContent = ally.label + "가 돌아왔습니다.";
+        burst(ally.x, ally.y, "#f1ffff", 40);
+        return;
+      }
+      S.upgradeMode = held.mode;
+      S.upgradeOptions = held.options;
+      ui.upgradeEyebrow.textContent = held.eyebrow;
+      ui.upgradeTitle.textContent = held.title;
+      S.upgradeLock = performance.now() + 300;
+      renderChoices();
+      return;
+    }
     if (S.upgradeMode === "fork") {
       if (option.kind === "piece") {
         const pool = ["knight", "bishop", "rook", "queen", "king"].filter((piece) => piece !== p.piece);
@@ -3497,7 +3528,7 @@
     document.documentElement.classList.add("coop-embedded");
     coopSession = window.CoopRuntime.create({S,ui,executing:value=>{coopExecuting=value;},fn:{
       reset,hud,moves,playerMove,chooseUpgrade,renderChoices,resolveRisk,rerollTraits,autoMove,
-      spawn,spawnBoss,spawnTerrainByWave,spawnFieldItem,offerRisk,deathBurst,toward,boss,advanceBoss,bossLineThreat,chooseSafeCells,knightCorner,
+      spawn,spawnBoss,spawnTerrainByWave,spawnFieldItem,offerRisk,deathBurst,toward,boss,advanceBoss,bossLineThreat,chooseSafeCells,knightCorner,terrainAt,
       devXp,openDevPick,audio:startBgm,replayUi:()=>document.documentElement.classList.add("coop-replay"),now:()=>performance.now(),catalog:TraitSystem.traits.map(t=>({id:t.id,name:t.name})),
       heal:()=>EnemyTraits.heal(S.enemies).forEach(({healer,target})=>{target.hp=Math.min(target.maxHp,target.hp+1);S.effects.push({type:"enemyHeal",x:healer.x,y:healer.y,x2:target.x,y2:target.y,life:.45,max:.45});}),
     }});
