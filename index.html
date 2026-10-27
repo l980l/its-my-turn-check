@@ -79,6 +79,28 @@
       .upgrade[data-mode="bonus"] .eyebrow { display: none; }
       .upgrade[data-mode="bonus"] h2 { font-size: 26px; }
       .upgrade[data-mode="bonus"] .upgrade-choice { min-height: 108px; }
+      /* Short viewports (landscape phones, co-op DEV split halves): keep the choices on screen without scrolling. */
+      @media (max-height: 340px) {
+        .panel.upgrade[data-mode] { top: 50dvh; transform: translate(-50%, -50%); max-height: calc(100dvh - 8px); padding: 10px 12px; }
+        .panel.upgrade[data-mode] .eyebrow { display: none; }
+        .panel.upgrade[data-mode] h2 { font-size: 18px; margin: 0 0 8px; }
+        .panel.upgrade[data-mode] .upgrade-choice { height: auto; min-height: 0; padding: 8px 4px; }
+        .panel.upgrade[data-mode] .choices b { font-size: 24px; }
+        .panel.upgrade[data-mode] .upgrade-choice strong { margin: 4px 0 0; font-size: 11px; }
+        .panel.upgrade[data-mode] .upgrade-choice span { margin-top: 3px; font-size: 10px; }
+        .panel.upgrade[data-mode] .upgrade-choice .trait-svg-icon { width: 30px; height: 30px; }
+        .panel.upgrade[data-mode] .choices .upgrade-info { height: 30px; min-height: 30px; width: 30px; padding: 6px; }
+        .panel.upgrade[data-mode] .upgrade-detail { max-height: 90px; margin-top: 6px; padding: 6px 2px; overflow-y: auto; }
+        .panel.upgrade[data-mode] .upgrade-detail p { font-size: 12px; line-height: 1.5; }
+      }
+      @media (max-height: 180px) {
+        .panel.upgrade[data-mode] { padding: 6px 10px; }
+        .panel.upgrade[data-mode] h2 { font-size: 14px; margin: 0 0 4px; }
+        .panel.upgrade[data-mode] .choices b { font-size: 18px; }
+        .panel.upgrade[data-mode] .upgrade-choice .trait-svg-icon { width: 22px; height: 22px; }
+        .panel.upgrade[data-mode] .upgrade-choice { padding: 6px 4px; }
+        .panel.upgrade[data-mode] .upgrade-choice span { display: none; }
+      }
       @media (max-width: 560px) {
         body {
           max-width: 100%;
@@ -850,7 +872,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.17.1</b> · 2026.10.27</p>
+        <p class="build-version">BUILD <b>v0.17.2</b> · 2026.10.27</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
