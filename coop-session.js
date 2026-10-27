@@ -6,8 +6,11 @@
   "use strict";
   // Transport-independent authority. Combat, rewards and legal moves belong to
   // the existing single-player runtime; this module only orders two players.
+  // Players take turns: each gets its own selection window, keeps it through
+  // kill chains like solo, and the lead alternates every wave.
+  const PLAN_MS = 1800;
   function create(engine, changed = () => {}, now = () => Date.now()) {
-    let flow, speed = 1, paused = false, remaining = 0, round = 0, history=[], deaths=[null,null];
+    let flow, speed = 1, paused = false, remaining = 0, round = 0, waves = 0, history=[], deaths=[null,null];
     const alive = () => engine.players().map((p, i) => p.alive ? i : -1).filter(i => i >= 0);
     const notify = () => { flow.revision++; changed(); };
     const schedule = (duration) => { flow.duration = duration / speed; flow.deadline = now() + flow.duration; remaining = flow.duration; };
@@ -21,58 +24,54 @@
       if(history.length>11)history.shift(); // ten resolved actions plus their preceding scene
       engine.players().forEach((p,i)=>{if(!p.alive&&!deaths[i])deaths[i]={reason:p.deathReason||"적에게 잡혔습니다",wave:game.world.wave,frames:structuredClone(history)};});
     }
-    function planning(slots, resume = false) {
-      flow.phase = "planning"; flow.actor = null; flow.eligible = slots.filter(i => engine.players()[i].alive);
-      flow.roundId = ++round; flow.resume = resume;
-      for (const i of flow.eligible) delete flow.actions[i];
-      schedule(1800); notify();
+    function planning(slot) {
+      flow.phase = "planning"; flow.actor = null; flow.current = slot; flow.eligible = [slot];
+      flow.roundId = ++round; delete flow.actions[slot];
+      schedule(PLAN_MS); notify();
+    }
+    function nextTurn() {
+      while (flow.queue.length) {
+        const slot = flow.queue.shift();
+        if (engine.players()[slot]?.alive && engine.moves(slot).length) { planning(slot); return; }
+      }
+      flow.phase = "enemy"; flow.actor = null; flow.current = null; flow.eligible = []; schedule(420); notify();
     }
     function afterEnemy() {
       if (!alive().length) { flow.phase = "over"; notify(); return; }
       if (engine.pending()?.kind === "risk") { flow.phase = "risk"; flow.actor = engine.pending().slot; notify(); return; }
-      planning(alive());
+      flow.queue = [flow.lead, 1 - flow.lead]; nextTurn();
     }
-    function enemy() { flow.actions = {}; flow.next = []; engine.enemyTurn();remember("적 이동");afterEnemy(); }
-    function next() {
-      while (flow.queue.length) {
-        const slot = flow.queue.shift();
-        if (!engine.players()[slot]?.alive || !flow.actions[slot]) continue;
-        const move = flow.actions[slot];
-        if (!engine.moves(slot).some(m => m.x === move.x && m.y === move.y)) {
-          if (!engine.moves(slot).length) continue;
-          flow.queue.unshift(slot); planning([slot], true); return;
-        }
-        flow.actor = slot; flow.phase = "acting"; flow.stage = "focus"; schedule(220); notify(); return;
-      }
-      if (flow.next.length) { const slots = [...new Set(flow.next)]; flow.next = []; planning(slots); }
-      else { flow.phase = "enemy"; flow.actor = null; schedule(420); notify(); }
-    }
+    function enemy() { flow.actions = {}; flow.lead = waves++ % 2; engine.enemyTurn();remember("적 이동");afterEnemy(); }
     function completed(result) {
-      if (result.retained) flow.next.push(flow.actor);
+      flow.retained = Boolean(result.retained);
       flow.phase = "acting"; flow.stage = "follow"; schedule(340); notify();
     }
     function update(time = now()) {
       if (!flow || paused || time < flow.deadline) return;
       if (flow.phase === "planning") {
-        if (!flow.resume) flow.queue = [...flow.eligible].sort((a, b) => a-b);
-        next();
+        const slot = flow.current, move = flow.actions[slot];
+        if (!move) nextTurn(); // timed out: the turn passes without a move
+        else if (!engine.moves(slot).some(m => m.x === move.x && m.y === move.y)) planning(slot);
+        else { flow.actor = slot; flow.phase = "acting"; flow.stage = "focus"; schedule(220); notify(); }
       } else if (flow.phase === "acting") {
         if (flow.stage === "focus") {
           const result = engine.act(flow.actor, flow.actions[flow.actor]);
           remember("P"+(flow.actor+1)+" 이동",flow.actor);
           if (result.pending) { flow.phase = "upgrade"; notify(); }
           else completed(result);
-        } else next();
+        } else if (flow.retained) planning(flow.actor);
+        else nextTurn();
       } else if (flow.phase === "enemy") enemy();
     }
     return {
-      start() { flow = { phase:"waiting", revision:0, actor:null, eligible:[], actions:{}, queue:[], next:[], roundId:0, deadline:0, duration:1800 }; speed=1;paused=false;round=0;history=[];deaths=[null,null];engine.start();remember("시작");enemy(); },
+      start() { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:PLAN_MS }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start();remember("시작");enemy(); },
       flow: () => flow,
       replays: () => deaths,
       move(slot, move, roundId) {
         if (!flow || flow.phase !== "planning" || roundId !== flow.roundId || !flow.eligible.includes(slot) || (!paused && now() >= flow.deadline)) return false;
         if (!move || !engine.moves(slot).some(m => m.x === move.x && m.y === move.y)) return false;
-        flow.actions[slot] = {x:move.x,y:move.y}; notify(); return true;
+        // A submitted move resolves at once; the rest of the window is not waited out.
+        flow.actions[slot] = {x:move.x,y:move.y}; flow.deadline = now(); remaining = 0; notify(); return true;
       },
       choose(slot, index, kind = "upgrade") {
         if (!flow || flow.actor !== slot || !["upgrade","risk"].includes(flow.phase)) return false;
@@ -80,7 +79,7 @@
         if (!result) return false;
         if (flow.phase === "risk") afterEnemy();
         else if (result.pending) notify();
-        else if (flow.debugPending) {flow.debugPending=false;planning(alive());}
+        else if (flow.debugPending) {flow.debugPending=false;if(flow.current!=null)planning(flow.current);else nextTurn();}
         else completed(result);
         return true;
       },

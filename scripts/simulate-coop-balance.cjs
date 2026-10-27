@@ -13,9 +13,9 @@ const ROOT = path.resolve(__dirname, "..");
 const SEED = 20261026;
 const RUNS = Number(process.env.RUNS || 48);
 const WAVE_CAP = Number(process.env.WAVE_CAP || 600);
-// Enemy traits scale with play seconds. Both modes use the co-op round pace
-// (1.8s plan + 2 x (0.22s focus + 0.34s follow) + 0.42s enemy) so only the
-// player count differs between them.
+// Enemy traits scale with play seconds. Both modes use one assumed wave pace
+// (about 1s of thought + 0.22s focus + 0.34s follow per player, then 0.42s
+// enemy) so only the player count differs between them.
 const SECONDS_PER_WAVE = 3.34;
 
 const sha = file => crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, file))).digest("hex").slice(0, 16);
@@ -128,7 +128,11 @@ function run(variants) {
     limit: "Fixed auto policy; seeds are paired across variants but not human players. Survival waves are not play time or fun.",
     variants: {}, raw: {}};
   for (const [name, fn] of Object.entries(variants)) {
-    const rows = seeds.map(fn);
+    const rows = seeds.map((seed, i) => {
+      const row = fn(seed);
+      process.stderr.write(`${name} ${i + 1}/${seeds.length}: wave ${row.teamDeath}${row.capped ? " (cap)" : ""}\n`);
+      return row;
+    });
     out.variants[name] = summarize(rows);
     out.raw[name] = rows;
     process.stderr.write(`${name}: done\n`);

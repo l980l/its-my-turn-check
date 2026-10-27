@@ -77,9 +77,9 @@
     present(apis[0],localDev?0:slot,flow);
     if(localDev){apis[1].apply(snapshot.game);present(apis[1],1,flow);}
     $("#scoreText").textContent=snapshot.game.world.score.toLocaleString();
-    $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?"CHOOSE TOGETHER":flow.phase==="acting"?"P"+(flow.actor+1)+" MOVE":flow.phase==="upgrade"?"P"+(flow.actor+1)+" LEVEL UP":flow.phase==="risk"?"RISK":"ENEMY TURN";
-    const pending=flow.eligible?.map(i=>"P"+(i+1)).join(" · ");
-    $("#actionHint").textContent=flow.phase==="planning"?(flow.actions[localDev?controlled:slot]?"선택 완료":"이동 선택 · "+pending):flow.phase==="upgrade"?"P"+(flow.actor+1)+" 보상 선택 중":flow.phase==="acting"?"P"+(flow.actor+1)+"의 행동을 보고 있습니다.":"몬스터 이동";
+    const me=localDev?controlled:slot,myTurn=flow.phase==="planning"&&flow.eligible.includes(me);
+    $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?"P"+(flow.actor+1)+" MOVE":flow.phase==="upgrade"?"P"+(flow.actor+1)+" LEVEL UP":flow.phase==="risk"?"RISK":"ENEMY TURN";
+    $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?"P"+(flow.actor+1)+" 보상 선택 중":flow.phase==="acting"?"P"+(flow.actor+1)+"의 행동을 보고 있습니다.":"몬스터 이동";
     if(flow.phase==="over"){for(const api of apis)if(api)api.suspended=true;$("#endText").textContent="팀 점수 "+snapshot.game.world.score.toLocaleString()+"점 · 웨이브 "+snapshot.game.world.wave+" · "+snapshot.game.world.kills+"기 처치";show(endScreen);}
     updateDeaths();
     updateTools();
@@ -119,11 +119,14 @@
     $("#devSpeed").textContent="SPEED ×"+speed;$("#devPlayer").textContent="조작 P"+(controlled+1);
     $("#devPiece").textContent="기물 "+(apis[0]?.players()[controlled]?.piece||"pawn").toUpperCase();
   }
-  function automation(){
+  function automation(immediate=false){
     if(paused)return;
     const snapshot=remote;if(!snapshot)return;
     const flow=snapshot.flow;
     if(flow.phase==="planning"){
+      // AUTO thinks for a solo-like 0.28s so the turn and its timer stay readable.
+      const waited=flow.duration-(session?session.timeLeft():Math.max(0,flow.deadline-Date.now()));
+      if(!immediate&&waited<280/speed)return;
       for(const i of flow.eligible){
         if(!(localDev?autos[i]:auto&&i===slot)||flow.actions[i])continue;
         const key=flow.roundId+":"+i;if(!host&&submittedKey===key)continue;
@@ -184,7 +187,7 @@
   $("#devAutoBoth").addEventListener("click",()=>{autos=autos.every(Boolean)?[false,false]:[true,true];updateTools();});
   for(let i=0;i<2;i++)$("#devAuto"+i).addEventListener("click",()=>{autos[i]=!autos[i];updateTools();});
   $("#devPause").addEventListener("click",()=>{if(session){paused=!paused;session.pause(paused);updateTools();}});
-  $("#devStep").addEventListener("click",()=>{if(!session)return;paused=false;automation();paused=true;session.pause(true);session.step();publish();});
+  $("#devStep").addEventListener("click",()=>{if(!session)return;paused=false;automation(true);paused=true;session.pause(true);session.step();publish();});
   $("#devSpeed").addEventListener("click",()=>{if(!session)return;speed=speed===4?1:speed+1;session.speed(speed);updateTools();});
   $("#devPlayer").addEventListener("click",()=>{controlled=1-controlled;if(remote)render(remote);else updateTools();});
   const debug=(action,value)=>{if(localDev&&session){session.debug(action,value,controlled);publish();}};
