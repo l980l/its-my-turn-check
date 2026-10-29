@@ -5,19 +5,56 @@
 })(typeof window === "object" ? window : globalThis, function () {
   "use strict";
   const copy = value => JSON.parse(JSON.stringify(value));
-  const fields = ["chain","displayChain","grace","invincibleBeats","rangeBoostMoves","extendedMoves","traitRerolls"];
+  const fields = ["chain","displayChain","grace","invincibleBeats","rangeBoostMoves","extendedMoves","traitRerolls","relayMoves","relayBoost"];
+  // With teamTraits both players share one XP bar, level and trait set (co-op catalog only).
+  const TEAM = ["xp","rank","traits","traitLevels","traitXp","mastered"];
   // Co-op tuning, measured by scripts/simulate-coop-balance.cjs.
-  const BALANCE = Object.freeze({spawnScale:1});
+  const BALANCE = Object.freeze({spawnScale:1,reviveCooldown:30,teamTraits:true,xpScale:2,traitCatalog:"coop"});
   function create({S, ui, fn, executing}) {
     const clock=()=>fn.now();
+    // The game's own RNG, so seeded harness runs stay reproducible.
+    const random=()=>fn.random();
     const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true, balance:{...BALANCE} };
     const save = slot => { if(slot>=0)api.turns[slot]=Object.fromEntries(fields.map(key=>[key,S[key]])); };
     function use(slot, operation) {
       const previous = api.roster.indexOf(S.player); save(previous);
       S.player=api.roster[slot];Object.assign(S,api.turns[slot]);
+      const rank=S.player.rank;
       try { executing(true);return operation(); }
-      finally { save(slot); executing(false); if(previous>=0){S.player=api.roster[previous];Object.assign(S,api.turns[previous]);} }
+      finally { save(slot); executing(false); shareProgress(slot,rank); if(previous>=0){S.player=api.roster[previous];Object.assign(S,api.turns[previous]);} }
     }
+    // The acting player's progress is the team's. The first team level promotes
+    // every pawn, since a promotion offers a single random piece anyway.
+    function shareProgress(slot,rankBefore) {
+      const source=api.roster[slot];if(!api.balance.teamTraits||!source)return;
+      for(const p of api.roster){
+        if(p===source)continue;
+        for(const key of TEAM)p[key]=copy(source[key]??(key==="xp"||key==="rank"?0:{}));
+        if(rankBefore===0&&source.rank>0&&p.piece==="pawn"){const pieces=["knight","bishop","rook","queen","king"];p.piece=pieces[Math.floor(random()*pieces.length)];}
+      }
+    }
+    const teamRule = kind => api.balance.teamTraits&&S.player?fn.traits.coopRule(S.player.traits,S.player.traitLevels,kind):null;
+    const ally = () => api.roster.find(p=>p!==S.player&&p.alive);
+    // Where the ally stands, or where it fell: positional team traits keep working alone.
+    const anchor = () => S.player?.alive?api.roster.find(p=>p!==S.player)||null:null;
+    api.anchor = anchor;
+    api.castleTarget = () => { const rule=teamRule("castling"),a=ally();return rule&&a&&(S.coopCastleReady||0)<=S.wave?{x:a.x,y:a.y}:null; };
+    api.castle = from => { const rule=teamRule("castling"),a=ally();if(!rule||!a)return null;a.x=from.x;a.y=from.y;S.coopCastleReady=S.wave+rule.cooldown;return a; };
+    api.rallyStride = () => { const rule=teamRule("rally"),a=anchor();return rule&&a&&Math.max(Math.abs(a.x-S.player.x),Math.abs(a.y-S.player.y))<=rule.reach?rule.bonus:0; };
+    // Join: empty cells next to the ally, offered as extra moves while off cooldown.
+    api.joinTargets = () => {
+      const rule=teamRule("join"),a=ally();if(!rule||!a||(S.coopJoinReady||0)>S.wave)return [];
+      const cells=[];
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const x=a.x+dx,y=a.y+dy;
+        if((dx||dy)&&!(x===S.player.x&&y===S.player.y)&&!fn.terrainAt(x,y)&&!S.enemies.some(e=>e.x===x&&e.y===y))cells.push({x,y});}
+      return cells;
+    };
+    api.join = () => { const rule=teamRule("join");if(rule)S.coopJoinReady=S.wave+rule.cooldown; };
+    api.relay = () => {
+      const rule=teamRule("relay"),a=ally();if(!rule||!a)return false;
+      const t=api.turns[api.roster.indexOf(a)];t.relayMoves=Math.max(t.relayMoves||0,rule.moves);t.relayBoost=rule.boost;return true;
+    };
+    api.ally = ally;
     function refresh() {
       if(!api.roster.length)return;
       const slot=Math.min(api.view,api.roster.length-1);
@@ -28,13 +65,13 @@
       if(S.phase==="upgrade"&&api.pendingOwner===slot)fn.renderChoices();
     }
     api.players = () => api.roster;
-    api.catalog = fn.catalog;
+    Object.defineProperty(api,"catalog",{get:()=>!api.balance.teamTraits?fn.catalog:fn.traits.catalogOf(api.balance.traitCatalog).map(t=>({id:t.id,name:t.name}))});
     api.audio = () => fn.audio();
     api.choiceReady = () => clock()>=(S.upgradeLock||0);
     api.request = message => { if(api.interactive||message.type!=="move")api.onInput({...message,slot:api.view}); };
     api.start = () => {
       api.suspended=false;api.replaying=false;
-      api.roster=[];api.turns=[];fn.reset();S.coopSpawnCarry=0;S.running=true;S.autoPlay=false;S.dev=false;S.runTicket=null;
+      api.roster=[];api.turns=[];fn.reset();S.coopSpawnCarry=0;S.coopReviveReady=S.coopGuardReady=S.coopCastleReady=S.coopJoinReady=0;S.running=true;S.autoPlay=false;S.dev=false;S.runTicket=null;
       const original=copy(S.player); const defaults=Object.fromEntries(fields.map(key=>[key,S[key]]));
       api.roster=[{...copy(original),x:-2,y:0,alive:true},{...copy(original),x:2,y:0,alive:true}];
       api.turns=[copy(defaults),copy(defaults)];S.player=api.roster[0];api.view=0;api.focus=0;api.pendingOwner=null;
@@ -68,13 +105,14 @@
       finally {api.onInput=previousInput;api.interactive=previousInteractive;S.phase=previousPhase;S.autoPlay=previousAuto;executing(true);}
     });
     // A revived ally keeps its piece, rank and traits and is briefly uncapturable.
+    // After a revive the next one waits balance.reviveCooldown waves.
     const REVIVE_GRACE = 2;
     api.fallenAlly = () => {
       const i=api.roster.findIndex(p=>p!==S.player&&!p.alive);
-      return i>=0&&S.player.alive?{slot:i,label:"P"+(i+1)}:null;
+      return i>=0&&S.player.alive?{slot:i,label:"P"+(i+1),wait:Math.max(0,(S.coopReviveReady||0)-S.wave)}:null;
     };
     api.reviveAlly = () => {
-      const fallen=api.fallenAlly();if(!fallen)return null;
+      const fallen=api.fallenAlly();if(!fallen||fallen.wait>0)return null;
       const ally=api.roster[fallen.slot],me=S.player,taken=(x,y)=>fn.terrainAt(x,y)||S.enemies.some(e=>e.x===x&&e.y===y)||(me.x===x&&me.y===y);
       let cell=null;
       for(let r=1;r<=6&&!cell;r++)for(let dy=-r;dy<=r&&!cell;dy++)for(let dx=-r;dx<=r&&!cell;dx++)
@@ -82,7 +120,8 @@
       cell||={x:me.x,y:me.y+4};
       ally.x=cell.x;ally.y=cell.y;ally.alive=true;delete ally.deathReason;
       api.turns[fallen.slot].grace=Math.max(api.turns[fallen.slot].grace||0,REVIVE_GRACE);
-      return {...fallen,x:ally.x,y:ally.y};
+      S.coopReviveReady=S.wave+api.balance.reviveCooldown;
+      return {slot:fallen.slot,label:fallen.label,x:ally.x,y:ally.y};
     };
     const kill = (slot,reason) => { const p=api.roster[slot];if(!p?.alive)return;p.alive=false;p.deathReason=reason;fn.deathBurst(p.x,p.y); };
     api.enemyTurn = () => {
@@ -106,15 +145,21 @@
         for(const {i} of victims)if(!protectedSlots[i])kill(i,boss.bossName);
         if(victims.length&&["telegraph","sanctuary"].includes(before)){boss.bossPhase="vulnerable";}
       }
-      const used=new Set();
+      const used=new Set(),team=live()[0]?.p,pair=api.roster;
+      // Pin: enemies strictly between two aligned players cannot move this turn.
+      const pinned=new Set(api.balance.teamTraits&&team&&pair.length===2?fn.traits.pinned(team.traits,team.traitLevels,pair[0],pair[1],S.enemies):[]);
+      const guard=api.balance.teamTraits&&team?fn.traits.coopRule(team.traits,team.traitLevels,"guard"):null;
       // Same order as solo: nearest enemies claim cells first.
       const dist=e=>{const t=nearest(e);return t?Math.abs(t.p.x-e.x)+Math.abs(t.p.y-e.y):0;};
       for(const e of S.enemies.filter(e=>!e.boss).sort((a,b)=>dist(a)-dist(b))){
         const target=nearest(e);if(!target)break;
         const from={x:e.x,y:e.y},next=fn.toward(e,target.p),key=next.x+","+next.y;
         const victim=live().find(({p})=>p.x===next.x&&p.y===next.y);
-        if(used.has(key))continue;
+        if(used.has(key)||pinned.has(e))continue;
         if(victim&&protectedSlots[victim.i])continue;
+        // Guard: a nearby ally recaptures the attacker instead of the victim falling.
+        const guardian=victim&&guard&&(S.coopGuardReady||0)<=S.wave&&live().find(({p,i})=>i!==victim.i&&Math.max(Math.abs(p.x-victim.p.x),Math.abs(p.y-victim.p.y))<=guard.reach);
+        if(guardian){S.enemies=S.enemies.filter(enemy=>enemy!==e);S.coopGuardReady=S.wave+guard.cooldown;S.enemyTrail.push({x1:guardian.p.x,y1:guardian.p.y,x2:from.x,y2:from.y});fn.deathBurst(from.x,from.y);S.coopGuardedAt={x:victim.p.x,y:victim.p.y,wave:S.wave};continue;}
         e.x=next.x;e.y=next.y;used.add(key);
         if(from.x!==e.x||from.y!==e.y)S.enemyTrail.push({x1:from.x,y1:from.y,x2:e.x,y2:e.y,via:e.type==="knight"?fn.knightCorner(from,e):null});
         if(victim)kill(victim.i,e.type.toUpperCase()+"에게 잡힘");
@@ -130,7 +175,7 @@
           const spawns=Math.floor(S.coopSpawnCarry+1e-9);S.coopSpawnCarry-=spawns;
           for(let i=0;i<spawns;i++)fn.spawn();
           if(S.wave%30===0)fn.spawnBoss();fn.spawnTerrainByWave();
-          if(Math.random()<1-Math.pow(.92,base))fn.spawnFieldItem();
+          if(random()<1-Math.pow(.92,base))fn.spawnFieldItem();
           if(S.riskBeats>0)S.riskBeats--;
           if(S.wave%20===0){fn.offerRisk();api.pendingOwner=survivors[0].i;}else S.phase="player";
         });
@@ -166,7 +211,7 @@
     api.debug = (action,value,slot=api.view) => use(slot,()=>{
       if(action==="piece"&&["pawn","knight","bishop","rook","queen","king"].includes(value))S.player.piece=value;
       if(action==="xp")fn.devXp();
-      if(action==="trait"&&fn.catalog.some(t=>t.id===value)){
+      if(action==="trait"&&api.catalog.some(t=>t.id===value)){
         if(S.player.traits.includes(value))S.player.traitLevels[value]=Math.min(5,(S.player.traitLevels[value]||1)+1);
         else if(S.player.traits.length<6){S.player.traits.push(value);S.player.traitLevels[value]=1;}
       }
