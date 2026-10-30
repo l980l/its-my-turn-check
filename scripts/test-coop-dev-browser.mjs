@@ -90,6 +90,14 @@ try {
     assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.snapshot().world.wave>=2"),"real core engine progresses beyond the initial enemy turn");
     const views=await ev("[...document.querySelectorAll('#boardViews iframe')].map(f=>{const e=f.contentWindow.CoopGame;return{view:e.view,players:e.players(),wave:e.snapshot().world.wave}})");
     assert.equal(views[0].view,0);assert.equal(views[1].view,1);assert.deepEqual(views[0].players,views[1].players);
+    // Split halves can be ~120px tall: reward cards must be on screen without scrolling the panel.
+    await click("#devAutoBoth"); assert.equal(await text("devAutoBoth"), "AUTO BOTH OFF");
+    const openPanel = "[...document.querySelectorAll('#boardViews iframe')].findIndex(f=>!f.contentDocument.querySelector('#upgradeScreen').classList.contains('hidden'))";
+    for (let i=0; i<8 && await ev(openPanel) < 0; i++) { await click("#devXp"); await wait(150); }
+    await wait(400);
+    const cards = await ev(`(()=>{const f=document.querySelectorAll('#boardViews iframe')[${await ev(openPanel)}],d=f.contentDocument;return [...d.querySelectorAll('.upgrade-choice')].filter(b=>b.offsetParent).map(b=>{const r=b.getBoundingClientRect(),hit=d.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{top:r.top,bottom:r.bottom,height:f.clientHeight,hit:b.contains(hit)}})})()`);
+    assert.ok(cards.length > 0, "reward panel opens in split view");
+    for (const c of cards) assert.ok(c.top >= 0 && c.bottom <= c.height + 1 && c.hit, "reward card fully visible in split view: " + JSON.stringify(c));
     await click("#leaveButton");
     assert.equal(await ev("document.querySelector('#coopApp').dataset.screen"), "lobby");
     assert.equal(await ev("window.channelCalls"), 0);
