@@ -734,6 +734,15 @@
     fork: '<path d="M18 48V30a14 14 0 0128 0v18M18 48h11M35 48h11M25 18l7-11 7 11"/><circle cx="18" cy="30" r="3"/><circle cx="46" cy="30" r="3"/>',
     crossCheck: '<path d="M32 7v50M7 32h50"/><path d="M32 15l-5 6M32 15l5 6M32 49l-5-6M32 49l5-6M15 32l6-5M15 32l6 5M49 32l-6-5M49 32l-6 5"/>',
     slipstream: '<path d="M7 22c8-12 16 12 24 0s16 12 26 0M7 36c8-12 16 12 24 0s16 12 26 0"/><path d="M45 15l12 7-12 7"/>',
+    tether: '<circle cx="13" cy="32" r="6"/><circle cx="51" cy="32" r="6"/><path d="M19 32h26M28 24l4 8-4 8M36 24l4 8-4 8"/>',
+    pincer: '<path d="M12 52L44 20M52 52L20 20"/><path d="M40 16l8-4-4 8M24 16l-8-4 4 8"/><circle cx="32" cy="36" r="4"/>',
+    rally: '<circle cx="20" cy="40" r="6"/><circle cx="44" cy="40" r="6"/><path d="M8 20h48M46 12l10 8-10 8"/>',
+    join: '<circle cx="46" cy="32" r="7"/><path d="M8 32h24M24 24l8 8-8 8" /><path d="M38 20a14 14 0 010 24" opacity=".5"/>',
+    resonance: '<circle cx="32" cy="32" r="6"/><circle cx="32" cy="32" r="15" opacity=".7"/><circle cx="32" cy="32" r="24" opacity=".4"/>',
+    pin: '<circle cx="10" cy="54" r="5"/><circle cx="54" cy="10" r="5"/><path d="M14 50l36-36" opacity=".5"/><path d="M25 25l14 14M39 25L25 39"/>',
+    guard: '<path d="M32 7l20 8v15c0 13-9 22-20 27-11-5-20-14-20-27V15z"/><path d="M23 32l7 7 12-14"/>',
+    castling: '<path d="M10 22h40M42 14l8 8-8 8M54 42H14M22 34l-8 8 8 8"/>',
+    relay: '<path d="M8 44c10-2 16-12 22-22"/><path d="M24 18l7 3-2 7"/><path d="M34 46c10-2 16-12 22-22"/><path d="M50 20l7 3-2 7"/>',
   };
   function traitIcon(id) {
     const roots = {
@@ -804,8 +813,13 @@
     S.rewindHistory.push(snapshot);
     if (S.rewindHistory.length > 5) S.rewindHistory.shift();
   }
+  // Co-op team progress pools both players' XP, so each level costs more.
+  function xpNeed(rank = S.player.rank) {
+    const scale = coopSession?.balance.teamTraits ? coopSession.balance.xpScale : 1;
+    return Math.ceil((3 + rank * 2) * scale);
+  }
   function hud() {
-    const requiredXp = 3 + S.player.rank * 2;
+    const requiredXp = xpNeed();
     const progress = Math.max(0, Math.min(requiredXp, S.player.xp));
     ui.hp.textContent = S.wave;
     ui.level.textContent = "Lv. " + (S.player.rank + 1);
@@ -999,7 +1013,8 @@
       terrainType = terrainAt(p.x, p.y)?.type,
       terrainStride = terrainType === "amplifier",
       terrainDrag = terrainType === "inhibitor",
-      extraRange = (fieldStride ? 2 : 0) + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0);
+      relayStride = (S.relayMoves > 0 ? S.relayBoost || 1 : 0) + (coopSession?.rallyStride() || 0),
+      extraRange = (fieldStride ? 2 : 0) + relayStride + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0);
     if (piece === "pawn" || piece === "king")
       base = king.flatMap(([x, y]) =>
         Array.from({ length: Math.max(1, 1 + augmentation.stride + extraRange) }, (_, i) => [x * (i + 1), y * (i + 1)]),
@@ -1015,7 +1030,7 @@
         [-2, 1],
         [-1, 2],
       ];
-      let knightRange = Math.max(0, augmentation.stride + (fieldStride ? 2 : 0) + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0));
+      let knightRange = Math.max(0, augmentation.stride + (fieldStride ? 2 : 0) + relayStride + (terrainStride ? 1 : 0) - (terrainDrag ? 1 : 0));
       for (let n = 3; n <= 2 + knightRange; n++)
         base.push(
           [1, n], [n, 1], [n, -1], [1, -n],
@@ -1072,6 +1087,10 @@
       const exit = wormholeExit(m.x, m.y) || m;
       return !coopSession.roster.some(p => p !== S.player && p.alive && ((p.x===m.x&&p.y===m.y)||(p.x===exit.x&&p.y===exit.y)));
     });
+    const castle = coopSession?.castleTarget();
+    if (castle) S.moves.push({ x: castle.x, y: castle.y, castle: true });
+    for (const cell of coopSession?.joinTargets() || [])
+      if (!S.moves.some((m) => m.x === cell.x && m.y === cell.y)) S.moves.push({ ...cell, join: true });
   }
   function terrainAt(x, y) {
     return S.terrain.find((t) => t.x === x && t.y === y);
@@ -1822,6 +1841,9 @@
     let p = S.player,
       from = { x: p.x, y: p.y },
       usedRangeBoost = S.rangeBoostMoves > 0,
+      usedRelay = S.relayMoves > 0,
+      castle = Boolean(coopSession?.castleTarget() && S.moves.some((move) => move.castle && move.x === m.x && move.y === m.y)),
+      join = Boolean(coopSession && S.moves.some((move) => move.join && move.x === m.x && move.y === m.y)),
       gained = 0,
       earned = 0,
       scoreGain = 0,
@@ -1853,10 +1875,16 @@
       movementContributors.push(movementSynergy.recipe[0]);
       movementSynergy.recipe.forEach((id) => activatedTraits.add(id));
     }
+    if (join) coopSession.join();
+    if (castle) {
+      coopSession.castle(from);
+      traitFx("echo", m.x, m.y, { x2: from.x, y2: from.y });
+    }
     p.x = m.x;
     p.y = m.y;
     p.moveNumber = (p.moveNumber || 0) + 1;
     if (usedRangeBoost) S.rangeBoostMoves--;
+    if (usedRelay) S.relayMoves--;
     sfx("move");
     S.trail.push({ x1: from.x, y1: from.y, x2: p.x, y2: p.y, via: p.piece === "knight" ? knightCorner(from, p) : null, life: 1 });
     if (TraitSystem.movement(p.traits, p.traitLevels, p.mastered).stride && (Math.abs(m.x - from.x) > 1 || Math.abs(m.y - from.y) > 1))
@@ -1915,6 +1943,22 @@
         });
       });
     }
+    // Co-op team traits: strikes from the ally (or where it fell) or along the line to it, and relay.
+    const anchor = coopSession?.anchor();
+    if (anchor && directKilled > 0) {
+      TraitSystem.coopStrikes(p.traits, p.traitLevels, {
+        me: p, ally: anchor, enemies: S.enemies.filter((enemy) => !struck.has(enemy) && !EnemyTraits.isProtected(enemy, S.enemies)),
+      }).forEach((effect) => {
+        const collateral = damageEnemies(effect.targets, combo, struck, effect.damage, "trait");
+        gained += collateral.kills;
+        earned += collateral.points;
+        activatedTraits.add(effect.id);
+        effect.targets.forEach((enemy) => traitFx(effect.type === "tether" ? "echo" : "shockwave", effect.from.x, effect.from.y, { x2: enemy.x, y2: enemy.y }));
+      });
+      if (coopSession.relay()) activatedTraits.add("relay");
+    }
+    if (castle) activatedTraits.add("castling");
+    if (join) activatedTraits.add("join");
     if (augmentation.xp) {
       p.traits.forEach((id) => {
         const rule = TraitSystem.atLevel(id, p.traitLevels[id] || 1, Boolean(p.mastered[id])).rule;
@@ -1948,7 +1992,7 @@
     if (attacked) sfx("capture", S.chain + Math.max(1, gained));
     hud();
     flashHeldTraits(activatedTraits, S.chain + gained);
-    if (p.xp >= 3 + p.rank * 2) {
+    if (p.xp >= xpNeed(p.rank)) {
       openUpgrade(true, gained);
       return;
     }
@@ -1990,8 +2034,12 @@
     ui.beat.textContent = "CHARGING";
     ui.hint.textContent = "다음 박자에 모든 적이 동시에 움직입니다.";
   }
+  // Co-op team play offers the two-player catalog (BALANCE.traitCatalog); solo keeps its own.
+  function coopCatalog() {
+    return coopSession?.balance.teamTraits ? coopSession.balance.traitCatalog : "solo";
+  }
   function traitRewardPool(previous = []) {
-    return TraitSystem.offer(S.player.rank, Math.random, S.player.traits, S.player.traitLevels, previous);
+    return TraitSystem.offer(S.player.rank, Math.random, S.player.traits, S.player.traitLevels, previous, coopCatalog());
   }
   function setTraitReward(previous = []) {
     S.upgradeOptions = traitRewardPool(previous);
@@ -2008,7 +2056,7 @@
     if (S.upgradeMode !== "trait" || S.traitRerolls <= 0) return false;
     const p = S.player;
     const eligible = p.traits.length < TraitSystem.SLOT_LIMIT
-      ? TRAITS.filter((trait) => !p.traits.includes(trait.id))
+      ? TraitSystem.catalogOf(coopCatalog()).filter((trait) => !p.traits.includes(trait.id))
       : p.traits.filter((id) => (p.traitLevels[id] || 1) < TraitSystem.MAX_LEVEL);
     return eligible.length > S.upgradeOptions.length;
   }
@@ -2045,7 +2093,7 @@
     // Co-op: a fallen ally can be revived instead of taking this reward. The
     // first promotion is never offered, so nobody stays a pawn forever.
     const fallen = p.rank > 0 && coopSession?.fallenAlly();
-    if (fallen) {
+    if (fallen && !fallen.wait) {
       S.upgradeHeld = {mode: S.upgradeMode, options: S.upgradeOptions, eyebrow: ui.upgradeEyebrow.textContent, title: ui.upgradeTitle.textContent};
       S.upgradeMode = "revive";
       S.upgradeOptions = [
@@ -2061,7 +2109,7 @@
     S.upgradeLock = performance.now() + 550;
     renderChoices();
     ui.upgrade.classList.remove("hidden");
-    ui.hint.textContent = "레벨업 보상을 선택하세요.";
+    ui.hint.textContent = fallen?.wait ? fallen.label + " 부활까지 " + fallen.wait + "웨이브 · 레벨업 보상을 선택하세요." : "레벨업 보상을 선택하세요.";
   }
   function renderChoices() {
     const isTrait = S.upgradeMode === "trait";
@@ -3031,10 +3079,28 @@
   }
   function drawCoopAlly() {
     const allyIndex=1-coopSession.view,ally = coopSession.roster[allyIndex];
-    if (!ally?.alive) return;
+    if (!ally) return;
     const q=pos(ally.x,ally.y), s=size(), onScreen=q.x>30&&q.x<W-30&&q.y>75&&q.y<H-30;
     g.save();
     const color="#f1ffff",label="P"+(allyIndex+1);
+    // Pin: a dashed line marks the cells whose enemies cannot move this turn.
+    const me=coopSession.roster[coopSession.view],pin=me?.alive&&TraitSystem.coopRule(me.traits,me.traitLevels,"pin");
+    const dx=ally.x-(me?.x||0),dy=ally.y-(me?.y||0),span=Math.max(Math.abs(dx),Math.abs(dy));
+    if(pin&&span>=2&&span<=pin.reach&&(dx===0||dy===0||Math.abs(dx)===Math.abs(dy))){
+      const a=pos(me.x,me.y);
+      g.save();g.strokeStyle="#ffd166";g.globalAlpha=.75;g.lineWidth=3;g.setLineDash([8,6]);
+      g.beginPath();g.moveTo(a.x,a.y);g.lineTo(q.x,q.y);g.stroke();g.restore();
+    }
+    // A fallen ally leaves a marker that positional team traits still use.
+    if (!ally.alive) {
+      if (me?.alive && onScreen && me.traits.some((id) => TraitSystem.byId[id]?.base.coop)) {
+        g.strokeStyle=color;g.globalAlpha=.55;g.lineWidth=2;g.setLineDash([4,4]);
+        g.beginPath();g.arc(q.x,q.y,s*.32,0,Math.PI*2);g.stroke();g.setLineDash([]);
+        g.font="bold 11px 'Gowun Batang'";g.textAlign="center";g.textBaseline="middle";g.fillStyle=color;g.fillText(label,q.x,q.y);
+      }
+      g.restore();
+      return;
+    }
     g.shadowColor=color;g.shadowBlur=30;
     if (onScreen) {
       drawPrePiece(ally.piece,q.x,q.y,s*.54,color);
@@ -3189,7 +3255,7 @@
   }
   function devXp() {
     if (!S.running || ["upgrade", "devpick"].includes(S.phase)) return;
-    S.player.xp = 3 + S.player.rank * 2;
+    S.player.xp = xpNeed();
     hud();
     openUpgrade();
   }
@@ -3256,8 +3322,10 @@
       // A little noise prevents identical boards from producing a rigid loop.
       return { m, score: score + Math.random() * 12, lethal };
     });
+    // AUTO cannot judge where a castle/join leaves the ally, so it uses them only to escape.
     let safeCandidates = candidates.filter((candidate) => !candidate.lethal),
-      choices = safeCandidates.length ? safeCandidates : candidates;
+      plain = safeCandidates.filter((candidate) => !candidate.m.castle && !candidate.m.join),
+      choices = plain.length ? plain : safeCandidates.length ? safeCandidates : candidates;
     choices.sort((a, b) => b.score - a.score);
     playerMove(choices[0].m);
   }
@@ -3529,7 +3597,7 @@
     coopSession = window.CoopRuntime.create({S,ui,executing:value=>{coopExecuting=value;},fn:{
       reset,hud,moves,playerMove,chooseUpgrade,renderChoices,resolveRisk,rerollTraits,autoMove,
       spawn,spawnBoss,spawnTerrainByWave,spawnFieldItem,offerRisk,deathBurst,toward,boss,advanceBoss,bossLineThreat,chooseSafeCells,knightCorner,terrainAt,
-      devXp,openDevPick,audio:startBgm,replayUi:()=>document.documentElement.classList.add("coop-replay"),now:()=>performance.now(),catalog:TraitSystem.traits.map(t=>({id:t.id,name:t.name})),
+      devXp,openDevPick,audio:startBgm,replayUi:()=>document.documentElement.classList.add("coop-replay"),now:()=>performance.now(),random:()=>Math.random(),catalog:TraitSystem.traits.map(t=>({id:t.id,name:t.name})),coopCatalog:TraitSystem.coopTraits.map(t=>({id:t.id,name:t.name})),traits:TraitSystem,
       heal:()=>EnemyTraits.heal(S.enemies).forEach(({healer,target})=>{target.hp=Math.min(target.maxHp,target.hp+1);S.effects.push({type:"enemyHeal",x:healer.x,y:healer.y,x2:target.x,y2:target.y,life:.45,max:.45});}),
     }});
     window.CoopGame=coopSession;

@@ -48,6 +48,19 @@
     ["echoMonarch", "✺", "부채날", "attack", { shape:"fan", range:3, targets:1, cooldown:1, fx:"echo" }],
     ["circuitSovereign", "✺", "교차 타격", "attack", { shape:"forkCross", range:2, targets:1, minChain:2, cooldown:1, fx:"fork" }],
   ];
+  // Two-player traits replace the solo catalog in co-op. Every one needs the ally:
+  // its position, its turn, or its presence nearby. Values are per level.
+  const COOP_DEFINITIONS = [
+    ["tether", "⟷", "연결선", "coop", { coop:"tether", reach:[5,6,7,8,9], targets:[2,2,3,3,4] }],
+    ["resonance", "◎", "공명 파동", "coop", { coop:"resonance", range:[1,2,2,2,3], targets:[2,2,3,4,5] }],
+    ["pincer", "⚔", "협공 일격", "coop", { coop:"pincer", reach:[4,4,5,5,6], range:[1,1,2,2,2], targets:[1,2,2,3,4] }],
+    ["rally", "⇶", "집결", "coop", { coop:"rally", reach:[4,5,6,8,10], bonus:[1,1,2,2,2] }],
+    ["join", "⤳", "합류", "coop", { coop:"join", cooldown:[6,5,4,3,2] }],
+    ["pin", "⊗", "핀", "coop", { coop:"pin", reach:[3,4,5,6,8] }],
+    ["guard", "⛨", "수호", "coop", { coop:"guard", reach:[2,2,3,3,4], cooldown:[12,10,9,8,6] }],
+    ["castling", "⇄", "캐슬링", "coop", { coop:"castling", cooldown:[10,9,8,7,6] }],
+    ["relay", "➶", "릴레이", "coop", { coop:"relay", boost:[1,1,2,2,2], moves:[1,2,2,3,3] }],
+  ];
   const SHAPES = { adjacent:"주변", diagonal:"대각선", cross:"상하좌우", forward:"이동 방향 직선", fork:"나이트 위치", forkCross:"나이트 위치와 인접 상하좌우", ring:"바깥 고리", fan:"이동 방향 전방 부채꼴" };
   function levelOf(id, levels) {
     const value = Number(levels && levels[id]);
@@ -72,6 +85,7 @@
       }
       return Object.freeze(rule);
     }
+    if (growth === "coop") return Object.freeze(Object.fromEntries(Object.entries(base).map(([key, value]) => [key, Array.isArray(value) ? value[index] : value])));
     if (growth === "xp") return Object.freeze(mastered ? { xpEvery:2, xp:3 } : { xpEvery:base.every[index], xp:base.xp });
     if (growth === "escape") return Object.freeze({ escape:mastered ? 2 : base.cooldown[index] });
     const rule = { stride:base.stride ? base.stride[index] : 0, royal:base.royal ? base.royal[index] : 0 };
@@ -85,6 +99,15 @@
     return Object.freeze(rule);
   }
   function describe(rule) {
+    if (rule.coop === "tether") return `직접 처치 시 동료가 ${rule.reach}칸 안에 있으면 나와 동료 사이 일직선 위의 일반 적 최대 ${rule.targets}기에게 1피해`;
+    if (rule.coop === "resonance") return `직접 처치 시 동료 주변 ${rule.range}칸의 일반 적 최대 ${rule.targets}기에게 1피해`;
+    if (rule.coop === "pincer") return `동료가 ${rule.reach}칸 안에 있을 때 직접 처치하면 내 주변 ${rule.range}칸의 일반 적 최대 ${rule.targets}기에게 1피해`;
+    if (rule.coop === "rally") return `동료가 ${rule.reach}칸 안에 있으면 기본 사거리 +${rule.bonus} (나이트는 긴 L자 추가)`;
+    if (rule.coop === "join") return `이동 대신 동료 옆 빈칸으로 바로 이동 · 재사용 ${rule.cooldown}적 턴`;
+    if (rule.coop === "pin") return `동료와 가로·세로·대각선으로 ${rule.reach}칸 안에 나란히 서면 그 사이에 끼인 일반 적은 적 턴에 움직이지 못함`;
+    if (rule.coop === "guard") return `동료가 ${rule.reach}칸 안에 있을 때 적에게 잡히면 동료가 그 적을 되잡고 살아남음 · 재사용 ${rule.cooldown}적 턴`;
+    if (rule.coop === "castling") return `이동 대신 동료 칸을 눌러 동료와 자리를 바꿈 · 재사용 ${rule.cooldown}적 턴`;
+    if (rule.coop === "relay") return `직접 처치 시 동료의 다음 이동 ${rule.moves}회 동안 사거리 +${rule.boost}`;
     const parts = [];
     if (rule.stride) parts.push(`기본 사거리 +${rule.stride} (나이트는 긴 L자 추가)`);
     if (rule.royal) parts.push(`상하좌우 ${rule.royal}칸 이동 추가`);
@@ -97,13 +120,15 @@
     if (rule.escape) parts.push(`직접 처치 후 비공격 이동을 1회 더 허용 · 전체 탈출 효과 공유 재사용 ${rule.escape}적 턴`);
     return parts.join(" / ");
   }
-  const traits = DEFINITIONS.map(([id, icon, name, growth, base]) => {
+  const define = ([id, icon, name, growth, base]) => {
     const rule = freezeRule(growth, base, 1, false, id);
     return Object.freeze({ id, icon, name, growth, base:Object.freeze({ ...base }), rule, desc:describe(rule) });
-  });
-  const byId = Object.freeze(Object.fromEntries(traits.map((trait) => [trait.id, trait])));
+  };
+  const traits = DEFINITIONS.map(define);
+  const coopTraits = COOP_DEFINITIONS.map(define);
+  const byId = Object.freeze(Object.fromEntries([...traits, ...coopTraits].map((trait) => [trait.id, trait])));
   function makeLevel(trait, level, mastered) {
-    const mastery = MASTERIES[trait.id];
+    const mastery = MASTERIES[trait.id] || { name:trait.name, desc:"" };
     const rule = freezeRule(trait.growth, trait.base, level, mastered, trait.id);
     return Object.freeze({
       id:trait.id, icon:trait.icon, name:mastered ? mastery.name : trait.name,
@@ -111,7 +136,7 @@
       desc:mastered ? `MASTER · ${mastery.desc}${rule.directDamage ? " / 직접 공격 2피해 (보스는 1피해)" : ""} / ${describe(rule)}` : describe(rule),
     });
   }
-  const levelCache = Object.freeze(Object.fromEntries(traits.map((trait) => [trait.id, Object.freeze(
+  const levelCache = Object.freeze(Object.fromEntries([...traits, ...coopTraits].map((trait) => [trait.id, Object.freeze(
     Array.from({ length:MAX_LEVEL }, (_, index) => Object.freeze([
       makeLevel(trait, index + 1, false), makeLevel(trait, index + 1, true),
     ]))
@@ -265,15 +290,65 @@
     }
     return result;
   }
-  function offer(rank = 0, random = Math.random, inventory = [], levels = {}, previous = []) {
+  // Co-op shared traits. The coop rule of the owned trait of that kind, or null.
+  function coopRule(inventory, levels, kind) {
+    const id = inventory.find((owned) => byId[owned]?.base.coop === kind);
+    return id ? atLevel(id, levelOf(id, levels)).rule : null;
+  }
+  // Direct-kill strikes that originate from the ally (resonance) or the line
+  // between both players (tether). Callers apply damage; bosses are excluded.
+  function coopStrikes(inventory, levels, { me, ally, enemies }) {
+    requireInventory(inventory);
+    const fx = [], used = new Set();
+    if (!ally) return fx;
+    const distance = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+    const pick = (list, limit) => list.filter((enemy) => !enemy.boss && !used.has(enemy))
+      .sort((a, b) => distance(a, me) - distance(b, me) || a.x - b.x || a.y - b.y).slice(0, limit);
+    const tether = coopRule(inventory, levels, "tether");
+    if (tether && distance(me, ally) >= 2 && distance(me, ally) <= tether.reach) {
+      const vx = ally.x - me.x, vy = ally.y - me.y, length = Math.hypot(vx, vy);
+      const targets = pick(enemies.filter((enemy) => {
+        const ex = enemy.x - me.x, ey = enemy.y - me.y, along = (ex * vx + ey * vy) / (length * length);
+        return along > 0 && along < 1 && Math.abs(ex * vy - ey * vx) / length <= 0.6;
+      }), tether.targets);
+      targets.forEach((enemy) => used.add(enemy));
+      if (targets.length) fx.push({ id:"tether", type:"tether", from:me, targets, damage:1 });
+    }
+    const pincer = coopRule(inventory, levels, "pincer");
+    if (pincer && distance(me, ally) <= pincer.reach) {
+      const targets = pick(enemies.filter((enemy) => distance(enemy, me) >= 1 && distance(enemy, me) <= pincer.range), pincer.targets);
+      targets.forEach((enemy) => used.add(enemy));
+      if (targets.length) fx.push({ id:"pincer", type:"shockwave", from:me, targets, damage:1 });
+    }
+    const resonance = coopRule(inventory, levels, "resonance");
+    if (resonance) {
+      const targets = pick(enemies.filter((enemy) => distance(enemy, ally) >= 1 && distance(enemy, ally) <= resonance.range), resonance.targets);
+      targets.forEach((enemy) => used.add(enemy));
+      if (targets.length) fx.push({ id:"resonance", type:"shockwave", from:ally, targets, damage:1 });
+    }
+    return fx;
+  }
+  // Enemies strictly between two aligned players within the pin reach.
+  function pinned(inventory, levels, a, b, enemies) {
+    const pin = coopRule(inventory, levels, "pin");
+    if (!pin || !a || !b) return [];
+    const dx = b.x - a.x, dy = b.y - a.y, span = Math.max(Math.abs(dx), Math.abs(dy));
+    if (span < 2 || span > pin.reach || !(dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy))) return [];
+    const sx = Math.sign(dx), sy = Math.sign(dy), cells = new Set();
+    for (let step = 1; step < span; step++) cells.add((a.x + sx * step) + "," + (a.y + sy * step));
+    return enemies.filter((enemy) => !enemy.boss && cells.has(enemy.x + "," + enemy.y));
+  }
+  // A catalog name, or an explicit id list (used by balance ablations).
+  const catalogOf = (catalog) => Array.isArray(catalog) ? [...traits, ...coopTraits].filter((trait) => catalog.includes(trait.id)) : catalog === "coop" ? coopTraits : catalog === "mixed" ? [...traits, ...coopTraits] : traits;
+  function offer(rank = 0, random = Math.random, inventory = [], levels = {}, previous = [], catalog = "solo") {
     requireInventory(inventory);
     const owned = new Set(inventory);
-    const pool = inventory.length < SLOT_LIMIT ? traits.filter((trait) => !owned.has(trait.id)).map((trait) => atLevel(trait.id, 1)) : inventory.filter((id) => levelOf(id, levels) < MAX_LEVEL).map((id) => atLevel(id, levelOf(id, levels) + 1));
+    const pool = inventory.length < SLOT_LIMIT ? catalogOf(catalog).filter((trait) => !owned.has(trait.id)).map((trait) => atLevel(trait.id, 1)) : inventory.filter((id) => levelOf(id, levels) < MAX_LEVEL).map((id) => atLevel(id, levelOf(id, levels) + 1));
     if (!pool.length) return [];
     const prior = new Set(previous.map((candidate) => typeof candidate === "string" ? candidate : candidate.id));
     const fresh = shuffled(pool.filter((trait) => !prior.has(trait.id)), random);
     const repeated = shuffled(pool.filter((trait) => prior.has(trait.id)), random);
     return [...fresh, ...repeated].slice(0, Math.min(3, pool.length));
   }
-  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), byId, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.14.0" });
+  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), coopTraits:Object.freeze(coopTraits), catalogOf, byId, coopRule, coopStrikes, pinned, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.18.0" });
 });
