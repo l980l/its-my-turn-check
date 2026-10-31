@@ -869,7 +869,7 @@
     const effectCopy = trait.desc.replaceAll(" / ", "\n").replaceAll(" · 재사용 ", "\n재사용 ");
     ui.heldCopy.textContent = effectCopy + synergies.map((synergy) =>
       "\n\n시너지 · " + synergy.name + "\n" + synergy.recipe.map((part) => TraitSystem.atLevel(part).name).join(" + ") + "\n" + synergy.desc
-    ).join("") + (!trait.mastered && trait.level === 5 && S.player.traitXp[id] > 0 ? "\n\n낯선 힘이 응축되고 있습니다." : "");
+    ).join("") + (!trait.mastered && trait.level >= (TraitSystem.MASTERIES[id]?.level || TraitSystem.MAX_LEVEL) && S.player.traitXp[id] > 0 ? "\n\n낯선 힘이 응축되고 있습니다." : "");
     ui.heldDetails.dataset.level = String(trait.level);
     ui.heldDetails.classList.remove("hidden");
     ui.heldSlots.forEach((button, i) => button.setAttribute("aria-expanded", String(i === index)));
@@ -1875,8 +1875,11 @@
       movementContributors.push(movementSynergy.recipe[0]);
       movementSynergy.recipe.forEach((id) => activatedTraits.add(id));
     }
-    if (join) coopSession.join();
+    // Rally earns mastery from kills made while it extends this move.
+    const rallied = Boolean(coopSession?.rallyStride());
+    if (join) { coopSession.join(); credit("join", 1); }
     if (castle) {
+      credit("castling", 1);
       coopSession.castle(from);
       traitFx("echo", m.x, m.y, { x2: from.x, y2: from.y });
     }
@@ -1947,15 +1950,25 @@
     const anchor = coopSession?.anchor();
     if (anchor && directKilled > 0) {
       TraitSystem.coopStrikes(p.traits, p.traitLevels, {
-        me: p, ally: anchor, enemies: S.enemies.filter((enemy) => !struck.has(enemy) && !EnemyTraits.isProtected(enemy, S.enemies)),
+        me: p, ally: anchor, mastered: p.mastered, enemies: S.enemies.filter((enemy) => !struck.has(enemy) && !EnemyTraits.isProtected(enemy, S.enemies)),
       }).forEach((effect) => {
         const collateral = damageEnemies(effect.targets, combo, struck, effect.damage, "trait");
         gained += collateral.kills;
         earned += collateral.points;
+        credit(effect.id, collateral.kills);
         activatedTraits.add(effect.id);
         effect.targets.forEach((enemy) => traitFx(effect.type === "tether" ? "echo" : "shockwave", effect.from.x, effect.from.y, { x2: enemy.x, y2: enemy.y }));
+        const synergy = effect.synergy && TraitSystem.SYNERGIES.find((entry) => entry.id === effect.synergy);
+        if (synergy) {
+          hiddenTraitFx("synergy", p.x, p.y, synergy.color);
+          synergy.recipe.forEach((id) => activatedTraits.add(id));
+        } else if (effect.damage > 1) hiddenTraitFx("masterStrike", p.x, p.y);
       });
-      if (coopSession.relay()) activatedTraits.add("relay");
+      if (rallied) credit("rally", directKilled);
+      if (coopSession.relay()) {
+        activatedTraits.add("relay");
+        credit("relay", directKilled);
+      }
     }
     if (castle) activatedTraits.add("castling");
     if (join) activatedTraits.add("join");
@@ -3084,7 +3097,7 @@
     g.save();
     const color="#f1ffff",label="P"+(allyIndex+1);
     // Pin: a dashed line marks the cells whose enemies cannot move this turn.
-    const me=coopSession.roster[coopSession.view],pin=me?.alive&&TraitSystem.coopRule(me.traits,me.traitLevels,"pin");
+    const me=coopSession.roster[coopSession.view],pin=me?.alive&&TraitSystem.coopRule(me.traits,me.traitLevels,"pin",me.mastered);
     const dx=ally.x-(me?.x||0),dy=ally.y-(me?.y||0),span=Math.max(Math.abs(dx),Math.abs(dy));
     if(pin&&span>=2&&span<=pin.reach&&(dx===0||dy===0||Math.abs(dx)===Math.abs(dy))){
       const a=pos(me.x,me.y);
@@ -3597,7 +3610,7 @@
     coopSession = window.CoopRuntime.create({S,ui,executing:value=>{coopExecuting=value;},fn:{
       reset,hud,moves,playerMove,chooseUpgrade,renderChoices,resolveRisk,rerollTraits,autoMove,
       spawn,spawnBoss,spawnTerrainByWave,spawnFieldItem,offerRisk,deathBurst,toward,boss,advanceBoss,bossLineThreat,chooseSafeCells,knightCorner,terrainAt,
-      devXp,openDevPick,audio:startBgm,replayUi:()=>document.documentElement.classList.add("coop-replay"),now:()=>performance.now(),random:()=>Math.random(),catalog:TraitSystem.traits.map(t=>({id:t.id,name:t.name})),coopCatalog:TraitSystem.coopTraits.map(t=>({id:t.id,name:t.name})),traits:TraitSystem,
+      devXp,openDevPick,updateHiddenGrowth,audio:startBgm,replayUi:()=>document.documentElement.classList.add("coop-replay"),now:()=>performance.now(),random:()=>Math.random(),catalog:TraitSystem.traits.map(t=>({id:t.id,name:t.name})),coopCatalog:TraitSystem.coopTraits.map(t=>({id:t.id,name:t.name})),traits:TraitSystem,
       heal:()=>EnemyTraits.heal(S.enemies).forEach(({healer,target})=>{target.hp=Math.min(target.maxHp,target.hp+1);S.effects.push({type:"enemyHeal",x:healer.x,y:healer.y,x2:target.x,y2:target.y,life:.45,max:.45});}),
     }});
     window.CoopGame=coopSession;

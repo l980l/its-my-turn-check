@@ -310,4 +310,34 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   g.e.debug("trait","guard",0);g.e.enemyTurn();assert.equal(g.e.roster[0].alive,false,"a fallen ally cannot guard");
   const r=setup();const base=r.e.moves(0).length;r.e.roster[1].alive=false;r.e.debug("trait","rally",0);assert.ok(r.e.moves(0).length>base,"rally works near the fallen spot");
 }
-console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress and co-op traits, and isolated replay renderer");
+{
+  // Two-player masteries: each trait earns mastery XP from what it did, and the team shares the result.
+  const {MASTERIES}=require("../traits.js");const ready=(e,id)=>{e.roster[0].traitLevels[id]=5;e.roster[0].traitXp[id]=MASTERIES[id].requiredXp-1;};
+  const {e,S}=setup();e.roster[1].x=5;e.debug("trait","tether",0);ready(e,"tether");S.enemies=[pawn(1,0),pawn(2,0),pawn(-3,-3)];
+  e.act(0,{x:1,y:0});assert.ok(e.roster[0].mastered.tether&&e.roster[1].mastered.tether,"a tether kill completes its mastery for both");
+  S.enemies=[pawn(2,0),pawn(3,0,2),pawn(-3,-3)];e.act(0,{x:2,y:0});assert.equal(S.enemies.some(q=>q.x===3&&q.y===0),false,"mastered tether deals 2 damage");
+  const p=setup();p.e.roster[1].x=3;p.e.turns.forEach(t=>t.grace=0);p.S.grace=0;p.S.enemies=[pawn(2,0)];p.e.debug("trait","pin",0);ready(p.e,"pin");
+  p.e.enemyTurn();assert.ok(p.e.roster[0].mastered.pin&&p.e.roster[1].mastered.pin,"holding an enemy completes pin mastery");
+  const w=setup();w.e.turns.forEach(t=>t.grace=0);w.S.grace=0;const beside=pawn(2,2);w.S.enemies=[beside];w.e.debug("trait","pin",0);w.e.debug("master","pin",0);
+  assert.ok(w.e.roster[1].mastered.pin,"DEV mastery is shared");w.e.roster[1].y=2;w.e.roster[1].x=4;w.e.roster[0].y=2;w.e.roster[0].x=0;beside.y=1;
+  w.e.enemyTurn();assert.deepEqual([beside.x,beside.y],[2,1],"mastered pin also holds enemies beside the line");
+  const g=setup();g.e.roster[1].x=1;g.e.roster[1].y=1;g.e.turns.forEach(t=>t.grace=0);g.S.grace=0;g.S.enemies=[pawn(0,-1)];g.e.debug("trait","guard",0);ready(g.e,"guard");
+  g.e.enemyTurn();assert.equal(g.e.roster[0].alive,true);assert.ok(g.e.roster[1].mastered.guard,"a save counts toward guard mastery");
+  const c=setup();c.e.debug("trait","castling",0);ready(c.e,"castling");c.e.act(0,{x:4,y:0});assert.ok(c.e.roster[1].mastered.castling,"a swap counts toward castling mastery");
+  const r=setup();r.e.debug("trait","relay",0);ready(r.e,"relay");r.S.enemies=[pawn(1,0),pawn(-3,-3)];r.e.act(0,{x:1,y:0});
+  assert.ok(r.e.roster[0].mastered.relay,"a relayed kill counts toward relay mastery");assert.equal(r.e.turns[1].relayMoves,3,"the mastered rule applies from the next kill");
+}
+{
+  // Two-player synergies.
+  const {e,S}=setup();e.debug("trait","tether",0);e.debug("trait","pin",0);S.enemies=[pawn(1,0),pawn(3,0,2),pawn(-3,-3)];
+  e.act(0,{x:1,y:0});assert.equal(S.enemies.some(q=>q.x===3&&q.y===0),false,"chain prison deals 2 damage to pinned enemies");
+  assert.ok(S.discoveredSynergies.includes("chainPrison"),"the synergy is discovered like a solo one");
+  const n=setup();n.e.debug("trait","pincer",0);n.e.debug("trait","resonance",0);n.S.enemies=[pawn(1,0),pawn(3,-2,2),pawn(-3,-3)];
+  n.e.act(0,{x:1,y:0});assert.equal(n.S.enemies.some(q=>q.x===3&&q.y===-2),false,"encircle strikes enemies near both players");
+  const h=setup();h.e.roster[1].x=7;h.e.debug("trait","rally",0);const rally=h.e.moves(0).length;h.e.debug("trait","relay",0);
+  assert.ok(h.e.moves(0).length>rally,"war horn doubles rally reach");
+  const i=setup();i.e.roster[1].x=1;i.e.roster[1].y=1;i.e.turns.forEach(t=>t.grace=0);i.S.grace=0;i.S.enemies=[pawn(0,-1)];
+  i.e.debug("trait","guard",0);i.e.debug("trait","castling",0);i.S.coopCastleReady=99;i.e.enemyTurn();assert.equal(i.S.coopCastleReady,0,"iron shift resets castling when guard fires");
+  const j=setup();j.e.debug("trait","join",0);j.e.debug("trait","guard",0);j.S.coopGuardReady=99;j.e.act(0,{x:3,y:1});assert.equal(j.S.coopGuardReady,0,"escort join resets guard");
+}
+console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries and synergies, and isolated replay renderer");

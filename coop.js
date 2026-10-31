@@ -199,6 +199,7 @@
   $("#devPiece").addEventListener("click",()=>{const pieces=["pawn","knight","bishop","rook","queen","king"],current=apis[0].players()[controlled].piece;debug("piece",pieces[(pieces.indexOf(current)+1)%pieces.length]);});
   $("#devXp").addEventListener("click",()=>debug("xp"));
   $("#devTrait").addEventListener("click",()=>debug("trait",$("#devTraitSelect").value));
+  $("#devMaster").addEventListener("click",()=>debug("master",$("#devTraitSelect").value));
   $("#devBoss").addEventListener("click",()=>debug("boss",$("#devBossSelect").value));
   for(const type of ["pawn","rook"])$("#devSpawn"+type).addEventListener("click",()=>debug("spawn",{type,hp:Number($("#devEnemyHp").value)}));
   $("#devClear").addEventListener("click",()=>debug("clear"));

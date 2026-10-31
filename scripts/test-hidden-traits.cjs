@@ -12,13 +12,14 @@ assert.deepEqual(localized.traits.map((trait) => localized.atLevel(trait.id, 5, 
 ]);
 assert.deepEqual(localized.SYNERGIES.map((synergy) => synergy.name), [
   "무지개 충격", "갈라진 잔향", "연쇄 방전", "왕의 진군", "일식",
+  "사슬 감옥", "포위망", "진군 나팔", "철벽 교대", "호위 합류",
 ]);
 const TraitSystem = require("../traits.js");
-const { traits, MASTERIES, SYNERGIES, MAX_LEVEL, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape } = TraitSystem;
+const { traits, coopTraits, MASTERIES, SYNERGIES, MAX_LEVEL, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape } = TraitSystem;
 
-assert.equal(Object.keys(MASTERIES).length, traits.length, "every trait has one mastery");
-assert.equal(SYNERGIES.length, 5);
-for (const trait of traits) {
+assert.equal(Object.keys(MASTERIES).length, traits.length + coopTraits.length, "every solo and two-player trait has one mastery");
+assert.equal(SYNERGIES.length, 10);
+for (const trait of [...traits, ...coopTraits]) {
   const mastery = MASTERIES[trait.id];
   assert.ok(mastery.name && mastery.desc && Number.isInteger(mastery.requiredXp));
 
@@ -31,11 +32,17 @@ for (const trait of traits) {
 
   const xpFirst = { traits:[trait.id], traitLevels:{ [trait.id]:1 }, traitXp:{}, mastered:{} };
   creditMastery(xpFirst, { [trait.id]:mastery.requiredXp });
-  assert.equal(xpFirst.mastered[trait.id], undefined, `${trait.id} cannot master before level 5`);
+  assert.equal(xpFirst.mastered[trait.id], undefined, `${trait.id} cannot master before its mastery level`);
   xpFirst.traitLevels[trait.id] = MAX_LEVEL;
   assert.deepEqual(checkMasteries(xpFirst), [trait.id], `${trait.id} unlocks when level condition arrives second`);
 }
 
+for (const trait of coopTraits) {
+  const early = { traits:[trait.id], traitLevels:{ [trait.id]:2 }, traitXp:{ [trait.id]:MASTERIES[trait.id].requiredXp }, mastered:{} };
+  assert.deepEqual(checkMasteries(early), [], `${trait.id} waits for Lv. 3`);
+  early.traitLevels[trait.id] = 3;
+  assert.deepEqual(checkMasteries(early), [trait.id], `two-player ${trait.id} masters at Lv. 3`);
+}
 const locked = { traits:[], traitLevels:{ shockwave:MAX_LEVEL }, traitXp:{ shockwave:MASTERIES.shockwave.requiredXp } };
 assert.deepEqual(checkMasteries(locked), [], "unowned traits cannot master");
 assert.equal(locked.mastered, undefined, "failed mastery checks do not create state");

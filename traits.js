@@ -22,6 +22,30 @@
     astralCrown: { name:"궤도 폭격", requiredXp:110, desc:"외곽 고리가 3피해의 광역 타격으로 진화합니다." },
     echoMonarch: { name:"폭풍의 칼날", requiredXp:110, desc:"전방 부채꼴이 강해지고 넓어집니다." },
     circuitSovereign: { name:"교차 섬멸", requiredXp:110, desc:"교차 포크가 3피해의 광역 타격으로 진화합니다." },
+    // Two-player traits master from Lv. 3: one shared six-slot set rarely reaches Lv. 5.
+    // Their mastery XP counts what the trait itself did: kills for strikes,
+    // held enemies for pin, saves for guard, uses for swaps.
+    tether: { name:"사슬 번개", level:3, requiredXp:40, desc:"연결선이 더 길어지고 더 많은 적에게 2피해를 줍니다." },
+    resonance: { name:"공명 폭발", level:3, requiredXp:40, desc:"동료 주변 파동이 넓어지고 2피해를 줍니다." },
+    pincer: { name:"포위 섬멸", level:3, requiredXp:40, desc:"협공 범위가 넓어지고 2피해를 줍니다." },
+    rally: { name:"전군 집결", level:3, requiredXp:60, desc:"더 먼 동료에게서도 힘을 얻고 사거리가 1 더 늘어납니다." },
+    join: { name:"순간 합류", level:3, requiredXp:6, desc:"합류 재사용 대기가 1적 턴으로 줄어듭니다." },
+    pin: { name:"결박", level:3, requiredXp:75, desc:"더 먼 거리에서 핀을 걸고, 줄 양옆에 붙은 적도 묶습니다." },
+    guard: { name:"불굴의 수호", level:3, requiredXp:2, desc:"더 먼 동료도 지키고 재사용 대기가 3적 턴으로 줄어듭니다." },
+    castling: { name:"왕의 교대", level:3, requiredXp:5, desc:"캐슬링 재사용 대기가 3적 턴으로 줄어듭니다." },
+    relay: { name:"질주 계주", level:3, requiredXp:30, desc:"동료의 강화 이동이 더 길고 강해집니다." },
+  });
+  // What mastery does to each two-player rule.
+  const COOP_MASTERY = Object.freeze({
+    tether: (rule) => ({ ...rule, reach:rule.reach + 2, targets:rule.targets + 2, damage:2 }),
+    resonance: (rule) => ({ ...rule, range:rule.range + 1, targets:rule.targets + 2, damage:2 }),
+    pincer: (rule) => ({ ...rule, reach:rule.reach + 2, range:rule.range + 1, targets:rule.targets + 2, damage:2 }),
+    rally: (rule) => ({ ...rule, reach:rule.reach + 4, bonus:rule.bonus + 1 }),
+    join: (rule) => ({ ...rule, cooldown:1 }),
+    pin: (rule) => ({ ...rule, reach:rule.reach + 3, width:1 }),
+    guard: (rule) => ({ ...rule, reach:rule.reach + 2, cooldown:3 }),
+    castling: (rule) => ({ ...rule, cooldown:3 }),
+    relay: (rule) => ({ ...rule, boost:rule.boost + 1, moves:rule.moves + 2 }),
   });
   const SYNERGIES = Object.freeze([
     Object.freeze({ id:"prismaticImpact", name:"무지개 충격", recipe:Object.freeze(["shockwave", "diagonalBurst"]), desc:"긴 이동 뒤 십자 파동", color:"#d66efd", fx:"cross", rule:Object.freeze({ shape:"cross", range:2, maxTargets:3, cooldown:3, minDistance:2 }) }),
@@ -29,6 +53,12 @@
     Object.freeze({ id:"arcCircuit", name:"연쇄 방전", recipe:Object.freeze(["magnet", "chainSpark"]), desc:"주변 연쇄 충격", color:"#facc15", fx:"magnet", rule:Object.freeze({ shape:"adjacent", range:2, maxTargets:2, cooldown:3 }) }),
     Object.freeze({ id:"royalVector", name:"왕의 진군", recipe:Object.freeze(["longStride", "royalStep"]), desc:"기본 사거리 +1", color:"#86efac", movement:Object.freeze({ stride:1 }) }),
     Object.freeze({ id:"eclipse", name:"일식", recipe:Object.freeze(["astralCrown", "echoMonarch"]), desc:"넓어진 외곽 고리", color:"#818cf8", fx:"shockwave", rule:Object.freeze({ shape:"ring", range:3, maxTargets:4, cooldown:4 }) }),
+    // Two-player synergies have no solo rule; coopRule, coopStrikes and the co-op runtime apply them.
+    Object.freeze({ id:"chainPrison", name:"사슬 감옥", recipe:Object.freeze(["tether", "pin"]), desc:"핀 거리가 연결선 거리만큼 늘고, 직접 처치 시 핀에 묶인 적 최대 4기에게 2피해", color:"#fca5a5" }),
+    Object.freeze({ id:"encircle", name:"포위망", recipe:Object.freeze(["pincer", "resonance"]), desc:"직접 처치 시 나와 동료 양쪽에서 2칸 안에 있는 적 최대 4기에게 2피해", color:"#fb923c" }),
+    Object.freeze({ id:"warHorn", name:"진군 나팔", recipe:Object.freeze(["rally", "relay"]), desc:"집결 거리 2배 · 릴레이 사거리 +1", color:"#bef264" }),
+    Object.freeze({ id:"ironShift", name:"철벽 교대", recipe:Object.freeze(["guard", "castling"]), desc:"수호 거리 +2 · 수호가 발동하면 캐슬링을 바로 다시 쓸 수 있음", color:"#93c5fd" }),
+    Object.freeze({ id:"escortJoin", name:"호위 합류", recipe:Object.freeze(["join", "guard"]), desc:"합류 재사용 대기 −1 · 합류하면 수호를 바로 다시 쓸 수 있음", color:"#c4b5fd" }),
   ]);
 
   // Four utility traits and nine attack patterns. Sparse attack upgrades alternate
@@ -85,7 +115,10 @@
       }
       return Object.freeze(rule);
     }
-    if (growth === "coop") return Object.freeze(Object.fromEntries(Object.entries(base).map(([key, value]) => [key, Array.isArray(value) ? value[index] : value])));
+    if (growth === "coop") {
+      const rule = Object.fromEntries(Object.entries(base).map(([key, value]) => [key, Array.isArray(value) ? value[index] : value]));
+      return Object.freeze(mastered ? COOP_MASTERY[id](rule) : rule);
+    }
     if (growth === "xp") return Object.freeze(mastered ? { xpEvery:2, xp:3 } : { xpEvery:base.every[index], xp:base.xp });
     if (growth === "escape") return Object.freeze({ escape:mastered ? 2 : base.cooldown[index] });
     const rule = { stride:base.stride ? base.stride[index] : 0, royal:base.royal ? base.royal[index] : 0 };
@@ -99,12 +132,12 @@
     return Object.freeze(rule);
   }
   function describe(rule) {
-    if (rule.coop === "tether") return `직접 처치 시 동료가 ${rule.reach}칸 안에 있으면 나와 동료 사이 일직선 위의 일반 적 최대 ${rule.targets}기에게 1피해`;
-    if (rule.coop === "resonance") return `직접 처치 시 동료 주변 ${rule.range}칸의 일반 적 최대 ${rule.targets}기에게 1피해`;
-    if (rule.coop === "pincer") return `동료가 ${rule.reach}칸 안에 있을 때 직접 처치하면 내 주변 ${rule.range}칸의 일반 적 최대 ${rule.targets}기에게 1피해`;
+    if (rule.coop === "tether") return `직접 처치 시 동료가 ${rule.reach}칸 안에 있으면 나와 동료 사이 일직선 위의 일반 적 최대 ${rule.targets}기에게 ${rule.damage || 1}피해`;
+    if (rule.coop === "resonance") return `직접 처치 시 동료 주변 ${rule.range}칸의 일반 적 최대 ${rule.targets}기에게 ${rule.damage || 1}피해`;
+    if (rule.coop === "pincer") return `동료가 ${rule.reach}칸 안에 있을 때 직접 처치하면 내 주변 ${rule.range}칸의 일반 적 최대 ${rule.targets}기에게 ${rule.damage || 1}피해`;
     if (rule.coop === "rally") return `동료가 ${rule.reach}칸 안에 있으면 기본 사거리 +${rule.bonus} (나이트는 긴 L자 추가)`;
     if (rule.coop === "join") return `이동 대신 동료 옆 빈칸으로 바로 이동 · 재사용 ${rule.cooldown}적 턴`;
-    if (rule.coop === "pin") return `동료와 가로·세로·대각선으로 ${rule.reach}칸 안에 나란히 서면 그 사이에 끼인 일반 적은 적 턴에 움직이지 못함`;
+    if (rule.coop === "pin") return `동료와 가로·세로·대각선으로 ${rule.reach}칸 안에 나란히 서면 그 사이${rule.width ? "와 양옆" : "에 끼인"} 일반 적은 적 턴에 움직이지 못함`;
     if (rule.coop === "guard") return `동료가 ${rule.reach}칸 안에 있을 때 적에게 잡히면 동료가 그 적을 되잡고 살아남음 · 재사용 ${rule.cooldown}적 턴`;
     if (rule.coop === "castling") return `이동 대신 동료 칸을 눌러 동료와 자리를 바꿈 · 재사용 ${rule.cooldown}적 턴`;
     if (rule.coop === "relay") return `직접 처치 시 동료의 다음 이동 ${rule.moves}회 동안 사거리 +${rule.boost}`;
@@ -162,7 +195,7 @@
     for (const id of inventory) {
       const mastery = MASTERIES[id];
       const earned = Number.isInteger(xp[id]) && xp[id] >= 0 ? xp[id] : 0;
-      if (!mastery || mastered[id] || levelOf(id, levels) !== MAX_LEVEL || earned < mastery.requiredXp) continue;
+      if (!mastery || mastered[id] || levelOf(id, levels) < (mastery.level || MAX_LEVEL) || earned < mastery.requiredXp) continue;
       mastered[id] = true;
       unlocked.push(id);
     }
@@ -290,21 +323,36 @@
     }
     return result;
   }
-  // Co-op shared traits. The coop rule of the owned trait of that kind, or null.
-  function coopRule(inventory, levels, kind) {
+  // Co-op shared traits. The coop rule of the owned trait of that kind, with its
+  // mastery and any two-player synergy applied, or null.
+  function coopRule(inventory, levels, kind, mastered = {}) {
     const id = inventory.find((owned) => byId[owned]?.base.coop === kind);
-    return id ? atLevel(id, levelOf(id, levels)).rule : null;
+    if (!id) return null;
+    const rule = atLevel(id, levelOf(id, levels), masteredOf(id, mastered)).rule;
+    const owned = new Set(inventory), has = (synergy) => SYNERGIES.find((entry) => entry.id === synergy).recipe.every((part) => owned.has(part));
+    if (kind === "rally" && has("warHorn")) return { ...rule, reach:rule.reach * 2 };
+    if (kind === "relay" && has("warHorn")) return { ...rule, boost:rule.boost + 1 };
+    if (kind === "guard" && has("ironShift")) return { ...rule, reach:rule.reach + 2 };
+    if (kind === "join" && has("escortJoin")) return { ...rule, cooldown:Math.max(1, rule.cooldown - 1) };
+    if (kind === "pin" && has("chainPrison")) return { ...rule, reach:Math.max(rule.reach, coopRule(inventory, levels, "tether", mastered).reach) };
+    return rule;
   }
+  function hasSynergy(inventory, id) { return activeSynergies(inventory).some((synergy) => synergy.id === id); }
   // Direct-kill strikes that originate from the ally (resonance) or the line
   // between both players (tether). Callers apply damage; bosses are excluded.
-  function coopStrikes(inventory, levels, { me, ally, enemies }) {
+  function coopStrikes(inventory, levels, { me, ally, enemies, mastered = {} }) {
     requireInventory(inventory);
     const fx = [], used = new Set();
     if (!ally) return fx;
     const distance = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
     const pick = (list, limit) => list.filter((enemy) => !enemy.boss && !used.has(enemy))
       .sort((a, b) => distance(a, me) - distance(b, me) || a.x - b.x || a.y - b.y).slice(0, limit);
-    const tether = coopRule(inventory, levels, "tether");
+    if (hasSynergy(inventory, "chainPrison")) {
+      const targets = pick(pinned(inventory, levels, me, ally, enemies, mastered), 4);
+      targets.forEach((enemy) => used.add(enemy));
+      if (targets.length) fx.push({ id:"tether", type:"tether", from:me, targets, damage:2, synergy:"chainPrison" });
+    }
+    const tether = coopRule(inventory, levels, "tether", mastered);
     if (tether && distance(me, ally) >= 2 && distance(me, ally) <= tether.reach) {
       const vx = ally.x - me.x, vy = ally.y - me.y, length = Math.hypot(vx, vy);
       const targets = pick(enemies.filter((enemy) => {
@@ -312,30 +360,38 @@
         return along > 0 && along < 1 && Math.abs(ex * vy - ey * vx) / length <= 0.6;
       }), tether.targets);
       targets.forEach((enemy) => used.add(enemy));
-      if (targets.length) fx.push({ id:"tether", type:"tether", from:me, targets, damage:1 });
+      if (targets.length) fx.push({ id:"tether", type:"tether", from:me, targets, damage:tether.damage || 1 });
     }
-    const pincer = coopRule(inventory, levels, "pincer");
+    const pincer = coopRule(inventory, levels, "pincer", mastered);
     if (pincer && distance(me, ally) <= pincer.reach) {
       const targets = pick(enemies.filter((enemy) => distance(enemy, me) >= 1 && distance(enemy, me) <= pincer.range), pincer.targets);
       targets.forEach((enemy) => used.add(enemy));
-      if (targets.length) fx.push({ id:"pincer", type:"shockwave", from:me, targets, damage:1 });
+      if (targets.length) fx.push({ id:"pincer", type:"shockwave", from:me, targets, damage:pincer.damage || 1 });
     }
-    const resonance = coopRule(inventory, levels, "resonance");
+    const resonance = coopRule(inventory, levels, "resonance", mastered);
     if (resonance) {
       const targets = pick(enemies.filter((enemy) => distance(enemy, ally) >= 1 && distance(enemy, ally) <= resonance.range), resonance.targets);
       targets.forEach((enemy) => used.add(enemy));
-      if (targets.length) fx.push({ id:"resonance", type:"shockwave", from:ally, targets, damage:1 });
+      if (targets.length) fx.push({ id:"resonance", type:"shockwave", from:ally, targets, damage:resonance.damage || 1 });
+    }
+    if (hasSynergy(inventory, "encircle")) {
+      const targets = pick(enemies.filter((enemy) => distance(enemy, me) <= 2 && distance(enemy, ally) <= 2 && distance(enemy, me) >= 1 && distance(enemy, ally) >= 1), 4);
+      if (targets.length) fx.push({ id:"pincer", type:"shockwave", from:me, targets, damage:2, synergy:"encircle" });
     }
     return fx;
   }
-  // Enemies strictly between two aligned players within the pin reach.
-  function pinned(inventory, levels, a, b, enemies) {
-    const pin = coopRule(inventory, levels, "pin");
+  // Enemies strictly between two aligned players within the pin reach (and,
+  // once mastered, those right beside that line).
+  function pinned(inventory, levels, a, b, enemies, mastered = {}) {
+    const pin = coopRule(inventory, levels, "pin", mastered);
     if (!pin || !a || !b) return [];
     const dx = b.x - a.x, dy = b.y - a.y, span = Math.max(Math.abs(dx), Math.abs(dy));
     if (span < 2 || span > pin.reach || !(dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy))) return [];
-    const sx = Math.sign(dx), sy = Math.sign(dy), cells = new Set();
-    for (let step = 1; step < span; step++) cells.add((a.x + sx * step) + "," + (a.y + sy * step));
+    const sx = Math.sign(dx), sy = Math.sign(dy), cells = new Set(), width = pin.width || 0;
+    for (let step = 1; step < span; step++)
+      for (let ox = -width; ox <= width; ox++) for (let oy = -width; oy <= width; oy++) cells.add((a.x + sx * step + ox) + "," + (a.y + sy * step + oy));
+    cells.delete(a.x + "," + a.y);
+    cells.delete(b.x + "," + b.y);
     return enemies.filter((enemy) => !enemy.boss && cells.has(enemy.x + "," + enemy.y));
   }
   // A catalog name, or an explicit id list (used by balance ablations).
@@ -350,5 +406,5 @@
     const repeated = shuffled(pool.filter((trait) => prior.has(trait.id)), random);
     return [...fresh, ...repeated].slice(0, Math.min(3, pool.length));
   }
-  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), coopTraits:Object.freeze(coopTraits), catalogOf, byId, coopRule, coopStrikes, pinned, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.18.0" });
+  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), coopTraits:Object.freeze(coopTraits), catalogOf, byId, coopRule, hasSynergy, coopStrikes, pinned, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.19.0" });
 });
