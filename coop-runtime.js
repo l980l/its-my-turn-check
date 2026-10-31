@@ -33,7 +33,8 @@
         if(rankBefore===0&&source.rank>0&&p.piece==="pawn"){const pieces=["knight","bishop","rook","queen","king"];p.piece=pieces[Math.floor(random()*pieces.length)];}
       }
     }
-    const teamRule = kind => api.balance.teamTraits&&S.player?fn.traits.coopRule(S.player.traits,S.player.traitLevels,kind):null;
+    const teamRule = kind => api.balance.teamTraits&&S.player?fn.traits.coopRule(S.player.traits,S.player.traitLevels,kind,S.player.mastered):null;
+    const teamSynergy = (p,id) => api.balance.teamTraits&&p&&fn.traits.hasSynergy(p.traits,id);
     const ally = () => api.roster.find(p=>p!==S.player&&p.alive);
     // Where the ally stands, or where it fell: positional team traits keep working alone.
     const anchor = () => S.player?.alive?api.roster.find(p=>p!==S.player)||null:null;
@@ -49,7 +50,7 @@
         if((dx||dy)&&!(x===S.player.x&&y===S.player.y)&&!fn.terrainAt(x,y)&&!S.enemies.some(e=>e.x===x&&e.y===y))cells.push({x,y});}
       return cells;
     };
-    api.join = () => { const rule=teamRule("join");if(rule)S.coopJoinReady=S.wave+rule.cooldown; };
+    api.join = () => { const rule=teamRule("join");if(rule)S.coopJoinReady=S.wave+rule.cooldown;if(teamSynergy(S.player,"escortJoin"))S.coopGuardReady=0; };
     api.relay = () => {
       const rule=teamRule("relay"),a=ally();if(!rule||!a)return false;
       const t=api.turns[api.roster.indexOf(a)];t.relayMoves=Math.max(t.relayMoves||0,rule.moves);t.relayBoost=rule.boost;return true;
@@ -147,8 +148,9 @@
       }
       const used=new Set(),team=live()[0]?.p,pair=api.roster;
       // Pin: enemies strictly between two aligned players cannot move this turn.
-      const pinned=new Set(api.balance.teamTraits&&team&&pair.length===2?fn.traits.pinned(team.traits,team.traitLevels,pair[0],pair[1],S.enemies):[]);
-      const guard=api.balance.teamTraits&&team?fn.traits.coopRule(team.traits,team.traitLevels,"guard"):null;
+      const pinned=new Set(api.balance.teamTraits&&team&&pair.length===2?fn.traits.pinned(team.traits,team.traitLevels,pair[0],pair[1],S.enemies,team.mastered):[]);
+      const guard=api.balance.teamTraits&&team?fn.traits.coopRule(team.traits,team.traitLevels,"guard",team.mastered):null;
+      const credits={};
       // Same order as solo: nearest enemies claim cells first.
       const dist=e=>{const t=nearest(e);return t?Math.abs(t.p.x-e.x)+Math.abs(t.p.y-e.y):0;};
       for(const e of S.enemies.filter(e=>!e.boss).sort((a,b)=>dist(a)-dist(b))){
@@ -159,11 +161,15 @@
         if(victim&&protectedSlots[victim.i])continue;
         // Guard: a nearby ally recaptures the attacker instead of the victim falling.
         const guardian=victim&&guard&&(S.coopGuardReady||0)<=S.wave&&live().find(({p,i})=>i!==victim.i&&Math.max(Math.abs(p.x-victim.p.x),Math.abs(p.y-victim.p.y))<=guard.reach);
-        if(guardian){S.enemies=S.enemies.filter(enemy=>enemy!==e);S.coopGuardReady=S.wave+guard.cooldown;S.enemyTrail.push({x1:guardian.p.x,y1:guardian.p.y,x2:from.x,y2:from.y});fn.deathBurst(from.x,from.y);S.coopGuardedAt={x:victim.p.x,y:victim.p.y,wave:S.wave};continue;}
+        if(guardian){S.enemies=S.enemies.filter(enemy=>enemy!==e);S.coopGuardReady=S.wave+guard.cooldown;credits.guard=(credits.guard||0)+1;if(teamSynergy(team,"ironShift"))S.coopCastleReady=0;S.enemyTrail.push({x1:guardian.p.x,y1:guardian.p.y,x2:from.x,y2:from.y});fn.deathBurst(from.x,from.y);S.coopGuardedAt={x:victim.p.x,y:victim.p.y,wave:S.wave};continue;}
         e.x=next.x;e.y=next.y;used.add(key);
         if(from.x!==e.x||from.y!==e.y)S.enemyTrail.push({x1:from.x,y1:from.y,x2:e.x,y2:e.y,via:e.type==="knight"?fn.knightCorner(from,e):null});
         if(victim)kill(victim.i,e.type.toUpperCase()+"에게 잡힘");
       }
+      // Pin and guard earn their mastery here; the team shares it like any other progress.
+      if(pinned.size)credits.pin=pinned.size;
+      const credited=live()[0];
+      if(Object.keys(credits).length&&credited)use(credited.i,()=>fn.updateHiddenGrowth(credits));
       fn.heal();
       const survivors=live();
       if(survivors.length){
@@ -214,6 +220,9 @@
       if(action==="trait"&&api.catalog.some(t=>t.id===value)){
         if(S.player.traits.includes(value))S.player.traitLevels[value]=Math.min(5,(S.player.traitLevels[value]||1)+1);
         else if(S.player.traits.length<6){S.player.traits.push(value);S.player.traitLevels[value]=1;}
+      }
+      if(action==="master"&&S.player.traits.includes(value)&&fn.traits.MASTERIES[value]){
+        S.player.traitLevels[value]=5;S.player.traitXp[value]=Math.max(S.player.traitXp[value]||0,fn.traits.MASTERIES[value].requiredXp);fn.updateHiddenGrowth();
       }
       if(action==="boss")fn.spawnBoss(value||"rook");
       if(action==="clear")S.enemies=[];

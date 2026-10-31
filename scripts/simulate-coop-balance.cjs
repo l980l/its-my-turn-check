@@ -101,7 +101,8 @@ function coop(seed, balance) {
   const players = e.players();
   const capped = session.flow().phase !== "over";
   return {mode: "coop", seed, capped, firstDeath: firstDeath ?? S.wave, teamDeath: S.wave, kills: S.kills, score: S.score,
-    ranks: players.map(p => p.rank), traits: players.map(p => p.traits.length), reasons: players.map(p => p.deathReason || null),
+    ranks: players.map(p => p.rank), traits: players.map(p => p.traits.length),
+    mastered: Object.keys(players[0].mastered || {}).filter(id => players[0].mastered[id]), synergies: [...(S.discoveredSynergies || [])], reasons: players.map(p => p.deathReason || null),
     pressurePerLiving: mean(pressure), peakEnemies: Math.max(0, ...pressure), aloneWaves, revives};
 }
 

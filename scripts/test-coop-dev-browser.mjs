@@ -90,6 +90,10 @@ try {
     assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.snapshot().world.wave>=2"),"real core engine progresses beyond the initial enemy turn");
     const views=await ev("[...document.querySelectorAll('#boardViews iframe')].map(f=>{const e=f.contentWindow.CoopGame;return{view:e.view,players:e.players(),wave:e.snapshot().world.wave}})");
     assert.equal(views[0].view,0);assert.equal(views[1].view,1);assert.deepEqual(views[0].players,views[1].players);
+    // DEV mastery button: the chosen team trait reaches Lv. 5 and masters for both players.
+    await ev("(()=>{const s=document.querySelector('#devTraitSelect');s.value='tether';})()");
+    await click("#devTrait"); await click("#devMaster");
+    assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.players().every(p=>p.mastered.tether&&p.traitLevels.tether===5)"),"DEV mastery is shared by the team");
     // Split halves can be ~120px tall: reward cards must be on screen without scrolling the panel.
     await click("#devAutoBoth"); assert.equal(await text("devAutoBoth"), "AUTO BOTH OFF");
     const openPanel = "[...document.querySelectorAll('#boardViews iframe')].findIndex(f=>!f.contentDocument.querySelector('#upgradeScreen').classList.contains('hidden'))";
