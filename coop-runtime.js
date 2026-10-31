@@ -56,6 +56,9 @@
       const t=api.turns[api.roster.indexOf(a)];t.relayMoves=Math.max(t.relayMoves||0,rule.moves);t.relayBoost=rule.boost;return true;
     };
     api.ally = ally;
+    // True when the ally (or its fallen spot) stays put until the enemy turn,
+    // so a pin formed now will hold: the ally already acted this wave or is down.
+    api.allySettled = () => { const a=api.roster.find(p=>p!==S.player);return Boolean(a)&&(!a.alive||(S.coopActed||[]).includes(api.roster.indexOf(a))); };
     function refresh() {
       if(!api.roster.length)return;
       const slot=Math.min(api.view,api.roster.length-1);
@@ -81,7 +84,7 @@
     api.moves = slot => !api.roster[slot]?.alive ? [] : use(slot,()=>{fn.moves();return copy(S.moves);});
     api.act = (slot,move) => {
       if(!api.moves(slot).some(m=>m.x===move.x&&m.y===move.y))return {retained:false,pending:false};
-      const result=use(slot,()=>{S.phase="player";fn.playerMove(move);return {retained:S.phase==="player",pending:S.phase==="upgrade"};});
+      const result=use(slot,()=>{S.phase="player";if(!(S.coopActed||[]).includes(slot))S.coopActed=[...(S.coopActed||[]),slot];fn.playerMove(move);return {retained:S.phase==="player",pending:S.phase==="upgrade"};});
       api.pendingOwner=result.pending?slot:null;refresh();return result;
     };
     api.pending = () => api.pendingOwner==null ? null : {slot:api.pendingOwner,kind:S.phase==="risk"?"risk":"upgrade"};
@@ -127,7 +130,7 @@
     const kill = (slot,reason) => { const p=api.roster[slot];if(!p?.alive)return;p.alive=false;p.deathReason=reason;fn.deathBurst(p.x,p.y); };
     api.enemyTurn = () => {
       save(api.roster.indexOf(S.player));
-      S.wave++;S.elapsed=0;S.trail=[];S.enemyTrail=[];S.displayChain=S.chain=0;
+      S.wave++;S.elapsed=0;S.coopActed=[];S.trail=[];S.enemyTrail=[];S.displayChain=S.chain=0;
       clearTimeout(S.comboStepTimer);clearTimeout(S.comboHideTimer);ui.combo.classList.remove("show");
       S.itemCooldown=Math.max(0,S.itemCooldown-1);S.items=S.items.filter(item=>--item.life>0);
       const hazards=S.emberHazards.filter(h=>h.detonateWave<=S.wave);S.emberHazards=S.emberHazards.filter(h=>h.detonateWave>S.wave);

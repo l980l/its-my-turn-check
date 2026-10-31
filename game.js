@@ -1638,7 +1638,7 @@
         .filter((cell) => !occupied.has(K(cell.x, cell.y)) && !isWall(cell.x, cell.y));
     return options.sort((a, b) => dist(a, target) - dist(b, target))[0] || { x: e.x, y: e.y };
   }
-  function projectedEnemyCapture(target) {
+  function projectedEnemyCapture(target, held = new Set()) {
     if (S.grace > 0 || S.invincibleBeats > 0) return false;
     if (S.emberHazards.some((hazard) => hazard.x === target.x && hazard.y === target.y && hazard.detonateWave <= S.wave + 1)) return true;
     let activeBoss = boss(),
@@ -1649,13 +1649,13 @@
       bossWillRelocate = activeBoss && !["sealed", "sanctuary", "telegraph"].includes(activeBoss.bossPhase),
       state = S.enemies
         .filter((enemy) => !(enemy.boss && bossWillRelocate))
-        .map((enemy) => ({ ...enemy })),
+        .map((enemy) => ({ ...enemy, held: held.has(enemy) })),
       enemies = state.filter((enemy) => !enemy.boss),
       used = new Set();
     enemies
       .sort((a, b) => dist(a, target) - dist(b, target))
       .forEach((enemy) => {
-        if (used.has("CAPTURE")) return;
+        if (used.has("CAPTURE") || enemy.held) return;
         let next = projectedToward(enemy, target, state);
         if (next.x === target.x && next.y === target.y) {
           used.add("CAPTURE");
@@ -3303,8 +3303,15 @@
     hud();
     ui.hint.textContent = "DEV: " + BOSS_TYPES[kind].name + (summonedBoss?.bossPhase === "sanctuary" ? " — SAFE 구역으로 이동하세요." : "를 소환했습니다.");
   }
+  // Enemies a pin from this cell would hold through the next enemy turn, for the
+  // danger check. Only certain once the ally will not move again before it.
+  function coopHeld(landing) {
+    const anchor = coopSession?.anchor(), p = S.player;
+    if (!anchor || !coopSession.balance.teamTraits || !coopSession.allySettled()) return new Set();
+    return new Set(TraitSystem.pinned(p.traits, p.traitLevels, landing, anchor, S.enemies, p.mastered));
+  }
   // Co-op AUTO: value what the team traits would do from this landing cell.
-  // Kills are worth the strikes they set off; quiet moves are worth pinning enemies.
+  // Kills are worth the strikes they set off; quiet moves are worth the enemies they pin.
   function coopAutoScore(landing, targets, remaining) {
     const anchor = coopSession?.anchor(), p = S.player;
     if (!anchor || !coopSession.balance.teamTraits || !p.traits.some((id) => TraitSystem.byId[id]?.base.coop)) return 0;
@@ -3331,7 +3338,8 @@
         remaining = S.enemies.filter((e) => !targets.includes(e) || (e.hp || 1) > 1),
         nearest = Math.min(...remaining.map((e) => Math.abs(e.x - landing.x) + Math.abs(e.y - landing.y)), 99),
         keepsTurn = targets.length > 0,
-        enemyStrike = keepsTurn ? false : projectedEnemyCapture(landing),
+        held = coopHeld(landing),
+        enemyStrike = keepsTurn ? false : projectedEnemyCapture(landing, held),
         activeBoss = boss(),
         bossStrike = activeBoss?.bossPhase === "telegraph" && bossLineThreat(activeBoss, landing),
         sanctuarySafe = activeBoss?.bossPhase === "sanctuary" && activeBoss.safeCells?.some((cell) => landing.x === cell.x && landing.y === cell.y),
