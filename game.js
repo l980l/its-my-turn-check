@@ -3303,6 +3303,21 @@
     hud();
     ui.hint.textContent = "DEV: " + BOSS_TYPES[kind].name + (summonedBoss?.bossPhase === "sanctuary" ? " — SAFE 구역으로 이동하세요." : "를 소환했습니다.");
   }
+  // Co-op AUTO: value what the team traits would do from this landing cell.
+  // Kills are worth the strikes they set off; quiet moves are worth pinning enemies.
+  function coopAutoScore(landing, targets, remaining) {
+    const anchor = coopSession?.anchor(), p = S.player;
+    if (!anchor || !coopSession.balance.teamTraits || !p.traits.some((id) => TraitSystem.byId[id]?.base.coop)) return 0;
+    const enemies = remaining.filter((e) => !EnemyTraits.isProtected(e, S.enemies));
+    let score = 0;
+    if (targets.length) {
+      for (const effect of TraitSystem.coopStrikes(p.traits, p.traitLevels, { me: landing, ally: anchor, enemies, mastered: p.mastered }))
+        score += effect.targets.reduce((sum, e) => sum + ((e.hp || 1) <= effect.damage ? 220 : 90), 0);
+      return score;
+    }
+    // Staying near the ally or lining up the tether measured worse (balance report v0.19.1).
+    return TraitSystem.pinned(p.traits, p.traitLevels, landing, anchor, enemies, p.mastered).length * 70;
+  }
   function autoMove() {
     if (!S.autoPlay || S.phase !== "player" || !S.moves.length) return;
     let candidates = S.moves.map((m) => {
@@ -3332,6 +3347,7 @@
         lethal = (enemyStrike || bossStrike || sanctuaryFail) && !keepsTurn;
       if (targets.some((e) => e.boss && e.bossPhase === "vulnerable")) score += 5000;
       if (exit && !targets.length) score -= 80;
+      score += coopAutoScore(landing, targets, remaining);
       // A little noise prevents identical boards from producing a rigid loop.
       return { m, score: score + Math.random() * 12, lethal };
     });

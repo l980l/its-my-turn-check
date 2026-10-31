@@ -340,4 +340,12 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   i.e.debug("trait","guard",0);i.e.debug("trait","castling",0);i.S.coopCastleReady=99;i.e.enemyTurn();assert.equal(i.S.coopCastleReady,0,"iron shift resets castling when guard fires");
   const j=setup();j.e.debug("trait","join",0);j.e.debug("trait","guard",0);j.S.coopGuardReady=99;j.e.act(0,{x:3,y:1});assert.equal(j.S.coopGuardReady,0,"escort join resets guard");
 }
-console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries and synergies, and isolated replay renderer");
+{
+  // Co-op AUTO counts team-trait strikes: of two equal kills it takes the one that sets off pincer.
+  for(let i=0;i<20;i++){
+    const {h,e,S}=setup();e.debug("trait","pincer",0);S.enemies=[pawn(1,0),pawn(-1,0),pawn(2,1)];
+    for(let j=0;j<i*3;j++)h.context.Math.random();
+    const m=e.auto(0);assert.deepEqual([m.x,m.y],[1,0],"AUTO kills where pincer also strikes");
+  }
+}
+console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries, synergies and co-op AUTO, and isolated replay renderer");
