@@ -29,6 +29,8 @@ async function fixture(victim){
 async function stepUntil(expression){for(let n=0;n<10;n++){if(await ev(expression))return;await click("#devStep");}throw Error("step timeout: "+expression);}
 try{
   await send("Runtime.enable");await send("Page.enable");await send("Network.enable");
+  // Headless pages can start hidden, and Chrome then delays every timer to about once a second.
+  await send("Emulation.setFocusEmulationEnabled",{enabled:true});
   await send("Network.setBlockedURLs",{urls:["*cdn.jsdelivr.net*","*supabase.co*"]});
   for(const [width,height] of [[320,568],[390,844],[844,390],[1440,900]]){
     await send("Emulation.setDeviceMetricsOverride",{width,height,deviceScaleFactor:1,mobile:width<621});
