@@ -3,11 +3,11 @@
 import assert from "node:assert/strict";
 const base=process.argv[2]||"http://localhost:8000";
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-const sockets=[];
+const sockets=[],targets=[];
 async function page(){
   const browser=await(await fetch("http://127.0.0.1:9225/json/version")).json();
   const control=new WebSocket(browser.webSocketDebuggerUrl);await new Promise(r=>control.onopen=r);
-  const created=await new Promise(resolve=>{control.onmessage=e=>resolve(JSON.parse(e.data).result);control.send(JSON.stringify({id:1,method:"Target.createTarget",params:{url:"about:blank",newWindow:true}}));});control.close();
+  const created=await new Promise(resolve=>{control.onmessage=e=>resolve(JSON.parse(e.data).result);control.send(JSON.stringify({id:1,method:"Target.createTarget",params:{url:"about:blank",newWindow:true}}));});control.close();targets.push(created.targetId);
   const target=(await(await fetch("http://127.0.0.1:9225/json/list")).json()).find(p=>p.id===created.targetId);
   const ws=new WebSocket(target.webSocketDebuggerUrl);sockets.push(ws);
   await new Promise(r=>ws.onopen=r);let id=0;const pending=new Map();const errors=[];
@@ -15,6 +15,8 @@ async function page(){
   const send=(method,params={})=>new Promise((resolve,reject)=>{const key=++id;pending.set(key,{resolve,reject});ws.send(JSON.stringify({id:key,method,params}));});
   const ev=async expression=>{const r=await send("Runtime.evaluate",{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
   await send("Runtime.enable");await send("Page.enable");await send("Network.enable");
+  // Headless windows start hidden, and Chrome then delays every timer to about once a second.
+  await send("Emulation.setFocusEmulationEnabled",{enabled:true});
   await send("Network.setBlockedURLs",{urls:["*cdn.jsdelivr.net*","*supabase.co*"]});
   await send("Page.addScriptToEvaluateOnNewDocument",{source:`window.supabase={createClient(){return{channel(name){const bus=new BroadcastChannel(name),listeners=[];bus.onmessage=e=>{for(const [event,fn] of listeners)if(event===e.data.event)fn({payload:e.data.payload})};return{on(type,filter,fn){listeners.push([filter.event,fn]);return this},subscribe(fn){setTimeout(()=>fn('SUBSCRIBED'),20);return this},send(message){bus.postMessage(message);return Promise.resolve('ok')},unsubscribe(){bus.close()}}}}}};`});
   await send("Page.navigate",{url:base+"/coop.html"});
@@ -45,4 +47,4 @@ try{
   assert.equal(await b.ev("document.querySelector('#coopApp').dataset.screen"),"endScreen");
   assert.deepEqual(a.errors,[]);assert.deepEqual(b.errors,[]);
   console.log("PASS two browser pages: create/join, P1/P2 own view, shared positions/wave, both auto inputs, per-player death replay delivery and guest replay, host departure. Local transport adapter and injected death fixture only.");
-}finally{for(const ws of sockets)ws.close();}
+}finally{for(const ws of sockets)ws.close();for(const id of targets)await fetch("http://127.0.0.1:9225/json/close/"+id).catch(()=>{});}

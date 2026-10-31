@@ -33,6 +33,8 @@ async function click(selector) {
 const text = id => ev(`document.querySelector('#${id}').textContent`);
 try {
   await send("Runtime.enable"); await send("Page.enable"); await send("Network.enable");
+  // Headless pages can start hidden, and Chrome then delays every timer to about once a second.
+  await send("Emulation.setFocusEmulationEnabled", { enabled: true });
   await send("Network.setBlockedURLs", { urls: ["*cdn.jsdelivr.net*", "*supabase.co*"] });
   await send("Page.addScriptToEvaluateOnNewDocument", { source: "window.channelCalls=0;window.supabase={createClient(){channelCalls++;throw new Error('Local DEV must not initialize networking')}};" });
   for (const [width, height] of [[320,568], [390,844], [844,390], [768,1024], [1440,900]]) {
