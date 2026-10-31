@@ -348,4 +348,16 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
     const m=e.auto(0);assert.deepEqual([m.x,m.y],[1,0],"AUTO kills where pincer also strikes");
   }
 }
+{
+  // A pin only protects once the ally will not move again before the enemies.
+  const {e,S}=setup();assert.equal(e.allySettled(),false,"the ally still has its turn");
+  S.enemies=[pawn(0,-3)];e.act(1,e.moves(1)[0]);assert.equal(S.coopActed.includes(1),true);
+  assert.equal(e.allySettled(),true,"after P2 acts, P1 can trust a pin with P2");
+  e.turns.forEach(t=>t.grace=0);S.grace=0;e.enemyTurn();assert.deepEqual(S.coopActed,[],"each wave starts with nobody settled");
+  const f=setup();f.e.roster[1].alive=false;f.S.player=f.e.roster[0];assert.equal(f.e.allySettled(),true,"a fallen ally's spot never moves");
+  // AUTO steps next to an enemy the settled ally pins, and not while the ally can still move.
+  const pinStep=acted=>{const t=setup();t.e.debug("trait","pin",0);t.e.roster[1].x=3;t.e.turns.forEach(q=>q.grace=0);t.S.grace=0;
+    t.S.enemies=[pawn(2,0)];t.S.coopActed=acted;const m=t.e.auto(0);return m.x===1&&m.y===0;};
+  assert.equal(pinStep([1]),true,"AUTO trusts a pin the settled ally holds");assert.equal(pinStep([]),false,"but not one the ally may break");
+}
 console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries, synergies and co-op AUTO, and isolated replay renderer");
