@@ -175,6 +175,19 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   s.pause(true);const left=s.timeLeft();time+=10000;s.update();assert.equal(s.timeLeft(),left);s.pause(false);assert.equal(s.timeLeft(),left);
 }
 {
+  // Host handoff: a second authority resumes from the published flow without
+  // restarting the run, re-plans a move in flight and keeps the lead alternating.
+  let time=0,enemySteps=0;const players=[{alive:true},{alive:true}];
+  const engine={start(){throw Error("resume must not restart the run");},players:()=>players,enemyTurn(){enemySteps++;},pending:()=>null,moves:()=>[{x:1,y:0}],act(){return{retained:false,pending:false};}};
+  const a=Session.create({...engine,start(){}},()=>{},()=>time);a.start();
+  a.move(0,{x:1,y:0},a.flow().roundId);a.update(time);assert.equal(a.flow().phase,"acting");
+  const b=Session.create(engine,()=>{},()=>time);b.resume(a.flow());
+  assert.equal(b.flow().phase,"planning");assert.deepEqual(b.flow().eligible,[0],"the move in flight is re-planned for the same player");
+  assert.ok(b.flow().roundId>a.flow().roundId,"rounds keep counting so old packets stay stale");
+  const step=()=>{time=b.flow().deadline;b.update();};
+  step();step();assert.equal(enemySteps,1);step();assert.deepEqual(b.flow().eligible,[1],"the next wave is led by the other player");
+}
+{
   let time=0,pending=null;const actions=[],players=[{alive:true},{alive:true}];
   const engine={start(){},players:()=>players,enemyTurn(){},pending:()=>pending,moves:()=>[{x:1,y:0},{x:2,y:0}],act(i){actions.push(i);if(i===0){pending={slot:0,kind:"upgrade"};return{pending:true};}return{retained:false};},choose(){pending=null;return{retained:true,pending:false};}};
   const s=Session.create(engine,()=>{},()=>time);s.start();
@@ -360,4 +373,4 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
     t.S.enemies=[pawn(2,0)];t.S.coopActed=acted;const m=t.e.auto(0);return m.x===1&&m.y===0;};
   assert.equal(pinStep([1]),true,"AUTO trusts a pin the settled ally holds");assert.equal(pinStep([]),false,"but not one the ally may break");
 }
-console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries, synergies and co-op AUTO, and isolated replay renderer");
+console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries, synergies, co-op AUTO, authority handoff, and isolated replay renderer");

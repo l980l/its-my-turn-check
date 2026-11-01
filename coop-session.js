@@ -68,6 +68,16 @@
     }
     return {
       start() { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:PLAN_MS }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start();remember("시작");enemy(); },
+      // Take over authority from the last state another device published, e.g.
+      // when the host left. Moves in flight are re-planned; replay frames restart.
+      resume(saved, savedDeaths = [null,null]) {
+        flow = structuredClone(saved); flow.actions ||= {}; speed=1;paused=false;round=flow.roundId;waves=1-flow.lead;history=[];deaths=structuredClone(savedDeaths);
+        remember("이어받음");
+        if (flow.phase === "planning") planning(flow.current);
+        else if (flow.phase === "acting") { if (flow.stage === "follow" && !flow.retained) nextTurn(); else planning(flow.actor); }
+        else if (flow.phase === "enemy") { schedule(420); notify(); }
+        else notify();
+      },
       flow: () => flow,
       replays: () => deaths,
       move(slot, move, roundId) {
