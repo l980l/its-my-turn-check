@@ -244,3 +244,8 @@ header {
 .solo-panel button:disabled {opacity:.35;cursor:default;}
 @media(max-width:560px){.solo-panel {padding:27px 17px;}.solo-panel button,.solo-panel a {padding:10px 12px;font-size:13px;}.replay-actions {gap:5px;}.replay-actions button {padding:9px 8px;font-size:11px;}}
 @media(max-height:450px){.solo-panel {padding:12px 22px;}.solo-panel h2 {font-size:28px;margin:4px 0 8px;}.solo-panel p {font-size:13px;line-height:1.45;margin:4px 0;}.solo-panel .eyebrow {font-size:12px;}.solo-panel .end-reviews,.solo-panel .result-actions {margin:8px 0 0;}}
+.solo-panel .rank-form {display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:16px;}
+.solo-panel .rank-form[hidden] {display:none;}
+.solo-panel .rank-form input {height:44px;min-width:0;flex:1 1 140px;max-width:220px;padding:0 12px;}
+.solo-panel .rank-form button {height:44px;margin:0;white-space:nowrap;}
+.solo-panel .rank-form p {flex-basis:100%;margin:0;text-align:center;}
