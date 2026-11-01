@@ -678,6 +678,9 @@
     .leaderboard-message { grid-column: 2 / -1; margin-top: -5px; color: #bfc5df; font-size: 12px; line-height: 1.4; word-break: break-word; }
     .leaderboard-score { color: #53f0e4; font: 700 16px monospace; }
     .leaderboard-empty { padding: 30px 0; color: #aeb4ce; text-align: center; }
+    .leaderboard-tabs { display: flex; justify-content: center; gap: 8px; margin: 4px 0 10px; }
+    .leaderboard-tabs button { min-width: 72px; margin: 0; padding: 8px 14px; font-size: 13px; opacity: .55; }
+    .leaderboard-tabs button[aria-selected="true"] { opacity: 1; border-color: #ffd166; color: #ffd166; }
     .leaderboard-pagination { display: flex; align-items: center; justify-content: center; gap: 13px; margin-top: 16px; }
     .leaderboard-pagination button { min-width: 88px; margin: 0; padding: 10px 14px; font-size: 13px; }
     .leaderboard-pagination button:disabled { cursor: default; opacity: .32; filter: none; transform: none; }
@@ -872,7 +875,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.19.3</b> · 2026.11.01</p>
+        <p class="build-version">BUILD <b>v0.19.4</b> · 2026.11.01</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1001,6 +1004,10 @@
         <div class="panel leaderboard-panel">
           <p class="eyebrow">GLOBAL LEADERBOARD</p>
           <h2>THE BOARD REMEMBERS.</h2>
+          <div class="leaderboard-tabs" role="tablist" aria-label="랭킹 종류">
+            <button class="secondary-button" id="rankingSolo" role="tab" aria-selected="true">1인</button>
+            <button class="secondary-button" id="rankingCoop" role="tab" aria-selected="false">2인</button>
+          </div>
           <p class="leaderboard-note" id="leaderboardStatus">기록을 불러오는 중…</p>
           <div class="leaderboard-list" id="leaderboardList"></div>
           <div class="leaderboard-pagination" aria-label="랭킹 페이지 탐색">
@@ -1024,6 +1031,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.19.2"></script>
-    <script src="game.js?v=v0.19.2"></script>
+    <script src="game.js?v=v0.19.4"></script>
   </body>
 </html>

@@ -95,6 +95,8 @@
       rankingPrev: $("#rankingPrev"),
       rankingPage: $("#rankingPage"),
       rankingNext: $("#rankingNext"),
+      rankingSolo: $("#rankingSolo"),
+      rankingCoop: $("#rankingCoop"),
       scoreSubmit: $("#scoreSubmit"),
       scoreSubmitTitle: $("#scoreSubmitTitle"),
       scoreSubmitIntro: $("#scoreSubmitIntro"),
@@ -223,7 +225,9 @@
     LEADERBOARD_VIEW_LIMIT = 1000,
     LEADERBOARD_STORE_LIMIT = 10000;
   let leaderboardRows = [],
-    leaderboardPage = 0;
+    leaderboardPage = 0,
+    // Two-player runs rank on their own board (coop_leaderboard) with both names.
+    leaderboardMode = "solo";
   async function leaderboardRequest(path, options = {}) {
     let response = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
       ...options,
@@ -284,7 +288,7 @@
       name.className = "leaderboard-name";
       score.className = "leaderboard-score";
       rank.textContent = String(offset + index + 1).padStart(2, "0");
-      name.textContent = row.name;
+      name.textContent = leaderboardMode === "coop" ? row.name1 + " & " + row.name2 : row.name;
       score.textContent = Number(row.score).toLocaleString() + " PTS";
       item.append(rank, name, score);
       if (row.message) {
@@ -308,16 +312,21 @@
     ui.rankingPrev.disabled = true;
     ui.rankingNext.disabled = true;
     try {
-      leaderboardRows = await leaderboardRequest(
-        "leaderboard?select=name,score,message,created_at&order=score.desc,created_at.asc&limit=" +
-          LEADERBOARD_LIMIT +
-          "&offset=" +
-          leaderboardPage * LEADERBOARD_LIMIT,
-      );
-      renderLeaderboard(leaderboardRows, leaderboardPage * LEADERBOARD_LIMIT);
-      updateLeaderboardPager(leaderboardRows);
-      ui.leaderboardStatus.textContent = `TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + leaderboardRows.length}위 · 점수 기준`;
-      return leaderboardRows;
+      const mode = leaderboardMode,
+        rows = await leaderboardRequest(
+          (mode === "coop" ? "coop_leaderboard?select=name1,name2,score,wave,created_at" : "leaderboard?select=name,score,message,created_at") +
+            "&order=score.desc,created_at.asc&limit=" +
+            LEADERBOARD_LIMIT +
+            "&offset=" +
+            leaderboardPage * LEADERBOARD_LIMIT,
+        );
+      if (mode !== leaderboardMode) return rows;
+      // Solo score submission compares against these rows, so keep them solo-only.
+      if (mode === "solo") leaderboardRows = rows;
+      renderLeaderboard(rows, leaderboardPage * LEADERBOARD_LIMIT);
+      updateLeaderboardPager(rows);
+      ui.leaderboardStatus.textContent = `${mode === "coop" ? "2인 · " : ""}TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + rows.length}위 · 점수 기준`;
+      return rows;
     } catch (error) {
       ui.leaderboardList.textContent = "";
       ui.leaderboardStatus.textContent = "랭킹을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
@@ -352,7 +361,13 @@
     if (total === undefined) throw new Error("랭킹 수를 받지 못했습니다.");
     return Number(total) + 1;
   }
+  function setLeaderboardMode(mode) {
+    leaderboardMode = mode;
+    ui.rankingSolo.setAttribute("aria-selected", String(mode === "solo"));
+    ui.rankingCoop.setAttribute("aria-selected", String(mode === "coop"));
+  }
   async function openRanking() {
+    setLeaderboardMode("solo");
     ui.ranking.classList.remove("hidden");
     try {
       await loadLeaderboard(0);
@@ -506,6 +521,7 @@
   async function offerScoreSubmission(score) {
     ui.scoreSubmit.classList.add("hidden");
     ui.scoreStatus.textContent = "글로벌 랭킹을 확인하는 중…";
+    setLeaderboardMode("solo");
     try {
       let [rows, cutoff, rank] = await Promise.all([
           loadLeaderboard(),
@@ -3546,6 +3562,12 @@
   ui.rankingClose.addEventListener("click", closeRanking);
   ui.rankingPrev.addEventListener("click", () => loadLeaderboard(leaderboardPage - 1).catch(() => {}));
   ui.rankingNext.addEventListener("click", () => loadLeaderboard(leaderboardPage + 1).catch(() => {}));
+  for (const [button, mode] of [[ui.rankingSolo, "solo"], [ui.rankingCoop, "coop"]])
+    button.addEventListener("click", () => {
+      if (leaderboardMode === mode) return;
+      setLeaderboardMode(mode);
+      loadLeaderboard(0).catch(() => {});
+    });
   ui.riskAccept.addEventListener("click", () => resolveRisk(true));
   ui.riskDecline.addEventListener("click", () => resolveRisk(false));
   ui.rewindPrev.addEventListener("click", () => moveRewind(-1));

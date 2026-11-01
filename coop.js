@@ -11,6 +11,9 @@
   // newer epoch follows it. Silence longer than PEER_TIMEOUT counts as leaving.
   const PEER_TIMEOUT=5000, BEAT_MS=1000;
   let epoch=0, lastHeard=0, lastBeat=0, peerAway=false;
+  // Co-op ranking: the authority holds a server run ticket, collects both
+  // names after the run and submits the team score once.
+  let ticket=null, names=[null,null], ranked=false, rankText="";
   const cameras=[0,1].map(i=>window.CoopSession.createCamera(i));
   const cameraStates=[];
   let replays=[null,null],sentReplays=[false,false],deathNotified=[false,false],reviewSlot=0,reviewIndex=0,replayReady=null,replayApi=null;
@@ -68,12 +71,13 @@
   }
   async function ready(){show(gameScreen);await Promise.all(enginesReady);apis[0].audio();}
   function send(event,payload={}){return channel?.send({type:"broadcast",event,payload:{...payload,from:me,runId,epoch}});}
-  function packet(){return session?{runId,epoch,flow:structuredClone(session.flow()),game:apis[0].snapshot(),paused,speed,...(session.flow().phase==="over"?{replays}: {})}:remote;}
+  function packet(){return session?{runId,epoch,ticket,names,ranked,rankText,flow:structuredClone(session.flow()),game:apis[0].snapshot(),paused,speed,...(session.flow().phase==="over"?{replays}: {})}:remote;}
   // The guest becomes the authority from the last state it received and plays
   // the absent player with AUTO until someone rejoins with the room code.
   function takeOver(){
     if(host||!remote||remote.flow.phase==="over")return;
     host=true;epoch=(remote.epoch||0)+1;peer=null;peerAway=true;submittedKey="";
+    ticket=remote.ticket||null;names=remote.names||[null,null];ranked=Boolean(remote.ranked);rankText=remote.rankText||"";
     session=window.CoopSession.create(apis[0],publish);session.resume(remote.flow,replays);
     sentReplays=replays.map(Boolean);publish();
   }
@@ -98,12 +102,40 @@
     $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?"P"+(flow.actor+1)+" MOVE":flow.phase==="upgrade"?"P"+(flow.actor+1)+" LEVEL UP":flow.phase==="risk"?"RISK":"ENEMY TURN";
     $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?"P"+(flow.actor+1)+" 보상 선택 중":flow.phase==="acting"?"P"+(flow.actor+1)+"의 행동을 보고 있습니다.":"몬스터 이동";
     if(host&&peerAway&&!localDev&&flow.phase!=="over")$("#actionHint").textContent="동료 연결이 끊겨 AUTO가 대신 움직입니다 · "+$("#actionHint").textContent;
+    if(flow.phase==="over"){
+      $("#rankForm").hidden=localDev;$("#rankStatus").textContent=snapshot.rankText||"";
+      $("#rankSubmit").disabled=Boolean(snapshot.ranked||snapshot.names?.[slot]);
+    }
     if(flow.phase==="over"){for(const api of apis)if(api)api.suspended=true;$("#endText").textContent="팀 점수 "+snapshot.game.world.score.toLocaleString()+"점 · 웨이브 "+snapshot.game.world.wave+" · "+snapshot.game.world.kills+"기 처치";show(endScreen);}
     updateDeaths();
     updateTools();
   }
+  async function leaderboard(body){
+    const response=await fetch(URL+"/functions/v1/leaderboard",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"랭킹 서버 오류");return result;
+  }
+  function requestTicket(){
+    const id=runId;
+    leaderboard({action:"start",mode:"coop"}).then(t=>{if(runId===id)ticket={runId:t.runId,runToken:t.runToken};}).catch(()=>{if(runId===id)ticket={failed:true};});
+  }
+  // A partner who leaves after the run no longer holds up the ranking entry.
+  function partnerGone(){peer=null;peerAway=true;if(names[slot]&&!ranked)tryRank();}
+  // Authority only. Waits for both names; a partner who left is listed as P1/P2.
+  function setName(i,name){if(ranked||!session)return;names[i]=name;tryRank();}
+  function tryRank(){
+    const partner=1-slot,missing=[0,1].filter(i=>!names[i]);
+    if(missing.includes(slot)||(missing.includes(partner)&&peer&&!peerAway)){rankText="P"+(missing[0]+1)+"의 이름을 기다리는 중…";publish();return;}
+    if(!ticket||ticket.failed){rankText="랭킹 서버에 연결하지 못해 등록할 수 없어요.";publish();return;}
+    const world=apis[0].snapshot().world,team=names.map((n,i)=>n||"P"+(i+1));
+    ranked=true;rankText="등록하는 중…";publish();
+    leaderboard({action:"submit",runId:ticket.runId,runToken:ticket.runToken,score:world.score,wave:world.wave,names:team})
+      .then(()=>{rankText="2인 랭킹에 등록했어요. 메인 화면 랭킹의 2인 탭에서 볼 수 있어요.";})
+      .catch(error=>{ranked=false;rankText="등록하지 못했어요. "+error.message;})
+      .finally(publish);
+  }
   function startAuthority(){
     remote=null;runId=crypto.randomUUID();submittedKey="";cameras.forEach(c=>c.reset());resetReviews();
+    ticket=null;names=[null,null];ranked=false;rankText="";if(!localDev)requestTicket();
     session=window.CoopSession.create(apis[0],publish);
     session.start();apis[0].audio();publish();
   }
@@ -161,7 +193,7 @@
     if(channel&&!localDev&&remote){
       const time=Date.now();
       if(time-lastBeat>=BEAT_MS){lastBeat=time;send("beat");}
-      if(time-lastHeard>PEER_TIMEOUT){if(!host)takeOver();else if(peer){peer=null;peerAway=true;}}
+      if(time-lastHeard>PEER_TIMEOUT){if(!host)takeOver();else if(peer)partnerGone();}
     }
     const snapshot=remote;if(!snapshot)return;
     const f=snapshot.flow,left=session?session.timeLeft():Math.max(0,f.deadline-Date.now());
@@ -212,8 +244,10 @@
       const event={...payload.event,slot:1-slot};input(event,true);
     }).on("broadcast",{event:"host-left"},({payload})=>{
       if(token!==generation||host||payload.from!==peer)return;takeOver();
+    }).on("broadcast",{event:"rank-name"},({payload})=>{
+      if(token!==generation||!host||payload.from!==peer||payload.runId!==runId)return;setName(1-slot,String(payload.name).slice(0,18));
     }).on("broadcast",{event:"guest-left"},({payload})=>{
-      if(token!==generation||!host||payload.from!==peer)return;peer=null;peerAway=true;
+      if(token!==generation||!host||payload.from!==peer)return;partnerGone();
     }).subscribe(value=>{
       if(value!=="SUBSCRIBED"||token!==generation)return;
       if(!host){send("hello");joinTimer=setTimeout(()=>{if(!remote){leaveRoom();status("방을 찾지 못했습니다. 코드를 확인해주세요.");}},6000);}
@@ -251,6 +285,10 @@
   $("#howToPlayButton").addEventListener("click",()=>{closeDialogs();$("#helpDialog").showModal();});
   $("#joinClose").addEventListener("click",()=>$("#joinDialog").close());$("#helpClose").addEventListener("click",()=>$("#helpDialog").close());
   for(const dialog of [$("#joinDialog"),$("#helpDialog")])dialog.addEventListener("click",event=>{const r=dialog.getBoundingClientRect();if(event.target===dialog&&(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom))dialog.close();});
+  $("#rankForm").addEventListener("submit",event=>{
+    event.preventDefault();const name=$("#rankName").value.trim();if(!name||!remote)return;
+    $("#rankSubmit").disabled=true;if(host)setName(slot,name);else send("rank-name",{name});
+  });
   $("#copyButton").addEventListener("click",()=>navigator.clipboard?.writeText(roomCode));$("#leaveButton").addEventListener("click",leaveRoom);$("#backToLobby").addEventListener("click",leaveRoom);
   tick();
 })();

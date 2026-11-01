@@ -51,7 +51,7 @@ Deno.serve(async (request) => {
   if (body.action === "start") {
     const { data: run, error } = await admin
       .from("game_runs")
-      .insert({ created_at: new Date().toISOString() })
+      .insert({ created_at: new Date().toISOString(), mode: body.mode === "coop" ? "coop" : "solo" })
       .select("id,created_at")
       .single();
     if (error || !run) return reply(origin, { error: "Could not start a verified run" }, 500);
@@ -59,11 +59,14 @@ Deno.serve(async (request) => {
   }
 
   if (body.action !== "submit") return reply(origin, { error: "Unknown action" }, 400);
-  const { runId, runToken, score, name, message = "" } = body;
+  const { runId, runToken, score, name, names, wave = 0, message = "" } = body;
   if (typeof runId !== "string" || typeof runToken !== "string" || !Number.isInteger(score) || (score as number) <= 0) return reply(origin, { error: "Invalid score submission" }, 400);
-  if (!validString(name, 1, 18) || !validString(String(message), 0, 120)) return reply(origin, { error: "Invalid name or message" }, 400);
 
-  const { data: run, error: runError } = await admin.from("game_runs").select("id,created_at,claimed_at,expires_at").eq("id", runId).maybeSingle();
+  const { data: run, error: runError } = await admin.from("game_runs").select("id,created_at,claimed_at,expires_at,mode").eq("id", runId).maybeSingle();
+  // Co-op runs carry both players' names and the wave; solo runs a name and message.
+  const coop = run?.mode === "coop";
+  if (coop ? !(Array.isArray(names) && names.length === 2 && names.every((n) => validString(n, 1, 18)) && Number.isInteger(wave) && (wave as number) >= 0)
+    : !(validString(name, 1, 18) && validString(String(message), 0, 120))) return reply(origin, { error: "Invalid name or message" }, 400);
   if (runError || !run) return reply(origin, { error: "This run was not verified" }, 403);
   if (run.claimed_at || new Date(run.expires_at).getTime() < Date.now()) return reply(origin, { error: "This run has already expired" }, 403);
   if (runToken !== await tokenFor(run.id, run.created_at)) return reply(origin, { error: "Invalid run token" }, 403);
@@ -75,7 +78,9 @@ Deno.serve(async (request) => {
   const maxScore = Math.max(5000, Math.floor(seconds * 1500));
   if ((score as number) > maxScore) return reply(origin, { error: "Score exceeds this run's verified time limit" }, 422);
 
-  const { error: insertError } = await admin.from("leaderboard").insert({ name: (name as string).trim(), score, message: String(message).trim() });
+  const { error: insertError } = coop
+    ? await admin.from("coop_leaderboard").insert({ name1: (names as string[])[0].trim(), name2: (names as string[])[1].trim(), score, wave })
+    : await admin.from("leaderboard").insert({ name: (name as string).trim(), score, message: String(message).trim() });
   if (insertError) return reply(origin, { error: "Could not save score" }, 500);
   await admin.from("game_runs").update({ claimed_at: new Date().toISOString(), submitted_score: score }).eq("id", run.id);
   return reply(origin, { ok: true });
