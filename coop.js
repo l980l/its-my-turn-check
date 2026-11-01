@@ -7,6 +7,10 @@
   let channel=null, client, host=false, localDev=false, slot=0, roomCode="", peer=null;
   let session=null, remote=null, generation=0, runId=null, joinTimer, submittedKey="";
   let auto=false, autos=[true,true], speed=1, paused=false, controlled=0;
+  // Host handoff: each authority change raises the epoch; a device that hears a
+  // newer epoch follows it. Silence longer than PEER_TIMEOUT counts as leaving.
+  const PEER_TIMEOUT=5000, BEAT_MS=1000;
+  let epoch=0, lastHeard=0, lastBeat=0, peerAway=false;
   const cameras=[0,1].map(i=>window.CoopSession.createCamera(i));
   const cameraStates=[];
   let replays=[null,null],sentReplays=[false,false],deathNotified=[false,false],reviewSlot=0,reviewIndex=0,replayReady=null,replayApi=null;
@@ -63,8 +67,16 @@
     $("#replayPrev").disabled=reviewIndex===0;$("#replayNext").disabled=reviewIndex===record.frames.length-1;
   }
   async function ready(){show(gameScreen);await Promise.all(enginesReady);apis[0].audio();}
-  function send(event,payload={}){return channel?.send({type:"broadcast",event,payload:{...payload,from:me,runId}});}
-  function packet(){return session?{runId,flow:structuredClone(session.flow()),game:apis[0].snapshot(),paused,speed,...(session.flow().phase==="over"?{replays}: {})}:remote;}
+  function send(event,payload={}){return channel?.send({type:"broadcast",event,payload:{...payload,from:me,runId,epoch}});}
+  function packet(){return session?{runId,epoch,flow:structuredClone(session.flow()),game:apis[0].snapshot(),paused,speed,...(session.flow().phase==="over"?{replays}: {})}:remote;}
+  // The guest becomes the authority from the last state it received and plays
+  // the absent player with AUTO until someone rejoins with the room code.
+  function takeOver(){
+    if(host||!remote||remote.flow.phase==="over")return;
+    host=true;epoch=(remote.epoch||0)+1;peer=null;peerAway=true;submittedKey="";
+    session=window.CoopSession.create(apis[0],publish);session.resume(remote.flow,replays);
+    sentReplays=replays.map(Boolean);publish();
+  }
   function publish(){
     if(!session)return;
     session.replays().forEach((record,i)=>{if(!record&&sentReplays[i]){replays[i]=null;sentReplays[i]=false;}if(record&&!sentReplays[i]){replays[i]=record;sentReplays[i]=true;if(!localDev)send("death-replay",{slot:i,record});}});
@@ -85,6 +97,7 @@
     const me=localDev?controlled:slot,myTurn=flow.phase==="planning"&&flow.eligible.includes(me);
     $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?"P"+(flow.actor+1)+" MOVE":flow.phase==="upgrade"?"P"+(flow.actor+1)+" LEVEL UP":flow.phase==="risk"?"RISK":"ENEMY TURN";
     $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?"P"+(flow.actor+1)+" 보상 선택 중":flow.phase==="acting"?"P"+(flow.actor+1)+"의 행동을 보고 있습니다.":"몬스터 이동";
+    if(host&&peerAway&&!localDev&&flow.phase!=="over")$("#actionHint").textContent="동료 연결이 끊겨 AUTO가 대신 움직입니다 · "+$("#actionHint").textContent;
     if(flow.phase==="over"){for(const api of apis)if(api)api.suspended=true;$("#endText").textContent="팀 점수 "+snapshot.game.world.score.toLocaleString()+"점 · 웨이브 "+snapshot.game.world.wave+" · "+snapshot.game.world.kills+"기 처치";show(endScreen);}
     updateDeaths();
     updateTools();
@@ -124,6 +137,7 @@
     $("#devSpeed").textContent="SPEED ×"+speed;$("#devPlayer").textContent="조작 P"+(controlled+1);
     $("#devPiece").textContent="기물 "+(apis[0]?.players()[controlled]?.piece||"pawn").toUpperCase();
   }
+  const away=i=>host&&peerAway&&!localDev&&i===1-slot;
   function automation(immediate=false){
     if(paused)return;
     const snapshot=remote;if(!snapshot)return;
@@ -133,17 +147,22 @@
       const waited=flow.duration-(session?session.timeLeft():Math.max(0,flow.deadline-Date.now()));
       if(!immediate&&waited<280/speed)return;
       for(const i of flow.eligible){
-        if(!(localDev?autos[i]:auto&&i===slot)||flow.actions[i])continue;
+        if(!(localDev?autos[i]:(auto&&i===slot)||away(i))||flow.actions[i])continue;
         const key=flow.roundId+":"+i;if(!host&&submittedKey===key)continue;
         const api=apis[0],move=api.auto(i);
         if(move){submittedKey=key;input({type:"move",move,slot:i});}
       }
-    }else if(["upgrade","risk"].includes(flow.phase)&&(localDev?autos[flow.actor]:auto&&slot===flow.actor)&&apis[0].choiceReady())input({type:flow.phase,index:flow.phase==="risk"?false:0,slot:flow.actor});
+    }else if(["upgrade","risk"].includes(flow.phase)&&(localDev?autos[flow.actor]:(auto&&slot===flow.actor)||away(flow.actor))&&apis[0].choiceReady())input({type:flow.phase,index:flow.phase==="risk"?false:0,slot:flow.actor});
   }
   function tick(){
     requestAnimationFrame(tick);
     if(gameScreen.classList.contains("hidden"))return;
     if(session){automation();session.update();}else if(remote)automation();
+    if(channel&&!localDev&&remote){
+      const time=Date.now();
+      if(time-lastBeat>=BEAT_MS){lastBeat=time;send("beat");}
+      if(time-lastHeard>PEER_TIMEOUT){if(!host)takeOver();else if(peer){peer=null;peerAway=true;}}
+    }
     const snapshot=remote;if(!snapshot)return;
     const f=snapshot.flow,left=session?session.timeLeft():Math.max(0,f.deadline-Date.now());
     const fraction=f.phase==="planning"?Math.max(0,Math.min(1,left/f.duration)):0;
@@ -152,36 +171,49 @@
   async function leaveRoom(){
     resetReviews();
     generation++;clearTimeout(joinTimer);
-    if(host&&channel)send("host-left");channel?.unsubscribe();channel=null;
+    if(channel)send(host?"host-left":"guest-left");channel?.unsubscribe();channel=null;
     session=null;remote=null;runId=null;paused=false;localDev=false;auto=false;cameras.forEach(c=>c.reset());
     for(const api of apis)if(api)api.suspended=true;
     $("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");updateTools();show(lobby);status("방에서 나왔습니다.");
   }
   async function connect(code,asHost){
     resetReviews();
-    const token=++generation;host=asHost;localDev=false;slot=asHost?0:1;peer=null;session=null;remote=null;runId=null;auto=false;paused=false;cameras.forEach(c=>c.reset());
+    const token=++generation;host=asHost;localDev=false;slot=asHost?0:1;peer=null;session=null;remote=null;runId=null;auto=false;paused=false;epoch=0;peerAway=false;lastHeard=Date.now();cameras.forEach(c=>c.reset());
     $("#autoButton").textContent="AUTO OFF";$("#autoButton").setAttribute("aria-pressed","false");$("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");
     client??=window.supabase?.createClient(URL,KEY);if(!client){status("연결 모듈을 불러오지 못했습니다. 다시 시도해주세요.");return;}
     await ready();if(token!==generation)return;
     roomCode=code;$("#roomCode").textContent=code;updateTools();$("#phaseText").textContent="WAITING";
     $("#actionHint").textContent=host?"초대 코드를 친구에게 보내세요.":"방에 접속하는 중입니다.";
     channel=client.channel("coop:"+code,{config:{broadcast:{self:false}}});
+    const welcome=to=>{peer=to;peerAway=false;lastHeard=Date.now();if(!session)startAuthority();send("welcome",{to,slot:1-slot,snapshot:packet()});};
     channel.on("broadcast",{event:"hello"},({payload})=>{
-      if(token!==generation||!host||peer)return;peer=payload.from;startAuthority();send("welcome",{to:peer,snapshot:packet()});
+      if(token!==generation||!host||peer)return;welcome(payload.from);
+    }).on("broadcast",{event:"beat"},({payload})=>{
+      if(token!==generation)return;
+      if(payload.from===peer){lastHeard=Date.now();return;}
+      // A player of this run reappears (e.g. the old host after the takeover): seat it again.
+      if(host&&!peer&&session&&payload.runId===runId)welcome(payload.from);
     }).on("broadcast",{event:"welcome"},({payload})=>{
-      if(token!==generation||host||payload.to!==me)return;peer=payload.from;runId=payload.runId;remote=payload.snapshot;clearTimeout(joinTimer);render(remote);apis[0].audio();
+      if(token!==generation||payload.to!==me)return;
+      // A host that comes back after the guest took over follows the newer authority.
+      if(host){if(!session||(payload.epoch||0)<=epoch)return;host=false;session=null;submittedKey="";}
+      peer=payload.from;runId=payload.runId;epoch=payload.epoch||0;slot=payload.slot??1;peerAway=false;lastHeard=Date.now();remote=payload.snapshot;clearTimeout(joinTimer);render(remote);apis[0].audio();
     }).on("broadcast",{event:"state"},({payload})=>{
-      if(token!==generation||host||payload.from!==peer||payload.runId!==runId)return;
-      if(remote&&payload.snapshot.flow.revision<remote.flow.revision)return;remote=payload.snapshot;render(remote);
+      if(token!==generation||payload.runId!==runId)return;
+      if(host)return;
+      if(payload.from!==peer)return;lastHeard=Date.now();
+      if(remote&&((payload.epoch||0)<(remote.epoch||0)||(payload.epoch===remote.epoch&&payload.snapshot.flow.revision<remote.flow.revision)))return;remote=payload.snapshot;render(remote);
     }).on("broadcast",{event:"death-replay"},({payload})=>{
       if(token!==generation||host||payload.from!==peer||payload.runId!==runId||![0,1].includes(payload.slot))return;
       replays[payload.slot]=payload.record;updateDeaths();
     }).on("broadcast",{event:"intent"},({payload})=>{
       if(token!==generation||!host||payload.from!==peer||payload.runId!==runId||!session)return;
-      if(payload.roundId!==session.flow().roundId)return;
-      const event={...payload.event,slot:1};input(event,true);
+      lastHeard=Date.now();if(payload.roundId!==session.flow().roundId)return;
+      const event={...payload.event,slot:1-slot};input(event,true);
     }).on("broadcast",{event:"host-left"},({payload})=>{
-      if(token!==generation||host||payload.from!==peer)return;remote=null;$("#endText").textContent="방장이 방을 나갔습니다.";show(endScreen);
+      if(token!==generation||host||payload.from!==peer)return;takeOver();
+    }).on("broadcast",{event:"guest-left"},({payload})=>{
+      if(token!==generation||!host||payload.from!==peer)return;peer=null;peerAway=true;
     }).subscribe(value=>{
       if(value!=="SUBSCRIBED"||token!==generation)return;
       if(!host){send("hello");joinTimer=setTimeout(()=>{if(!remote){leaveRoom();status("방을 찾지 못했습니다. 코드를 확인해주세요.");}},6000);}

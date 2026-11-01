@@ -18,7 +18,7 @@ async function page(){
   // Headless windows start hidden, and Chrome then delays every timer to about once a second.
   await send("Emulation.setFocusEmulationEnabled",{enabled:true});
   await send("Network.setBlockedURLs",{urls:["*cdn.jsdelivr.net*","*supabase.co*"]});
-  await send("Page.addScriptToEvaluateOnNewDocument",{source:`window.supabase={createClient(){return{channel(name){const bus=new BroadcastChannel(name),listeners=[];bus.onmessage=e=>{for(const [event,fn] of listeners)if(event===e.data.event)fn({payload:e.data.payload})};return{on(type,filter,fn){listeners.push([filter.event,fn]);return this},subscribe(fn){setTimeout(()=>fn('SUBSCRIBED'),20);return this},send(message){bus.postMessage(message);return Promise.resolve('ok')},unsubscribe(){bus.close()}}}}}};`});
+  await send("Page.addScriptToEvaluateOnNewDocument",{source:`window.supabase={createClient(){return{channel(name){const bus=new BroadcastChannel(name),listeners=[];bus.onmessage=e=>{if(window.__offline)return;for(const [event,fn] of listeners)if(event===e.data.event)fn({payload:e.data.payload})};return{on(type,filter,fn){listeners.push([filter.event,fn]);return this},subscribe(fn){setTimeout(()=>fn('SUBSCRIBED'),20);return this},send(message){if(!window.__offline)bus.postMessage(message);return Promise.resolve('ok')},unsubscribe(){bus.close()}}}}}};`});
   await send("Page.navigate",{url:base+"/coop.html"});
   for(let n=0;n<200;n++){if(await ev("Boolean(document.querySelector('#coopFrame0')?.contentWindow?.CoopGame)"))break;await wait(30);}
   return{ev,errors};
@@ -26,7 +26,8 @@ async function page(){
 try{
   const a=await page(),b=await page();
   await a.ev("document.querySelector('#hostButton').click()");
-  await wait(200);const code=await a.ev("document.querySelector('#roomCode').textContent");assert.match(code,/^[A-Z2-9]{6}$/);
+  for(let n=0;n<100&&!/^[A-Z2-9]{6}$/.test(await a.ev("document.querySelector('#roomCode').textContent"));n++)await wait(50);
+  const code=await a.ev("document.querySelector('#roomCode').textContent");assert.match(code,/^[A-Z2-9]{6}$/);
   await b.ev(`document.querySelector('#roomInput').value=${JSON.stringify(code)};document.querySelector('#joinForm').requestSubmit()`);
   await wait(500);
   const state=p=>p.ev("(()=>{const e=document.querySelector('#coopFrame0').contentWindow.CoopGame;return{view:e.view,players:e.players(),wave:e.snapshot().world.wave}})()");
@@ -34,6 +35,21 @@ try{
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");await wait(7500);
   as=await state(a);bs=await state(b);assert.ok(as.wave>=2);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
   assert.ok(as.players.every((p,i)=>p.x!==[-2,2][i]||p.y!==0),"both clients submit their own core AI moves");
+  // Host handoff. The host goes silent (backgrounded app): the guest takes over and keeps playing.
+  const wave=p=>p.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.snapshot().world.wave");
+  await a.ev("window.__offline=true");await wait(6500);const w1=await wave(b);await wait(3000);
+  assert.ok(await wave(b)>w1,"the guest continues the run as the new authority");
+  // The old host comes back, follows the newer authority and keeps its own player.
+  await a.ev("window.__offline=false");await wait(3000);
+  as=await state(a);bs=await state(b);assert.equal(as.view,0);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
+  await wait(2500);assert.ok(await wave(a)>as.wave,"the returned host follows the shared run");
+  assert.doesNotMatch(await b.ev("document.querySelector('#actionHint').textContent"),/AUTO가 대신/,"the new authority seats the returned player again");
+  // The current authority leaves explicitly: the other takes over at once, and the leaver rejoins by code.
+  await b.ev("document.querySelector('#leaveButton').click()");await wait(2500);
+  assert.equal(await a.ev("document.querySelector('#coopApp').dataset.screen"),"gameScreen","the remaining player keeps playing");
+  assert.match(await a.ev("document.querySelector('#actionHint').textContent"),/AUTO가 대신/,"the absent player is shown as played by AUTO");
+  await b.ev(`document.querySelector('#roomInput').value=${JSON.stringify(code)};document.querySelector('#joinForm').requestSubmit()`);await wait(1500);
+  as=await state(a);bs=await state(b);assert.equal(bs.view,1,"the rejoining player gets its own piece back");assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");
   await a.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.players().forEach(p=>{p.alive=false;p.deathReason='network death fixture'})");
   for(let n=0;n<200;n++){if(await b.ev("document.querySelector('#coopApp').dataset.screen==='endScreen'"))break;await wait(40);}
@@ -46,5 +62,5 @@ try{
   await a.ev("document.querySelector('#leaveButton').click()");await wait(150);
   assert.equal(await b.ev("document.querySelector('#coopApp').dataset.screen"),"endScreen");
   assert.deepEqual(a.errors,[]);assert.deepEqual(b.errors,[]);
-  console.log("PASS two browser pages: create/join, P1/P2 own view, shared positions/wave, both auto inputs, per-player death replay delivery and guest replay, host departure. Local transport adapter and injected death fixture only.");
+  console.log("PASS two browser pages: create/join, P1/P2 own view, shared positions/wave, both auto inputs, host handoff on silence and on leave, old host standing down, rejoin by code, per-player death replay delivery and guest replay, host departure. Local transport adapter and injected death fixture only.");
 }finally{for(const ws of sockets)ws.close();for(const id of targets)await fetch("http://127.0.0.1:9225/json/close/"+id).catch(()=>{});}
