@@ -458,6 +458,12 @@
         '<figcaption class="tutorial-durability">' + COMBO_COLORS.map((color, i) => '<span style="color:' + color + ';left:' + (50 + (i - 3) * 76 / 6).toFixed(2) + '%">' + (i + 1) + '</span>').join("") + '</figcaption></figure>',
     },
     {
+      eyebrow: "ENEMY MOVES",
+      title: "적 이동 거리",
+      copy: "적은 적의 턴마다 내 쪽으로 한 번 움직입니다. 룩·비숍·퀸은 직선으로 최대 3칸, 나이트는 L자, 폰과 킹은 1칸입니다.\n\n4칸 이상 떨어진 룩·비숍·퀸은 다음 적 턴에 나를 공격하지 못합니다. 점선은 방금 움직인 길입니다.",
+      visual: tutorialShot("enemy-reach", 600, 380, "룩·비숍·퀸이 각각 3칸씩 움직인 점선 자국"),
+    },
+    {
       eyebrow: "ENEMY TRAITS",
       title: "적 특성",
       copy: "적 기물 오른쪽 위의 배지는 특성입니다. 배지에 마우스를 올리거나 누르면 설명이 나옵니다.\n\n잔불이 남은 칸에서 턴을 끝내면 다음 적 턴에 폭발합니다.",
