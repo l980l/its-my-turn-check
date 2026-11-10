@@ -424,46 +424,91 @@
     ui.devVisibilityToggle.classList.add("hidden");
     ui.start.classList.remove("hidden");
   }
+  const TUTORIAL_ITEMS = [
+      ["aegis", "다음 적 턴 2회 동안 무적"],
+      ["stride", "다음 3회 이동 사거리 +2"],
+      ["necklace", "공격 없이 이동해도 2회까지 턴 유지"],
+      ["judgement", "보드 위 모든 적에게 1 피해"],
+      ["chest", "현재 웨이브 × 100점"],
+    ],
+    TUTORIAL_TERRAIN = [
+      ["벽", "WALL", "#aeb7d3", "지나갈 수 없고, 벽 너머로도 이동할 수 없음", [[-1, 0], [0, 0], [1, 0], [1, -1]]],
+      ["증폭 지대", "AMPLIFIER", "#5a8dff", "여기서 출발하면 사거리 +1", [[-1, -1], [-1, 0], [0, 0], [1, 0]]],
+      ["감쇠 지대", "INHIBITOR", "#ff5577", "여기서 출발하면 사거리 −1", [[-1, 0], [0, 0], [0, 1], [1, 1]]],
+      ["웜홀", "WORMHOLE", "#b971ff", "들어가면 같은 색 웜홀로 나옴", [[-1, 0], [1, 0]]],
+    ],
+    tutorialScene = (scene, color, name, desc) =>
+      '<div class="tutorial-entry tutorial-scene-entry" style="color:' + color + '"><canvas data-tutorial-scene=\'' + JSON.stringify(scene) + '\' aria-hidden="true"></canvas><b>' + name + '</b><span>' + desc + '</span></div>';
   const TUTORIAL_PAGES = [
     {
       eyebrow: "ONE MOVE · ONE TURN",
-      title: "빛나는 칸을 선택하세요",
-      copy: "빛나는 칸 하나를 골라 움직이세요. 적을 밟아 처치하면 바로 한 번 더 움직일 수 있어요.\n\n아무도 잡지 못한 채 턴을 끝내면, 그때 적들이 한꺼번에 움직입니다.",
-      visual: '<div class="tutorial-flow"><b>CAPTURE</b> → MOVE AGAIN &nbsp; / &nbsp; NO CAPTURE → ENEMY TURN</div>',
+      title: "이동과 공격",
+      copy: "빛나는 칸 중 한 곳으로 이동합니다. 적이 있는 칸으로 이동하면 공격입니다.\n\n공격했다면 한 번 더 움직이고, 공격하지 않았다면 적의 턴이 시작됩니다.",
+      visual: '<div class="tutorial-flow"><b>공격</b> → 한 번 더 이동 &nbsp; / &nbsp; <b>이동만</b> → 적의 턴</div>',
     },
     {
       eyebrow: "ENEMY DURABILITY",
-      title: "적의 색은 남은 내구도입니다",
-      copy: "빨강은 한 번, 주황은 두 번 때리면 처치됩니다. 노랑부터 보라까지 갈수록 더 많이 때려야 해요.\n\n적의 내구도만 낮춰도 내 턴은 이어지지만, 적을 오래 살려두는 만큼 판이 복잡해집니다.",
-      visual: '<div class="tutorial-swatch" style="color:#ff4d6d;background:#ff4d6d"></div><div class="tutorial-swatch" style="color:#ff9f43;background:#ff9f43"></div><div class="tutorial-swatch" style="color:#ffd166;background:#ffd166"></div><div class="tutorial-swatch" style="color:#6ee7b7;background:#6ee7b7"></div><div class="tutorial-swatch" style="color:#53f0e4;background:#53f0e4"></div><div class="tutorial-swatch" style="color:#758bff;background:#758bff"></div><div class="tutorial-swatch" style="color:#d66efd;background:#d66efd"></div>',
+      title: "적 내구도",
+      copy: "적의 색은 남은 내구도입니다. 빨강은 한 번, 주황은 두 번, 보라는 일곱 번 공격해야 쓰러집니다.\n\n쓰러뜨리지 못해도 공격했다면 턴은 이어집니다.",
+      visual: COMBO_COLORS.map((color, i) =>
+        '<div class="tutorial-durability"><div class="tutorial-swatch" style="color:' + color + ';background:' + color + '"></div><small>' + (i + 1) + '</small></div>'
+      ).join(""),
     },
     {
       eyebrow: "ENEMY TRAITS",
-      title: "우상단 배지는 적의 특성입니다",
-      copy: "기물의 색은 내구도, 배지의 모양은 특성을 뜻합니다. 배지를 누르면 설명을 볼 수 있어요.\n\n잔불이 남은 칸에서는 턴을 끝내지 마세요. 다음 적 턴에 폭발합니다.",
+      title: "적 특성",
+      copy: "적 기물 오른쪽 위의 배지는 특성입니다. 배지에 마우스를 올리거나 누르면 설명이 나옵니다.\n\n잔불이 남은 칸에서 턴을 끝내면 다음 적 턴에 폭발합니다.",
       visual: '<div class="tutorial-codex">' + Object.entries(EnemyTraits.definitions).map(([id, data]) =>
         '<div class="tutorial-entry"><canvas width="64" height="64" style="width:32px;height:32px;float:right" data-enemy-badge="' + id + '" aria-hidden="true"></canvas><b>' + data.name + '</b><span>' + data.desc + '</span></div>'
       ).join("") + '</div>',
     },
     {
       eyebrow: "FIELD ITEMS",
-      title: "아이템은 필드에 따로 나타납니다",
-      copy: "아이템은 적을 잡은 자리에 떨어지지 않아요. 적들이 움직인 뒤, 보드의 빈 칸에 가끔 나타납니다.\n\n보드 위에는 동시에 2개 이상의 아이템이 있을 수 없고, 14턴 동안 먹지 않으면 사라집니다.",
-      visual: '<div class="tutorial-codex"><div class="tutorial-entry" style="color:#8eeaff"><b>✦ KING’S AEGIS</b><span>다음 적 턴 2회 동안 무적</span></div><div class="tutorial-entry" style="color:#7dffb2"><b>↔ LONG STRIDE RUNE</b><span>다음 3회 이동 사거리 +2</span></div><div class="tutorial-entry" style="color:#e6e9ff"><b>☾ SILVER NECKLACE</b><span>비처치 이동 2회도 턴 유지</span></div><div class="tutorial-entry" style="color:#ffd166"><b>ϟ JUDGEMENT</b><span>보드 위 모든 적에게 1 피해</span></div><div class="tutorial-entry" style="color:#ffba47"><b>▣ TREASURE CHEST</b><span>현재 웨이브 × 100점 획득</span></div></div>',
+      title: "필드 아이템",
+      copy: "적이 움직인 뒤 빈 칸에 가끔 나타나고, 밟으면 효과가 적용됩니다.\n\n보드에는 한 번에 하나만 놓이며, 14턴 안에 밟지 않으면 사라집니다.",
+      visual: '<div class="tutorial-codex tutorial-codex-wide">' + TUTORIAL_ITEMS.map(([type, desc]) =>
+        tutorialScene({ items: [type] }, FIELD_ITEMS[type].color, FIELD_ITEMS[type].icon + " " + FIELD_ITEMS[type].name, desc)
+      ).join("") + '</div>',
     },
     {
       eyebrow: "BOSS MONSTER",
       title: "보스 몬스터",
-      copy: "보스는 청록색으로 빛날 때만 공격할 수 있으며, 각자 특수한 능력을 지니고 있습니다.",
+      copy: "보스는 청록색으로 빛날 때만 공격할 수 있습니다. 보스마다 고유한 능력이 있습니다.",
       visual: '<div class="tutorial-boss-compare"><div class="tutorial-boss-card"><div class="tutorial-boss-piece">♛</div><span>✕ LOCKED<br/>DODGE LINE<br/>공격 불가</span></div><div class="tutorial-boss-card open"><div class="tutorial-boss-piece">♛</div><span>◆ CORE OPEN<br/>STRIKE<br/>공격 가능</span></div></div>',
     },
     {
-      eyebrow: "RISING TERRAIN",
-      title: "웨이브가 오르면 보드도 바뀝니다",
-      copy: "벽·증폭·감쇠 지대는 매번 연결된 랜덤 모양으로 나타납니다. 벽은 통과할 수 없고 장거리 이동도 막습니다.\n\n파란 증폭 지대는 사거리 +1, 붉은 감쇠 지대는 사거리 −1입니다.\n\n웜홀에 들어가면 같은 색의 반대편 출구로 이동합니다.",
-      visual: '<div class="tutorial-codex"><div class="tutorial-entry" style="color:#aeb7d3"><b>▦ WALL</b><span>랜덤 연결 지형 · 플레이어·적 통과 불가</span></div><div class="tutorial-entry" style="color:#5a8dff"><b>^ AMPLIFIER</b><span>랜덤 연결 지형 · 출발 시 사거리 +1</span></div><div class="tutorial-entry" style="color:#ff5577"><b>v INHIBITOR</b><span>랜덤 연결 지형 · 출발 시 사거리 −1</span></div><div class="tutorial-entry" style="color:#b971ff"><b>▣ WORMHOLE</b><span>같은 색의 반대편 출구로 이동</span></div></div>',
+      eyebrow: "LIVE TERRAIN",
+      title: "실시간으로 생성되는 특수 지형",
+      copy: "웨이브가 진행되면서 보드 곳곳에 새로 생깁니다. 벽·증폭·감쇠 지대는 여러 칸이 이어진 모양으로 나타납니다.",
+      visual: '<div class="tutorial-codex">' + TUTORIAL_TERRAIN.map(([name, label, color, desc, cells]) =>
+        tutorialScene({ terrain: label.toLowerCase(), cells }, color, name + " · " + label, desc)
+      ).join("") + '</div>',
     },
   ];
+  // Paints a patch of the real board with the in-game item and terrain
+  // drawers, so each entry looks the way it does during a run.
+  function drawTutorialScene(canvas) {
+    let scene = JSON.parse(canvas.dataset.tutorialScene),
+      w = canvas.clientWidth || 240,
+      h = canvas.clientHeight || 80,
+      dpr = devicePixelRatio || 1,
+      s = 36,
+      ctx = canvas.getContext("2d"),
+      at = (x, y) => ({ x: w / 2 + x * s, y: h / 2 + y * s });
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.scale(dpr, dpr);
+    for (let y = -2; y <= 2; y++)
+      for (let x = -Math.ceil(w / s / 2) - 1; x <= Math.ceil(w / s / 2) + 1; x++) {
+        let q = at(x, y);
+        ctx.fillStyle = (x + y) & 1 ? "#12142b" : "#0d1023";
+        ctx.fillRect(q.x - s / 2, q.y - s / 2, s, s);
+        ctx.strokeStyle = "#66609422";
+        ctx.strokeRect(q.x - s / 2, q.y - s / 2, s, s);
+      }
+    (scene.cells || []).forEach(([x, y]) => terrainTile({ type: scene.terrain, x, y, pair: 1 }, ctx, at(x, y), s, 0.9));
+    (scene.items || []).forEach((type) => fieldItem({ type, life: 14 }, ctx, at(0, 0), s, 0.96));
+  }
   let tutorialPage = 0,
     tutorialStartsRun = false;
   function renderTutorial() {
@@ -475,15 +520,35 @@
     ui.tutorialVisual.innerHTML = page.visual;
     ui.tutorialVisual.querySelectorAll("[data-enemy-badge]").forEach((canvas) =>
       EnemyTraitIcons.draw(canvas.getContext("2d"), 32, 32, 56, canvas.dataset.enemyBadge));
+    ui.tutorialVisual.querySelectorAll("[data-tutorial-scene]").forEach(drawTutorialScene);
+    let last = tutorialPage === TUTORIAL_PAGES.length - 1;
     ui.tutorialPrev.disabled = tutorialPage === 0;
-    ui.tutorialNext.textContent = tutorialPage === TUTORIAL_PAGES.length - 1 ? (tutorialStartsRun ? "시작하기" : "닫기") : "다음";
+    // The middle button already closes, so the last page only needs "다음"
+    // to turn into a start button when the guide opened before a run.
+    ui.tutorialNext.disabled = last && !tutorialStartsRun;
+    ui.tutorialNext.textContent = last && tutorialStartsRun ? "시작하기" : "다음";
     ui.tutorialSkip.textContent = tutorialStartsRun ? "건너뛰고 시작" : "닫기";
+  }
+  // Size the panel to its tallest page so the buttons stay put while paging.
+  function fitTutorialPanel() {
+    let panel = ui.tutorial.querySelector(".tutorial-panel"),
+      current = tutorialPage,
+      tallest = 0;
+    panel.style.minHeight = "";
+    for (tutorialPage = 0; tutorialPage < TUTORIAL_PAGES.length; tutorialPage++) {
+      renderTutorial();
+      tallest = Math.max(tallest, Math.ceil(panel.getBoundingClientRect().height));
+    }
+    tutorialPage = current;
+    panel.style.minHeight = Math.min(tallest, innerHeight * 0.9) + "px";
+    panel.classList.toggle("scrolls", tallest > innerHeight * 0.9);
+    renderTutorial();
   }
   function openTutorial(startAfter = false) {
     tutorialPage = 0;
     tutorialStartsRun = startAfter;
-    renderTutorial();
     ui.tutorial.classList.remove("hidden");
+    fitTutorialPanel();
   }
   function beginRun() {
     reset();
@@ -746,6 +811,9 @@
     g.setTransform(D, 0, 0, D, 0, 0);
   }
   addEventListener("resize", resize);
+  addEventListener("resize", () => {
+    if (!ui.tutorial.classList.contains("hidden")) fitTutorialPanel();
+  });
   resize();
   const TRAITS = TraitSystem.traits;
   const TRAIT_SVG = {
@@ -2377,69 +2445,68 @@
     g.strokeStyle = "#66609422";
     g.strokeRect(q.x - s / 2, q.y - s / 2, s, s);
   }
-  function terrainTile(tile) {
-    let q = pos(tile.x, tile.y),
-      s = size(),
-      pulse = 0.75 + Math.sin(performance.now() / 260 + tile.x) * 0.16;
-    g.save();
-    g.translate(q.x, q.y);
+  // The tutorial reuses this drawer on its own canvas, so the context, centre
+  // and cell size can be passed in instead of coming from the live board.
+  function terrainTile(tile, ctx = g, q = pos(tile.x, tile.y), s = size(), pulse = 0.75 + Math.sin(performance.now() / 260 + tile.x) * 0.16) {
+    ctx.save();
+    ctx.translate(q.x, q.y);
     if (tile.type === "wall") {
-      g.fillStyle = "#272b40";
-      g.strokeStyle = "#78809b";
-      g.lineWidth = 2;
-      g.fillRect(-s * 0.4, -s * 0.4, s * 0.8, s * 0.8);
-      g.strokeRect(-s * 0.4, -s * 0.4, s * 0.8, s * 0.8);
-      g.strokeStyle = "#a5acc4";
-      g.globalAlpha = 0.48;
+      ctx.fillStyle = "#272b40";
+      ctx.strokeStyle = "#78809b";
+      ctx.lineWidth = 2;
+      ctx.fillRect(-s * 0.4, -s * 0.4, s * 0.8, s * 0.8);
+      ctx.strokeRect(-s * 0.4, -s * 0.4, s * 0.8, s * 0.8);
+      ctx.strokeStyle = "#a5acc4";
+      ctx.globalAlpha = 0.48;
       for (let y = -0.22; y <= 0.22; y += 0.22) {
-        g.beginPath();
-        g.moveTo(-s * 0.34, y * s);
-        g.lineTo(s * 0.34, y * s);
-        g.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.34, y * s);
+        ctx.lineTo(s * 0.34, y * s);
+        ctx.stroke();
       }
     } else if (tile.type === "amplifier") {
-      g.strokeStyle = "#5a8dff";
-      g.shadowColor = "#5a8dff";
-      g.shadowBlur = 12;
-      g.lineWidth = 2.5;
-      g.globalAlpha = pulse;
-      g.fillStyle = "#111a38";
-      g.fillRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
-      g.strokeRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
-      g.fillStyle = "#dce7ff";
-      g.font = "700 " + s * 0.31 + "px monospace";
-      g.textAlign = "center";
-      g.textBaseline = "middle";
-      g.fillText("^", 0, 1);
+      ctx.strokeStyle = "#5a8dff";
+      ctx.shadowColor = "#5a8dff";
+      ctx.shadowBlur = 12;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = "#111a38";
+      ctx.fillRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
+      ctx.strokeRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
+      ctx.fillStyle = "#dce7ff";
+      ctx.font = "700 " + s * 0.31 + "px monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("^", 0, 1);
     } else if (tile.type === "inhibitor") {
-      g.strokeStyle = "#ff5577";
-      g.shadowColor = "#ff5577";
-      g.shadowBlur = 12;
-      g.lineWidth = 2.5;
-      g.globalAlpha = pulse;
-      g.fillStyle = "#2a101d";
-      g.fillRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
-      g.strokeRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
-      g.fillStyle = "#ffdce5";
-      g.font = "700 " + s * 0.31 + "px monospace";
-      g.textAlign = "center";
-      g.textBaseline = "middle";
-      g.fillText("v", 0, -s * 0.04);
+      ctx.strokeStyle = "#ff5577";
+      ctx.shadowColor = "#ff5577";
+      ctx.shadowBlur = 12;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = "#2a101d";
+      ctx.fillRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
+      ctx.strokeRect(-s * 0.29, -s * 0.29, s * 0.58, s * 0.58);
+      ctx.fillStyle = "#ffdce5";
+      ctx.font = "700 " + s * 0.31 + "px monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("v", 0, -s * 0.04);
     } else if (tile.type === "wormhole") {
       let colors = ["#b971ff", "#53f0e4", "#ff72c9"],
         col = colors[(tile.pair - 1) % colors.length];
-      g.strokeStyle = col;
-      g.shadowColor = col;
-      g.shadowBlur = 18;
-      g.lineWidth = 3;
-      g.globalAlpha = pulse;
-      g.fillStyle = "#11172c";
-      g.fillRect(-s * 0.31, -s * 0.31, s * 0.62, s * 0.62);
-      g.strokeRect(-s * 0.31, -s * 0.31, s * 0.62, s * 0.62);
-      g.globalAlpha = 0.45;
-      g.strokeRect(-s * 0.15, -s * 0.15, s * 0.3, s * 0.3);
+      ctx.strokeStyle = col;
+      ctx.shadowColor = col;
+      ctx.shadowBlur = 18;
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = "#11172c";
+      ctx.fillRect(-s * 0.31, -s * 0.31, s * 0.62, s * 0.62);
+      ctx.strokeRect(-s * 0.31, -s * 0.31, s * 0.62, s * 0.62);
+      ctx.globalAlpha = 0.45;
+      ctx.strokeRect(-s * 0.15, -s * 0.15, s * 0.3, s * 0.3);
     }
-    g.restore();
+    ctx.restore();
   }
   function drawPrePiece(type, x, y, scale, color) {
     let key = type + color,
@@ -2551,28 +2618,25 @@
     }
     g.restore();
   }
-  function fieldItem(item) {
-    let q = pos(item.x, item.y),
-      s = size(),
-      data = FIELD_ITEMS[item.type],
-      pulse = 0.78 + Math.sin(performance.now() / 180) * 0.18;
-    g.save();
-    g.globalAlpha = Math.min(1, item.life / 1.3) * pulse;
-    g.fillStyle = "#11172c";
-    g.strokeStyle = data.color;
-    g.shadowColor = data.color;
-    g.shadowBlur = 18;
-    g.lineWidth = 2.5;
-    g.beginPath();
-    g.arc(q.x, q.y, s * 0.28, 0, Math.PI * 2);
-    g.fill();
-    g.stroke();
-    g.fillStyle = data.color;
-    g.font = "700 " + s * 0.31 + "px Georgia, serif";
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    g.fillText(data.icon, q.x, q.y + s * 0.01);
-    g.restore();
+  function fieldItem(item, ctx = g, q = pos(item.x, item.y), s = size(), pulse = 0.78 + Math.sin(performance.now() / 180) * 0.18) {
+    let data = FIELD_ITEMS[item.type];
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, item.life / 1.3) * pulse;
+    ctx.fillStyle = "#11172c";
+    ctx.strokeStyle = data.color;
+    ctx.shadowColor = data.color;
+    ctx.shadowBlur = 18;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(q.x, q.y, s * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = data.color;
+    ctx.font = "700 " + s * 0.31 + "px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(data.icon, q.x, q.y + s * 0.01);
+    ctx.restore();
   }
   function enemyBadge(enemy, protectedSet) {
     const q = pos(enemy.x, enemy.y), s = size();
@@ -2665,7 +2729,7 @@
       cx = Math.floor(S.camera.x),
       cy = Math.floor(S.camera.y);
     drawBoardGrid(s, cols, rows, cx, cy);
-    snapshot.terrain.forEach(terrainTile);
+    snapshot.terrain.forEach((tile) => terrainTile(tile));
     // Each snapshot preserves the movement that led into this board state.
     // Player paths stay solid cyan; every enemy move in the beat stays red and dashed.
     if (snapshot.trail?.length) {
@@ -2713,7 +2777,7 @@
       });
       g.restore();
     }
-    snapshot.items.forEach(fieldItem);
+    snapshot.items.forEach((item) => fieldItem(item));
     drawEmbers(snapshot.emberHazards || []);
     snapshot.enemies.forEach((enemy) => piece(enemy.x, enemy.y, enemy.type, true, enemy.hp || 1, enemy.maxHp || 1, enemy.risk, enemy.boss, enemy.bossPhase, enemy.bossName, enemy.seals, enemy.enraged));
     const protectedReplay = EnemyTraits.protectedEnemies(snapshot.enemies);
@@ -2752,7 +2816,7 @@
       cx = Math.floor(S.camera.x),
       cy = Math.floor(S.camera.y);
     drawBoardGrid(s, cols, rows, cx, cy);
-    S.terrain.forEach(terrainTile);
+    S.terrain.forEach((tile) => terrainTile(tile));
     drawEmbers(S.emberHazards);
     let activeBoss = boss();
     if (activeBoss?.bossPhase === "telegraph") {
@@ -3053,7 +3117,7 @@
         EnemyTraitIcons.draw(g, badge.x, badge.y, badge.size, badge.id, e.splitsLeft));
     });
     if (S.phase === "captured") piece(S.player.x, S.player.y, S.player.piece);
-    S.items.forEach(fieldItem);
+    S.items.forEach((item) => fieldItem(item));
     S.enemies.forEach((e) => piece(e.x, e.y, e.type, true, e.hp || 1, e.maxHp || 1, e.risk, e.boss, e.bossPhase, e.bossName, e.seals, e.enraged));
     const protectedLive = EnemyTraits.protectedEnemies(S.enemies);
     S.enemies.forEach((enemy) => enemyBadge(enemy, protectedLive));
