@@ -9,7 +9,7 @@
 | IMPACT CORE | 2칸 이상 이동해 직접 처치 시 주변 1칸의 일반 적 최대 1기에게 1피해 | 레벨업 |
 | DIAGONAL BURST | 직접 처치 시 대각선 1칸의 일반 적 최대 1기에게 1피해 | 레벨업 |
 | LONG STRIDE | 기본 사거리 +1 (나이트는 긴 L자 추가) | 레벨업 |
-| ROYAL STEP | 상하좌우 1칸 이동 추가 | 레벨업 |
+| ROYAL STEP | 상하좌우 이동 거리 +1 | 레벨업 |
 | ARC MAGNET | 직접 처치 시 주변 1칸의 내구도가 낮은 일반 적 최대 1기에게 1피해 | 레벨업 |
 | CHAIN SPARK | 직접 처치 4회마다 XP +1 | 레벨업 |
 | ECHO BLADE | 직접 처치 시 이동 방향 직선 2칸의 일반 적 최대 1기에게 1피해 | 레벨업 |
@@ -22,7 +22,7 @@
 | 특성 | 효과 | 재료 |
 | --- | --- | --- |
 | KINETIC CROWN | 직접 처치 시 대각선 1칸의 일반 적 최대 2기에게 1피해 | IMPACT CORE + DIAGONAL BURST |
-| ROYAL VECTOR | 기본 사거리 +1 (나이트는 긴 L자 추가) / 상하좌우 1칸 이동 추가 | LONG STRIDE + ROYAL STEP |
+| ROYAL VECTOR | 기본 사거리 +1 (나이트는 긴 L자 추가) / 상하좌우 이동 거리 +1 | LONG STRIDE + ROYAL STEP |
 | ARC RELAY | 직접 처치 시 주변 2칸의 일반 적 최대 2기에게 1피해 · 재사용 1적 턴 | ARC MAGNET + CHAIN SPARK |
 | FORKED ECHO | 직접 처치 시 나이트 위치 2칸의 일반 적 최대 2기에게 1피해 | ECHO BLADE + FORK |
 | CROSS CURRENT | CHAIN 2부터, 직접 처치 시 상하좌우 2칸의 일반 적 최대 2기에게 1피해 | CROSS CHECK + SLIPSTREAM |

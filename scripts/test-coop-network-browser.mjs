@@ -19,7 +19,7 @@ async function page(){
   await send("Emulation.setFocusEmulationEnabled",{enabled:true});
   await send("Network.setBlockedURLs",{urls:["*cdn.jsdelivr.net*","*supabase.co*"]});
   // Fake leaderboard function: tickets and submissions are kept in this origin's localStorage.
-  await send("Page.addScriptToEvaluateOnNewDocument",{source:`{const real=window.fetch;window.fetch=async(url,options)=>{if(!String(url).includes("/functions/v1/leaderboard"))return real(url,options);const body=JSON.parse(options.body),ok=v=>new Response(JSON.stringify(v),{status:200});if(body.action==="start")return ok({runId:"run-"+Math.random(),runToken:"token"});const list=JSON.parse(localStorage.getItem("fakeSubmits")||"[]");list.push(body);localStorage.setItem("fakeSubmits",JSON.stringify(list));return ok({ok:true});};}`});
+  await send("Page.addScriptToEvaluateOnNewDocument",{source:`{const real=window.fetch;window.fetch=async(url,options)=>{if(!String(url).includes("/functions/v1/leaderboard"))return real(url,options);const body=JSON.parse(options.body),ok=v=>new Response(JSON.stringify(v),{status:200});if(body.action==="start"){const fail=Number(localStorage.getItem("failStarts")||0);localStorage.setItem("fakeStarts",String(Number(localStorage.getItem("fakeStarts")||0)+1));if(fail>0){localStorage.setItem("failStarts",String(fail-1));return new Response(JSON.stringify({error:"offline"}),{status:503});}return ok({runId:"run-"+Math.random(),runToken:"token"});}const list=JSON.parse(localStorage.getItem("fakeSubmits")||"[]");list.push(body);localStorage.setItem("fakeSubmits",JSON.stringify(list));return ok({ok:true});};}`});
   await send("Page.addScriptToEvaluateOnNewDocument",{source:`window.supabase={createClient(){return{channel(name){const bus=new BroadcastChannel(name),listeners=[];bus.onmessage=e=>{if(window.__offline)return;for(const [event,fn] of listeners)if(event===e.data.event)fn({payload:e.data.payload})};return{on(type,filter,fn){listeners.push([filter.event,fn]);return this},subscribe(fn){setTimeout(()=>fn('SUBSCRIBED'),20);return this},send(message){if(!window.__offline)bus.postMessage(message);return Promise.resolve('ok')},unsubscribe(){bus.close()}}}}}};`});
   await send("Page.navigate",{url:base+"/coop.html"});
   for(let n=0;n<200;n++){if(await ev("Boolean(document.querySelector('#coopFrame0')?.contentWindow?.CoopGame)"))break;await wait(30);}
@@ -27,6 +27,8 @@ async function page(){
 }
 try{
   const a=await page(),b=await page();
+  // The first ranking ticket request fails; the host retries it during the run.
+  await a.ev("localStorage.setItem('failStarts','1');localStorage.setItem('fakeStarts','0')");
   await a.ev("document.querySelector('#hostButton').click()");
   for(let n=0;n<100&&!/^[A-Z2-9]{6}$/.test(await a.ev("document.querySelector('#roomCode').textContent"));n++)await wait(50);
   const code=await a.ev("document.querySelector('#roomCode').textContent");assert.match(code,/^[A-Z2-9]{6}$/);
@@ -70,6 +72,7 @@ try{
   assert.match(await b.ev("document.querySelector('#rankStatus').textContent"),/P2의 이름을 기다리는/,"the authority waits for the partner's name");
   await enter(b,"Beta");await wait(800);
   const submits=JSON.parse(await a.ev("localStorage.getItem('fakeSubmits')||'[]'"));
+  assert.ok(Number(await a.ev("localStorage.getItem('fakeStarts')"))>=2,"a failed ticket request is retried");
   assert.equal(submits.length,1,"the team score is submitted once");assert.deepEqual(submits[0].names,["Alpha","Beta"]);assert.ok(submits[0].score>0&&submits[0].runToken==="token");
   assert.match(await b.ev("document.querySelector('#rankStatus').textContent"),/등록했어요/);assert.equal(await b.ev("document.querySelector('#rankSubmit').disabled"),true);
   await b.ev("document.querySelector('#rankSubmit').disabled=false");await enter(b,"Again");await wait(600);
