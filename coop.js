@@ -79,6 +79,7 @@
     host=true;epoch=(remote.epoch||0)+1;peer=null;peerAway=true;submittedKey="";
     ticket=remote.ticket||null;names=remote.names||[null,null];ranked=Boolean(remote.ranked);rankText=remote.rankText||"";
     session=window.CoopSession.create(apis[0],publish);session.resume(remote.flow,replays);
+    if(!ticket||ticket.failed)requestTicket();
     sentReplays=replays.map(Boolean);publish();
   }
   function publish(){
@@ -114,9 +115,14 @@
     const response=await fetch(URL+"/functions/v1/leaderboard",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
     const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"랭킹 서버 오류");return result;
   }
-  function requestTicket(){
+  // Retries with backoff while this device runs the game: a dropped connection
+  // or a waking server would otherwise cost the whole run its ranking.
+  function requestTicket(attempt=0){
     const id=runId;
-    leaderboard({action:"start",mode:"coop"}).then(t=>{if(runId===id)ticket={runId:t.runId,runToken:t.runToken};}).catch(()=>{if(runId===id)ticket={failed:true};});
+    leaderboard({action:"start",mode:"coop"}).then(t=>{if(runId===id)ticket={runId:t.runId,runToken:t.runToken};}).catch(()=>{
+      if(runId!==id)return;ticket={failed:true};
+      setTimeout(()=>{if(runId===id&&host&&session&&ticket?.failed&&session.flow().phase!=="over")requestTicket(attempt+1);},Math.min(60000,5000*2**attempt));
+    });
   }
   // A partner who leaves after the run no longer holds up the ranking entry.
   function partnerGone(){peer=null;peerAway=true;if(names[slot]&&!ranked)tryRank();}

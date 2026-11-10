@@ -75,4 +75,16 @@ assert.ok(S.moves.some((move) => move.x === 1 && move.y === 0));
 assert.ok(S.moves.some((move) => move.x === 4 && move.y === 4));
 assert.ok(S.moves.some((move) => move.x === 1 && move.y === 0), "Long Stride's royal branch remains visible at level three");
 
+// Royal Step extends straight lines past each piece's own reach, so every piece gains range at level 1.
+const reaches = (piece) => {
+  setup(["royalStep"], [], { x: 0, y: 0 }, piece, { royalStep: 1 });
+  return [[1, 0], [0, 1]].map(([x, y]) => Math.max(...S.moves.filter((m) => Math.sign(m.x) === x && Math.sign(m.y) === y && (x ? m.y === 0 : m.x === 0)).map((m) => Math.abs(m.x + m.y))));
+};
+assert.deepEqual(reaches("knight"), [1, 1], "a knight gains one orthogonal step");
+assert.deepEqual(reaches("king"), [2, 2], "a king reaches one square further in a straight line");
+assert.deepEqual(reaches("rook"), [4, 4], "a rook reaches one square further in a straight line");
+assert.deepEqual(reaches("queen"), [4, 4], "a queen reaches one square further in a straight line");
+setup(["royalStep"], [], { x: 0, y: 0 }, "queen", { royalStep: 1 });
+assert.ok(!S.moves.some((move) => move.x === 4 && move.y === 4), "Royal Step leaves diagonals alone");
+
 console.log("trait combat integration tests passed: standalone traits, level scaling, kill-only XP, turn retention, boss immunity, shared collateral and movement");

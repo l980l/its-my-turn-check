@@ -143,7 +143,7 @@
     if (rule.coop === "relay") return `직접 처치 시 동료의 다음 이동 ${rule.moves}회 동안 사거리 +${rule.boost}`;
     const parts = [];
     if (rule.stride) parts.push(`기본 사거리 +${rule.stride} (나이트는 긴 L자 추가)`);
-    if (rule.royal) parts.push(`상하좌우 ${rule.royal}칸 이동 추가`);
+    if (rule.royal) parts.push(`상하좌우 이동 거리 +${rule.royal}`);
     if (rule.shape) {
       const condition = rule.minDistance ? `${rule.minDistance}칸 이상 이동해 ` : rule.maxDistance ? `${rule.maxDistance}칸 이동해 ` : "";
       const chain = rule.minChain ? `CHAIN ${rule.minChain}부터, ` : "";
@@ -406,5 +406,5 @@
     const repeated = shuffled(pool.filter((trait) => prior.has(trait.id)), random);
     return [...fresh, ...repeated].slice(0, Math.min(3, pool.length));
   }
-  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), coopTraits:Object.freeze(coopTraits), catalogOf, byId, coopRule, hasSynergy, coopStrikes, pinned, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.19.0" });
+  return Object.freeze({ SLOT_LIMIT, MAX_LEVEL, MASTERIES, SYNERGIES, traits:Object.freeze(traits), coopTraits:Object.freeze(coopTraits), catalogOf, byId, coopRule, hasSynergy, coopStrikes, pinned, atLevel, checkMasteries, creditMastery, activeSynergies, movement, resolve, escape, offer, RULE_VERSION:"v0.19.5" });
 });

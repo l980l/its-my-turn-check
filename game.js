@@ -259,14 +259,20 @@
     if (!response.ok) throw new Error(result.error || "Leaderboard verification failed");
     return result;
   }
-  async function startVerifiedRun() {
-    S.runTicket = null;
-    let requestId = ++S.runRequestId;
+  async function startVerifiedRun(attempt = 0) {
+    if (!attempt) S.runTicket = null;
+    let requestId = attempt ? S.runRequestId : ++S.runRequestId;
     try {
       let ticket = await leaderboardFunction({ action: "start" });
       if (S.runRequestId === requestId) S.runTicket = ticket;
     } catch (_) {
-      if (S.runRequestId === requestId) S.runTicket = { failed: true };
+      if (S.runRequestId !== requestId) return;
+      S.runTicket = { failed: true };
+      // A dropped connection or a waking server would otherwise cost the whole
+      // run its ranking, so keep retrying with backoff while the run lasts.
+      setTimeout(() => {
+        if (S.runRequestId === requestId && S.running && S.runTicket?.failed) startVerifiedRun(attempt + 1);
+      }, Math.min(60000, 5000 * 2 ** attempt));
     }
   }
   function renderLeaderboard(rows, offset = 0) {
@@ -1077,8 +1083,13 @@
       if (piece === "bishop") base.push([0, -1]);
     }
     if (!augmentation.royal) return base;
-    let royal = [[1, 0], [-1, 0], [0, 1], [0, -1]].flatMap(([x, y]) =>
-      Array.from({length: augmentation.royal}, (_, i) => [x * (i + 1), y * (i + 1)]));
+    // Royal Step extends each straight line past the piece's own reach, so a
+    // king, rook or queen gains range from level 1 just like a knight does.
+    let royal = [[1, 0], [-1, 0], [0, 1], [0, -1]].flatMap(([x, y]) => {
+      let reach = 0;
+      while (base.some(([a, b]) => a === x * (reach + 1) && b === y * (reach + 1))) reach++;
+      return Array.from({length: augmentation.royal}, (_, i) => [x * (reach + i + 1), y * (reach + i + 1)]);
+    });
     return [...base, ...royal].filter(([x, y], i, all) => all.findIndex(([a, b]) => a === x && b === y) === i);
   }
   function moves() {
