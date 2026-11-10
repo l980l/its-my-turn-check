@@ -375,8 +375,8 @@
        corner without repositioning the panel. */
     .tutorial-head { display: flex; align-items: flex-start; justify-content: space-between; }
     .tutorial-head .tutorial-step { margin: 0; }
-    .tutorial-close { flex: none; margin: calc(12px - clamp(25px, 5vw, 52px)) calc(12px - clamp(25px, 5vw, 52px)) -28px 0 !important; display: grid; width: 40px; height: 40px; padding: 0; place-items: center; border: 1px solid #ffffff33; background: transparent; box-shadow: none; color: #aeb7d3; font: 400 24px/1 sans-serif; }
-    .tutorial-close:hover, .tutorial-close:focus-visible { border-color: #53f0e4; color: #53f0e4; transform: none; }
+    .tutorial-close { flex: none; margin: calc(12px - clamp(25px, 5vw, 52px)) calc(12px - clamp(25px, 5vw, 52px)) -28px 0 !important; display: grid; width: 36px; height: 36px; padding: 0; place-items: center; border: 0; background: transparent; box-shadow: none; color: #e0e8f6; font: 400 26px/1 sans-serif; }
+    .tutorial-close:hover, .tutorial-close:focus-visible { color: #fff; filter: none; transform: none; }
     .tutorial-visual:has(.tutorial-shot) { flex-direction: column; padding: 0; border: 0; background: none; }
     .tutorial-shot { display: block; width: 100%; height: auto; border: 1px solid #ffffff22; }
     .tutorial-shot-frame { width: 100%; margin: 0; }
@@ -911,7 +911,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.19.8</b> · 2026.11.10</p>
+        <p class="build-version">BUILD <b>v0.19.9</b> · 2026.11.10</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1069,6 +1069,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.19.2"></script>
-    <script src="game.js?v=v0.19.8"></script>
+    <script src="game.js?v=v0.19.9"></script>
   </body>
 </html>
