@@ -10,6 +10,9 @@
       xpFill: $("#xpProgressFill"),
       heldSlots: [...document.querySelectorAll(".held-trait-slot")],
       heldDetails: $("#heldTraitDetails"),
+      enemyTraitTip: $("#enemyTraitTip"),
+      enemyTraitTipName: $("#enemyTraitTipName"),
+      enemyTraitTipCopy: $("#enemyTraitTipCopy"),
       heldName: $("#heldTraitName"),
       heldCopy: $("#heldTraitCopy"),
       heldClose: $("#heldTraitClose"),
@@ -3266,19 +3269,44 @@
       draw();
       S.lastDraw = now;
     }
+    updateEnemyTraitTip();
     requestAnimationFrame(tick);
+  }
+  let hoverPoint = null;
+  // The enemy trait badge under a canvas point, on the board or on an edge marker.
+  function traitBadgeAt(tx, ty) {
+    for (const enemy of S.enemies) {
+      const q = pos(enemy.x, enemy.y),
+        badge = EnemyTraitIcons.layout(q.x, q.y, size(), EnemyTraits.traitsOf(enemy)).find((badge) =>
+          Math.hypot(tx - badge.x, ty - badge.y) <= Math.max(12, badge.size * 0.55));
+      if (badge) return { enemy, id: badge.id };
+    }
+    for (const { e: enemy, x, y } of edgeEnemyTargets()) {
+      const badge = EnemyTraitIcons.layout(x, y, size(), EnemyTraits.traitsOf(enemy), {edge: true}).find((badge) =>
+        Math.hypot(tx - badge.x, ty - badge.y) <= badge.size * 0.6);
+      if (badge) return { enemy, id: badge.id };
+    }
+    return null;
+  }
+  // Mouse hover over an enemy trait badge shows that trait's description. It is
+  // re-checked every frame because enemies and the camera move under the cursor.
+  function updateEnemyTraitTip() {
+    const hit = hoverPoint && S.running ? traitBadgeAt(hoverPoint.x, hoverPoint.y) : null;
+    c.style.cursor = hit ? "help" : "";
+    if (!hit) { ui.enemyTraitTip.classList.add("hidden"); return; }
+    const data = EnemyTraits.definitions[hit.id], tip = ui.enemyTraitTip;
+    ui.enemyTraitTipName.textContent = data.name + " · 적 특성";
+    ui.enemyTraitTipCopy.textContent = data.desc + (hit.id === "split" ? "\n남은 분열: " + hit.enemy.splitsLeft + "회" : "");
+    tip.style.setProperty("--trait-color", data.color);
+    tip.classList.remove("hidden");
+    tip.style.left = Math.max(8, Math.min(W - tip.offsetWidth - 8, hoverPoint.x + 16)) + "px";
+    tip.style.top = Math.max(8, Math.min(H - tip.offsetHeight - 8, hoverPoint.y + 16)) + "px";
   }
   function tap(e) {
     if (coopSession && !coopSession.interactive) return;
     if (!S.running || (coopSession ? !coopSession.interactive : S.phase !== "player")) return;
-    const bounds = c.getBoundingClientRect(), tx = e.clientX - bounds.left, ty = e.clientY - bounds.top;
-    const inspected = S.enemies.find((enemy) => {
-      const q = pos(enemy.x, enemy.y);
-      return EnemyTraitIcons.layout(q.x, q.y, size(), EnemyTraits.traitsOf(enemy)).some((badge) =>
-        Math.hypot(tx - badge.x, ty - badge.y) <= Math.max(12, badge.size * 0.55));
-    }) || edgeEnemyTargets().find(({e: enemy, x, y}) =>
-      EnemyTraitIcons.layout(x, y, size(), EnemyTraits.traitsOf(enemy), {edge: true}).some((badge) =>
-        Math.hypot(tx - badge.x, ty - badge.y) <= badge.size * 0.6))?.e;
+    const bounds = c.getBoundingClientRect(),
+      inspected = traitBadgeAt(e.clientX - bounds.left, e.clientY - bounds.top)?.enemy;
     if (inspected) { inspectEnemy(inspected); return; }
     let r = c.getBoundingClientRect(),
       s = size(),
@@ -3518,6 +3546,12 @@
     }
   }
   c.addEventListener("pointerdown", tap);
+  c.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const bounds = c.getBoundingClientRect();
+    hoverPoint = { x: e.clientX - bounds.left, y: e.clientY - bounds.top };
+  });
+  c.addEventListener("pointerleave", () => { hoverPoint = null; });
   document.addEventListener("visibilitychange", () => advanceDifficultyClock());
   document.addEventListener(
     "wheel",
