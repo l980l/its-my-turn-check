@@ -22,7 +22,7 @@ const ev = async expression => {
 };
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const layout = () => ev(`(()=>{const r=s=>{const b=document.querySelector(s).getBoundingClientRect();return [b.x,b.y,b.width,b.height].map(Math.round).join(",")};
-  return {title:document.querySelector('#tutorialTitle').textContent,panel:r('.tutorial-panel'),buttons:['#tutorialPrev','#tutorialSkip','#tutorialNext'].map(r).join(" "),
+  return {title:document.querySelector('#tutorialTitle').textContent,copy:document.querySelector('#tutorialCopy').textContent,panel:r('.tutorial-panel'),buttons:['#tutorialPrev','#tutorialSkip','#tutorialNext'].map(r).join(" "),
   close:(()=>{const p=document.querySelector('.tutorial-panel').getBoundingClientRect(),c=document.querySelector('#tutorialSkip').getBoundingClientRect();return {top:c.top-p.top,right:p.right-c.right,text:document.querySelector('#tutorialSkip').textContent}})(),
   shots:[...document.querySelectorAll('.tutorial-shot')].map(i=>i.complete&&i.naturalWidth>0),
   order:[...document.querySelectorAll('.tutorial-actions button')].map(b=>b.id).join(","),next:document.querySelector('#tutorialNext').textContent,
@@ -39,12 +39,12 @@ try {
     await ev("document.fonts.ready");
     await ev("document.querySelector('#tutorialButton').click()"); await wait(100);
     const pages = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 7; i++) {
       await ev("Promise.all([...document.querySelectorAll('.tutorial-shot')].map(i=>i.decode().catch(()=>{})))");
       pages.push(await layout());
       const step = await ev("document.querySelector('#tutorialStep').textContent");
       await ev("document.querySelector('#tutorialNext').click()");
-      for (let n = 0; n < 40 && i < 5 && await ev("document.querySelector('#tutorialStep').textContent") === step; n++) await wait(25);
+      for (let n = 0; n < 40 && i < 6 && await ev("document.querySelector('#tutorialStep').textContent") === step; n++) await wait(25);
     }
     const tag = width + "x" + height;
     pages.forEach((page, i) => {
@@ -56,11 +56,14 @@ try {
       assert.ok(!/(요|다|세요)$/.test(page.title), tag + " title is a noun phrase: " + page.title);
       page.scenes.forEach((lit, n) => assert.ok(lit > 20, tag + " board scene " + n + " on page " + (i + 1) + " is drawn"));
     });
-    assert.equal(pages[3].scenes.length, 5, "every field item is shown on the board");
-    assert.equal(pages[5].scenes.length, 4, "every terrain type is shown on the board");
-    [0, 1, 2, 4].forEach((i) => assert.ok(pages[i].shots.length > 0, tag + " page " + (i + 1) + " uses an in-game screenshot"));
-    assert.equal(pages[5].title, "특수 지형");
-    assert.equal(pages[5].next, "닫기", "the last page's right button closes the guide");
+    const page = (title) => pages.find((p) => p.title === title);
+    assert.equal(page("필드 아이템").scenes.length, 5, "every field item is shown on the board");
+    assert.equal(page("특수 지형").scenes.length, 4, "every terrain type is shown on the board");
+    ["이동과 공격", "적 내구도", "적 이동 거리", "적 특성", "보스 몬스터"].forEach((title) =>
+      assert.ok(page(title)?.shots.length > 0, tag + " " + title + " uses an in-game screenshot"));
+    assert.match(page("적 이동 거리").copy, /룩·비숍·퀸은 직선으로 최대 3칸/, "the guide states the enemy slide limit");
+    assert.equal(pages.at(-1).title, "특수 지형");
+    assert.equal(pages.at(-1).next, "닫기", "the last page's right button closes the guide");
     assert.equal(await ev("document.querySelector('#tutorialScreen').classList.contains('hidden')"), true, "닫기 on the last page closes the guide");
   }
   assert.deepEqual(errors, []);
