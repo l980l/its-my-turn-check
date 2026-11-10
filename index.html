@@ -437,6 +437,10 @@
     #growthNotice p { margin: 0; color: #c4cde4; font-size: 11px; line-height: 1.5; }
     .held-trait-detail { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); width: min(90vw, 420px); max-height: min(60dvh, 340px); overflow-y: auto; padding: 12px 38px 12px 14px; border: 1px solid var(--trait-color, #ffffff44); background: #10132bf5; color: var(--trait-color, #e8efff); pointer-events: auto; touch-action: pan-y; }
     .held-trait-detail.hidden { display: none; }
+    .enemy-trait-tip { position: absolute; z-index: 3; max-width: min(80vw, 260px); padding: 8px 11px; border: 1px solid var(--trait-color, #ffffff44); background: #10132bf2; color: var(--trait-color, #e8efff); pointer-events: none; word-break: keep-all; overflow-wrap: anywhere; }
+    .enemy-trait-tip.hidden { display: none; }
+    .enemy-trait-tip strong { font-size: 13px; }
+    .enemy-trait-tip p { margin: 4px 0 0; color: #c8d0e5; font-size: 12px; line-height: 1.5; white-space: pre-line; }
     .held-trait-detail strong { font-size: 14px; }
     .held-trait-detail p { margin: 6px 0 0; color: #c8d0e5; font-size: 13px; line-height: 1.6; }
     .held-trait-detail strong, .held-trait-detail p, .tutorial-panel h2, .tutorial-copy, .tutorial-entry, .tutorial-flow, .upgrade-detail, .trait-codex-entry { word-break: keep-all; overflow-wrap: anywhere; }
@@ -814,6 +818,7 @@
   <body>
     <main id="app">
       <canvas id="game"></canvas>
+      <div class="enemy-trait-tip hidden" id="enemyTraitTip" role="tooltip"><strong id="enemyTraitTipName"></strong><p id="enemyTraitTipCopy"></p></div>
       <header class="hud">
         <div class="brand">
           <span>IT’S MY TURN…</span> CHECK!<small>TURN-BASED CHESS SURVIVAL</small>
@@ -875,7 +880,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.19.5</b> · 2026.11.10</p>
+        <p class="build-version">BUILD <b>v0.19.6</b> · 2026.11.10</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1031,6 +1036,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.19.2"></script>
-    <script src="game.js?v=v0.19.5"></script>
+    <script src="game.js?v=v0.19.6"></script>
   </body>
 </html>
