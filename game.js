@@ -437,6 +437,10 @@
       ["감쇠 지대", "INHIBITOR", "#ff5577", "여기서 출발하면 사거리 −1", [[-1, 0], [0, 0], [0, 1], [1, 1]]],
       ["웜홀", "WORMHOLE", "#b971ff", "들어가면 같은 색 웜홀로 나옴", [[-1, 0], [1, 0]]],
     ],
+    // Captured from staged runs of the real game; width/height keep the
+    // panel's measured height right before the images finish loading.
+    tutorialShot = (name, width, height, alt) =>
+      '<img class="tutorial-shot" src="assets/tutorial/' + name + '.webp" width="' + width + '" height="' + height + '" alt="' + alt + '">',
     tutorialScene = (scene, color, name, desc) =>
       '<div class="tutorial-entry tutorial-scene-entry" style="color:' + color + '"><canvas data-tutorial-scene=\'' + JSON.stringify(scene) + '\' aria-hidden="true"></canvas><b>' + name + '</b><span>' + desc + '</span></div>';
   const TUTORIAL_PAGES = [
@@ -444,21 +448,20 @@
       eyebrow: "ONE MOVE · ONE TURN",
       title: "이동과 공격",
       copy: "빛나는 칸 중 한 곳으로 이동합니다. 적이 있는 칸으로 이동하면 공격입니다.\n\n공격했다면 한 번 더 움직이고, 공격하지 않았다면 적의 턴이 시작됩니다.",
-      visual: '<div class="tutorial-flow"><b>공격</b> → 한 번 더 이동 &nbsp; / &nbsp; <b>이동만</b> → 적의 턴</div>',
+      visual: tutorialShot("move", 600, 330, "나이트가 빛나는 칸 중 적이 있는 칸을 공격할 수 있는 장면"),
     },
     {
       eyebrow: "ENEMY DURABILITY",
       title: "적 내구도",
       copy: "적의 색은 남은 내구도입니다. 빨강은 한 번, 주황은 두 번, 보라는 일곱 번 공격해야 쓰러집니다.\n\n쓰러뜨리지 못해도 공격했다면 턴은 이어집니다.",
-      visual: COMBO_COLORS.map((color, i) =>
-        '<div class="tutorial-durability"><div class="tutorial-swatch" style="color:' + color + ';background:' + color + '"></div><small>' + (i + 1) + '</small></div>'
-      ).join(""),
+      visual: '<figure class="tutorial-shot-frame">' + tutorialShot("durability", 600, 170, "내구도 1부터 7까지 색이 다른 적 일곱") +
+        '<figcaption class="tutorial-durability">' + COMBO_COLORS.map((color, i) => '<span style="color:' + color + ';left:' + (50 + (i - 3) * 76 / 6).toFixed(2) + '%">' + (i + 1) + '</span>').join("") + '</figcaption></figure>',
     },
     {
       eyebrow: "ENEMY TRAITS",
       title: "적 특성",
       copy: "적 기물 오른쪽 위의 배지는 특성입니다. 배지에 마우스를 올리거나 누르면 설명이 나옵니다.\n\n잔불이 남은 칸에서 턴을 끝내면 다음 적 턴에 폭발합니다.",
-      visual: '<div class="tutorial-codex">' + Object.entries(EnemyTraits.definitions).map(([id, data]) =>
+      visual: tutorialShot("traits", 600, 250, "특성 배지를 단 적 넷과 잔불이 남은 칸") + '<div class="tutorial-codex">' + Object.entries(EnemyTraits.definitions).map(([id, data]) =>
         '<div class="tutorial-entry"><canvas width="64" height="64" style="width:32px;height:32px;float:right" data-enemy-badge="' + id + '" aria-hidden="true"></canvas><b>' + data.name + '</b><span>' + data.desc + '</span></div>'
       ).join("") + '</div>',
     },
@@ -474,11 +477,12 @@
       eyebrow: "BOSS MONSTER",
       title: "보스 몬스터",
       copy: "보스는 청록색으로 빛날 때만 공격할 수 있습니다. 보스마다 고유한 능력이 있습니다.",
-      visual: '<div class="tutorial-boss-compare"><div class="tutorial-boss-card"><div class="tutorial-boss-piece">♛</div><span>✕ LOCKED<br/>DODGE LINE<br/>공격 불가</span></div><div class="tutorial-boss-card open"><div class="tutorial-boss-piece">♛</div><span>◆ CORE OPEN<br/>STRIKE<br/>공격 가능</span></div></div>',
+      visual: '<div class="tutorial-boss-compare"><figure class="tutorial-boss-card">' + tutorialShot("boss-locked", 300, 300, "붉게 잠긴 보스") +
+        '<figcaption>공격 불가</figcaption></figure><figure class="tutorial-boss-card open">' + tutorialShot("boss-open", 300, 300, "청록색으로 열린 보스") + '<figcaption>공격 가능</figcaption></figure></div>',
     },
     {
       eyebrow: "LIVE TERRAIN",
-      title: "실시간으로 생성되는 특수 지형",
+      title: "특수 지형",
       copy: "웨이브가 진행되면서 보드 곳곳에 새로 생깁니다. 벽·증폭·감쇠 지대는 여러 칸이 이어진 모양으로 나타납니다.",
       visual: '<div class="tutorial-codex">' + TUTORIAL_TERRAIN.map(([name, label, color, desc, cells]) =>
         tutorialScene({ terrain: label.toLowerCase(), cells }, color, name + " · " + label, desc)
@@ -521,13 +525,10 @@
     ui.tutorialVisual.querySelectorAll("[data-enemy-badge]").forEach((canvas) =>
       EnemyTraitIcons.draw(canvas.getContext("2d"), 32, 32, 56, canvas.dataset.enemyBadge));
     ui.tutorialVisual.querySelectorAll("[data-tutorial-scene]").forEach(drawTutorialScene);
-    let last = tutorialPage === TUTORIAL_PAGES.length - 1;
     ui.tutorialPrev.disabled = tutorialPage === 0;
-    // The middle button already closes, so the last page only needs "다음"
-    // to turn into a start button when the guide opened before a run.
-    ui.tutorialNext.disabled = last && !tutorialStartsRun;
-    ui.tutorialNext.textContent = last && tutorialStartsRun ? "시작하기" : "다음";
-    ui.tutorialSkip.textContent = tutorialStartsRun ? "건너뛰고 시작" : "닫기";
+    ui.tutorialNext.textContent = tutorialPage === TUTORIAL_PAGES.length - 1 ? (tutorialStartsRun ? "시작하기" : "닫기") : "다음";
+    ui.tutorialSkip.setAttribute("aria-label", tutorialStartsRun ? "건너뛰고 시작" : "닫기");
+    ui.tutorialSkip.title = tutorialStartsRun ? "건너뛰고 시작" : "닫기";
   }
   // Size the panel to its tallest page so the buttons stay put while paging.
   function fitTutorialPanel() {

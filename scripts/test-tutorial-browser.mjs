@@ -23,7 +23,9 @@ const ev = async expression => {
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const layout = () => ev(`(()=>{const r=s=>{const b=document.querySelector(s).getBoundingClientRect();return [b.x,b.y,b.width,b.height].map(Math.round).join(",")};
   return {title:document.querySelector('#tutorialTitle').textContent,panel:r('.tutorial-panel'),buttons:['#tutorialPrev','#tutorialSkip','#tutorialNext'].map(r).join(" "),
-  order:[...document.querySelectorAll('.tutorial-actions button')].map(b=>b.id).join(","),next:document.querySelector('#tutorialNext').disabled,
+  close:(()=>{const p=document.querySelector('.tutorial-panel').getBoundingClientRect(),c=document.querySelector('#tutorialSkip').getBoundingClientRect();return {top:c.top-p.top,right:p.right-c.right,text:document.querySelector('#tutorialSkip').textContent}})(),
+  shots:[...document.querySelectorAll('.tutorial-shot')].map(i=>i.complete&&i.naturalWidth>0),
+  order:[...document.querySelectorAll('.tutorial-actions button')].map(b=>b.id).join(","),next:document.querySelector('#tutorialNext').textContent,
   scenes:[...document.querySelectorAll('[data-tutorial-scene]')].map(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let lit=0;for(let i=0;i<d.length;i+=4)if(d[i]+d[i+1]+d[i+2]>300)lit++;return lit})}})()`);
 try {
   await send("Runtime.enable"); await send("Page.enable"); await send("Network.enable");
@@ -38,12 +40,17 @@ try {
     await ev("document.querySelector('#tutorialButton').click()"); await wait(100);
     const pages = [];
     for (let i = 0; i < 6; i++) {
+      await ev("Promise.all([...document.querySelectorAll('.tutorial-shot')].map(i=>i.decode().catch(()=>{})))");
       pages.push(await layout());
-      await ev("document.querySelector('#tutorialNext').click()"); await wait(50);
+      const step = await ev("document.querySelector('#tutorialStep').textContent");
+      await ev("document.querySelector('#tutorialNext').click()");
+      for (let n = 0; n < 40 && i < 5 && await ev("document.querySelector('#tutorialStep').textContent") === step; n++) await wait(25);
     }
     const tag = width + "x" + height;
     pages.forEach((page, i) => {
-      assert.equal(page.order, "tutorialPrev,tutorialSkip,tutorialNext", tag + " buttons read 이전 · 닫기 · 다음");
+      assert.equal(page.order, "tutorialPrev,tutorialNext", tag + " bottom buttons read 이전 · 다음");
+      assert.ok(page.close.text === "×" && page.close.top < 30 && page.close.right < 30, tag + " close is an × in the top-right corner");
+      page.shots.forEach((loaded, n) => assert.ok(loaded, tag + " screenshot " + n + " on page " + (i + 1) + " loads"));
       assert.equal(page.panel, pages[0].panel, tag + " panel keeps its size on page " + (i + 1));
       assert.equal(page.buttons, pages[0].buttons, tag + " buttons stay put on page " + (i + 1));
       assert.ok(!/(요|다|세요)$/.test(page.title), tag + " title is a noun phrase: " + page.title);
@@ -51,8 +58,10 @@ try {
     });
     assert.equal(pages[3].scenes.length, 5, "every field item is shown on the board");
     assert.equal(pages[5].scenes.length, 4, "every terrain type is shown on the board");
-    assert.ok(pages[5].next, "다음 is disabled on the last page when the guide was opened from the menu");
-    assert.equal(await ev("document.querySelector('#tutorialScreen').classList.contains('hidden')"), false, "disabled 다음 keeps the guide open");
+    [0, 1, 2, 4].forEach((i) => assert.ok(pages[i].shots.length > 0, tag + " page " + (i + 1) + " uses an in-game screenshot"));
+    assert.equal(pages[5].title, "특수 지형");
+    assert.equal(pages[5].next, "닫기", "the last page's right button closes the guide");
+    assert.equal(await ev("document.querySelector('#tutorialScreen').classList.contains('hidden')"), true, "닫기 on the last page closes the guide");
   }
   assert.deepEqual(errors, []);
   console.log("tutorial browser ok");
