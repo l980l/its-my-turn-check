@@ -371,6 +371,14 @@
     .tutorial-boss-card .tutorial-boss-piece small { display: none; }
     .tutorial-boss-card.open .tutorial-boss-piece { border-color: #53f0e4; color: #53f0e4; text-shadow: 0 0 18px #53f0e4; }
     .tutorial-panel { padding-bottom: 0; }
+    .tutorial-pieces { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; gap: 7px; }
+    .tutorial-piece { display: grid; justify-items: center; gap: 4px; padding: 9px 2px; border: 1px solid #ffffff22; background: #11162d; }
+    .tutorial-piece span { color: #ffd166; font: 400 32px/1 "Apple Symbols", "Segoe UI Symbol", serif; }
+    .tutorial-piece b { color: #efffff; font-size: 12px; }
+    .tutorial-piece small { color: #53f0e4; font: 700 12px monospace; }
+    .score-value { display: flex; align-items: baseline; gap: 6px; }
+    .score-multiplier { color: #53f0e4; font: 700 11px monospace; }
+    .score-multiplier:empty { display: none; }
     /* The step counter and × share one row so the × sits in the top-right
        corner without repositioning the panel. */
     .tutorial-head { display: flex; align-items: flex-start; justify-content: space-between; }
@@ -489,6 +497,8 @@
       .stats { gap: 4px; padding: 0; }
       .stats > span { font-size: 8px; flex-direction: column; align-items: flex-start; gap: 0; }
       .stats > span:nth-child(2) { align-items: flex-end; }
+      .stats > span:first-child { position: relative; }
+      .score-multiplier { position: absolute; top: 0; left: 36px; font-size: 9px; line-height: 12px; }
       .stats > span b { font-size: clamp(12px, 3.3vw, 17px); }
       .stats .player-level { font-size: 14px; }
       .stats .xp-count, .stats .xp-count b { font-size: 10px; }
@@ -883,7 +893,7 @@
           ><strong id="beatText">READY</strong>
         </div>
         <div class="stats">
-          <span>SCORE <b id="score">0</b></span
+          <span>SCORE <span class="score-value"><b id="score">0</b><small id="scoreMultiplier" class="score-multiplier" aria-label="점수 배율"></small></span></span
           ><span>WAVE <b id="hp">0</b></span
           ><div class="held-traits" role="group" aria-label="장착 특성 6슬롯">
             <button class="held-trait-slot" type="button" data-slot="0" aria-label="빈 특성 슬롯 1" disabled></button>
@@ -935,7 +945,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.20.0</b> · 2026.11.11</p>
+        <p class="build-version">BUILD <b>v0.20.1</b> · 2026.11.12</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1102,6 +1112,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.19.2"></script>
-    <script src="game.js?v=v0.20.0"></script>
+    <script src="game.js?v=v0.20.1"></script>
   </body>
 </html>

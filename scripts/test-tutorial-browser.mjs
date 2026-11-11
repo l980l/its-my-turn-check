@@ -39,12 +39,12 @@ try {
     await ev("document.fonts.ready");
     await ev("document.querySelector('#tutorialButton').click()"); await wait(100);
     const pages = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 8; i++) {
       await ev("Promise.all([...document.querySelectorAll('.tutorial-shot')].map(i=>i.decode().catch(()=>{})))");
       pages.push(await layout());
       const step = await ev("document.querySelector('#tutorialStep').textContent");
       await ev("document.querySelector('#tutorialNext').click()");
-      for (let n = 0; n < 40 && i < 6 && await ev("document.querySelector('#tutorialStep').textContent") === step; n++) await wait(25);
+      for (let n = 0; n < 40 && i < 7 && await ev("document.querySelector('#tutorialStep').textContent") === step; n++) await wait(25);
     }
     const tag = width + "x" + height;
     pages.forEach((page, i) => {
@@ -62,6 +62,8 @@ try {
     ["이동과 공격", "적 내구도", "적 이동 거리", "적 특성", "보스 몬스터"].forEach((title) =>
       assert.ok(page(title)?.shots.length > 0, tag + " " + title + " uses an in-game screenshot"));
     assert.match(page("적 이동 거리").copy, /룩·비숍·퀸은 직선으로 최대 3칸/, "the guide states the enemy slide limit");
+    assert.equal(pages[0].title, "시작 기물", "the guide opens with the start piece choice");
+    assert.match(pages[0].copy, /배율/, "the guide explains the score multiplier");
     assert.equal(pages.at(-1).title, "특수 지형");
     assert.equal(pages.at(-1).next, "닫기", "the last page's right button closes the guide");
     assert.equal(await ev("document.querySelector('#tutorialScreen').classList.contains('hidden')"), true, "닫기 on the last page closes the guide");

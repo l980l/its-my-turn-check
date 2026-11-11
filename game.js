@@ -21,6 +21,7 @@
       growthName: $("#growthName"),
       growthCopy: $("#growthCopy"),
       score: $("#score"),
+      scoreMultiplier: $("#scoreMultiplier"),
       phase: $("#phaseLabel"),
       beat: $("#beatText"),
       hint: $("#hint"),
@@ -451,6 +452,14 @@
     ui.devVisibilityToggle.classList.add("hidden");
     ui.start.classList.remove("hidden");
   }
+  // Solo runs start as a chosen piece. Weaker pieces earn a score multiplier.
+  const START_PIECES = [
+    { piece: "queen", name: "퀸", move: "8방향 직선 3칸", multiplier: 1 },
+    { piece: "rook", name: "룩", move: "상하좌우 직선 3칸", multiplier: 1.5 },
+    { piece: "bishop", name: "비숍", move: "대각선 3칸 · 위로 1칸", multiplier: 1.5 },
+    { piece: "knight", name: "나이트", move: "L자로 뛰어넘기", multiplier: 1.5 },
+    { piece: "king", name: "킹", move: "8방향 1칸", multiplier: 2 },
+  ];
   const TUTORIAL_ITEMS = [
       ["aegis", "다음 적 턴 2회 동안 무적"],
       ["stride", "다음 3회 이동 사거리 +2"],
@@ -471,6 +480,14 @@
     tutorialScene = (scene, color, name, desc) =>
       '<div class="tutorial-entry tutorial-scene-entry" style="color:' + color + '"><canvas data-tutorial-scene=\'' + JSON.stringify(scene) + '\' aria-hidden="true"></canvas><b>' + name + '</b><span>' + desc + '</span></div>';
   const TUTORIAL_PAGES = [
+    {
+      eyebrow: "CHOOSE YOUR PIECE",
+      title: "시작 기물",
+      copy: "PLAY를 누르면 기물을 고르고, 그 기물로 끝까지 싸웁니다. 다루기 어려운 기물일수록 최종 점수 배율이 큽니다.\n\n2인 모드는 폰으로 시작합니다.",
+      visual: '<div class="tutorial-pieces">' + START_PIECES.map((option) =>
+        '<div class="tutorial-piece"><span>' + glyph[option.piece] + '\uFE0E</span><b>' + option.name + '</b><small>×' + option.multiplier.toFixed(1) + '</small></div>'
+      ).join("") + '</div>',
+    },
     {
       eyebrow: "ONE MOVE · ONE TURN",
       title: "이동과 공격",
@@ -584,14 +601,6 @@
     ui.tutorial.classList.remove("hidden");
     fitTutorialPanel();
   }
-  // Solo runs start as a chosen piece. Weaker pieces earn a score multiplier.
-  const START_PIECES = [
-    { piece: "queen", name: "퀸", move: "8방향 직선 3칸", multiplier: 1 },
-    { piece: "rook", name: "룩", move: "상하좌우 직선 3칸", multiplier: 1.5 },
-    { piece: "bishop", name: "비숍", move: "대각선 3칸 · 위로 1칸", multiplier: 1.5 },
-    { piece: "knight", name: "나이트", move: "L자로 뛰어넘기", multiplier: 1.5 },
-    { piece: "king", name: "킹", move: "8방향 1칸", multiplier: 2 },
-  ];
   let startPiece = START_PIECES.some((option) => option.piece === localStorage.getItem("its-my-turn-start-piece"))
     ? localStorage.getItem("its-my-turn-start-piece")
     : "queen";
@@ -997,6 +1006,7 @@
     ui.xpProgress.setAttribute("aria-valuenow", String(progress));
     ui.xpProgress.setAttribute("aria-valuetext", S.player.xp + " / " + requiredXp);
     ui.score.textContent = S.score.toLocaleString();
+    ui.scoreMultiplier.textContent = S.startPiece && scoreMultiplier() !== 1 ? "×" + scoreMultiplier().toFixed(1) : "";
     const synergies = TraitSystem.activeSynergies(S.player.traits);
     const traitKey = S.player.traits.map((id) => id + ":" + (S.player.traitLevels[id] || 1) + ":" + Boolean(S.player.mastered[id])).join("|");
     if (S.heldTraitKey !== traitKey) {
