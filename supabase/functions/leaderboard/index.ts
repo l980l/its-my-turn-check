@@ -38,6 +38,8 @@ async function tokenFor(id: string, createdAt: string) {
 const pieces = new Set(["pawn", "knight", "bishop", "rook", "queen", "king"]);
 // Clients older than the piece column send nothing; store null instead of rejecting.
 function pieceOf(value: unknown) { return typeof value === "string" && pieces.has(value) ? value : null; }
+// Solo final scores are multiplied by the chosen start piece (game.js START_PIECES).
+const pieceMultiplier: Record<string, number> = { queen: 1, rook: 1.5, bishop: 1.5, knight: 1.5, king: 2 };
 function validString(value: unknown, min: number, max: number) {
   return typeof value === "string" && value.trim().length >= min && value.trim().length <= max;
 }
@@ -78,7 +80,8 @@ Deno.serve(async (request) => {
   // A fast run advances an enemy turn every 0.45s, and boss/chain scoring can spike
   // sharply. Keep the check high enough for legitimate quick runs while still making
   // an instant forged million-point post impossible.
-  const maxScore = Math.max(5000, Math.floor(seconds * 1500));
+  const multiplier = coop ? 1 : pieceMultiplier[pieceOf(piece) || ""] || 1;
+  const maxScore = Math.floor(Math.max(5000, seconds * 1500) * multiplier);
   if ((score as number) > maxScore) return reply(origin, { error: "Score exceeds this run's verified time limit" }, 422);
 
   const { error: insertError } = coop

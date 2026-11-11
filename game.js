@@ -53,6 +53,8 @@
       devToggle: $("#devToggle"),
       preModeButton: $("#preModeButton"),
       preModeScreen: $("#preModeScreen"),
+      pieceSelect: $("#pieceSelectScreen"),
+      pieceSelectList: $("#pieceSelectList"),
       preLegacyButton: $("#preLegacyButton"),
       preOptimizedButton: $("#preOptimizedButton"),
       preModeClose: $("#preModeClose"),
@@ -582,8 +584,46 @@
     ui.tutorial.classList.remove("hidden");
     fitTutorialPanel();
   }
+  // Solo runs start as a chosen piece. Weaker pieces earn a score multiplier.
+  const START_PIECES = [
+    { piece: "queen", name: "퀸", move: "8방향 직선 3칸", multiplier: 1 },
+    { piece: "rook", name: "룩", move: "상하좌우 직선 3칸", multiplier: 1.5 },
+    { piece: "bishop", name: "비숍", move: "대각선 3칸 · 위로 1칸", multiplier: 1.5 },
+    { piece: "knight", name: "나이트", move: "L자로 뛰어넘기", multiplier: 1.5 },
+    { piece: "king", name: "킹", move: "8방향 1칸", multiplier: 2 },
+  ];
+  let startPiece = START_PIECES.some((option) => option.piece === localStorage.getItem("its-my-turn-start-piece"))
+    ? localStorage.getItem("its-my-turn-start-piece")
+    : "queen";
+  function scoreMultiplier() {
+    return START_PIECES.find((option) => option.piece === S.startPiece)?.multiplier || 1;
+  }
+  function openPieceSelect() {
+    ui.pieceSelectList.replaceChildren(
+      ...START_PIECES.map((option) => {
+        let button = document.createElement("button");
+        button.className = "piece-choice";
+        button.dataset.piece = option.piece;
+        button.setAttribute("aria-pressed", String(option.piece === startPiece));
+        button.innerHTML = `<span class="piece-choice-glyph">${glyph[option.piece]}\uFE0E</span><strong>${option.name}</strong><span class="piece-choice-move">${option.move}</span><span class="piece-choice-bonus">점수 ×${option.multiplier.toFixed(1)}</span>`;
+        button.addEventListener("click", () => {
+          startPiece = option.piece;
+          localStorage.setItem("its-my-turn-start-piece", startPiece);
+          ui.pieceSelect.classList.add("hidden");
+          beginRun();
+        });
+        return button;
+      }),
+    );
+    ui.pieceSelect.classList.remove("hidden");
+  }
+  function applyStartPiece() {
+    S.startPiece = startPiece;
+    S.player.piece = startPiece;
+  }
   function beginRun() {
     reset();
+    applyStartPiece();
     S.dev = ui.devToggle.checked && devUnlocked;
     S.pre = preMode === "legacy";
     S.optimized = preMode === "optimized";
@@ -621,7 +661,7 @@
     if (startRun || tutorialPage === TUTORIAL_PAGES.length - 1)
       localStorage.setItem("its-my-turn-tutorial-seen", "1");
     if (startRun) {
-      beginRun();
+      openPieceSelect();
     }
   }
   async function offerScoreSubmission(score) {
@@ -691,7 +731,7 @@
         runId: S.runTicket.runId,
         runToken: S.runTicket.runToken,
         name,
-        piece: S.player.piece,
+        piece: S.startPiece || S.player.piece,
         score,
         message,
       });
@@ -913,6 +953,8 @@
     S.deathReason = "";
     ui.rewindControls.classList.add("hidden");
     S.upgradeOptions = [];
+    // beginRun/restart set the chosen piece; co-op and tests start as a pawn.
+    S.startPiece = null;
     S.player = { x: 0, y: 0, hp: 5, xp: 0, rank: 0, piece: "pawn", traits: [], traitLevels: {}, traitXp: {}, mastered: {}, masteryEscapeReady: false, moveNumber: 0, directKills: 0, traitMemory: {} };
     S.enemies = [
       { x: 0, y: -6, type: "pawn", face: { x: 0, y: 1 }, hp: 1, maxHp: 1 },
@@ -2216,8 +2258,9 @@
   function openUpgrade(continueTurn = false, chainGain = 0) {
     let p = S.player,
       pieces = ["knight", "bishop", "rook", "queen", "king"],
-      milestone = p.rank > 0 && (p.rank + 1) % 5 === 0;
-    if (p.rank === 0) {
+      // A chosen start piece keeps its piece: no promotion and no piece swap.
+      milestone = !S.startPiece && p.rank > 0 && (p.rank + 1) % 5 === 0;
+    if (p.rank === 0 && !S.startPiece) {
       S.upgradeMode = "piece";
       S.upgradeOptions = [pieces[Math.floor(Math.random() * pieces.length)]];
       ui.upgradeEyebrow.textContent = "PROMOTION";
@@ -2438,12 +2481,15 @@
   function over() {
     S.running = false;
     ui.rewindControls.classList.add("hidden");
-    S.finalScore = S.score;
+    let multiplier = scoreMultiplier();
+    S.finalScore = Math.round(S.score * multiplier);
     ui.result.textContent =
       (S.deathReason ? S.deathReason + ". " : "적 말이 당신을 잡았습니다. ") +
       S.wave +
       "번의 박자 동안 SCORE " +
-      S.score.toLocaleString() +
+      (multiplier === 1
+        ? S.score.toLocaleString()
+        : S.score.toLocaleString() + " × " + multiplier.toFixed(1) + " = " + S.finalScore.toLocaleString()) +
       "점 · " +
       S.kills +
       "개 처치.";
@@ -3664,7 +3710,7 @@
     document.addEventListener(type, (e) => e.preventDefault(), { passive: false }),
   );
   $("#startButton").addEventListener("click", () => {
-    if (localStorage.getItem("its-my-turn-tutorial-seen")) beginRun();
+    if (localStorage.getItem("its-my-turn-tutorial-seen")) openPieceSelect();
     else openTutorial(true);
   });
   $("#coopButton").addEventListener("click", () => {
@@ -3689,6 +3735,8 @@
   ui.tutorialSkip.addEventListener("click", () => closeTutorial(tutorialStartsRun));
   $("#restartButton").addEventListener("click", () => {
     reset();
+    applyStartPiece();
+    startVerifiedRun();
     ui.devSpeed.textContent = "[4] ×2 SPEED";
     ui.devBar.classList.toggle("hidden", !S.dev);
     ui.devVisibilityToggle.classList.toggle("hidden", !S.dev);
@@ -3729,6 +3777,7 @@
   ui.preLegacyButton.addEventListener("click", () => choosePreMode("legacy"));
   ui.preOptimizedButton.addEventListener("click", () => choosePreMode("optimized"));
   ui.preModeClose.addEventListener("click", () => ui.preModeScreen.classList.add("hidden"));
+  $("#pieceSelectClose").addEventListener("click", () => ui.pieceSelect.classList.add("hidden"));
   ui.devPasswordSubmit.addEventListener("click", unlockDevPassword);
   ui.devPasswordCancel.addEventListener("click", closeDevPassword);
   ui.devPasswordInput.addEventListener("keydown", (e) => {
