@@ -711,7 +711,9 @@
     .leaderboard-rank { color: #ffd166; font: 700 15px monospace; }
     .leaderboard-name { overflow: hidden; color: #f2f5ff; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
     .leaderboard-message { grid-column: 2 / -1; margin-top: -5px; color: #bfc5df; font-size: 12px; line-height: 1.4; word-break: break-word; }
-    .leaderboard-score { color: #53f0e4; font: 700 16px monospace; }
+    .leaderboard-score { color: #53f0e4; font: 700 16px monospace; text-align: right; }
+    .leaderboard-piece { margin-right: 5px; color: #ffd166; font: 400 1.45em/1 "Apple Symbols", "Segoe UI Symbol", serif; vertical-align: -0.12em; }
+    .leaderboard-date { display: block; margin-top: 2px; color: #8f96b8; font: 400 11px monospace; }
     .leaderboard-empty { padding: 30px 0; color: #aeb4ce; text-align: center; }
     .leaderboard-tabs { display: flex; justify-content: center; gap: 8px; margin: 4px 0 10px; }
     .leaderboard-tabs button { min-width: 72px; margin: 0; padding: 8px 14px; font-size: 13px; opacity: .55; }
@@ -911,7 +913,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.19.10</b> · 2026.11.10</p>
+        <p class="build-version">BUILD <b>v0.19.11</b> · 2026.11.11</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1069,6 +1071,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.19.2"></script>
-    <script src="game.js?v=v0.19.10"></script>
+    <script src="game.js?v=v0.19.11"></script>
   </body>
 </html>

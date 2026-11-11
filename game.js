@@ -278,6 +278,26 @@
       }, Math.min(60000, 5000 * 2 ** attempt));
     }
   }
+  const PIECE_NAMES = { pawn: "폰", knight: "나이트", bishop: "비숍", rook: "룩", queen: "퀸", king: "킹" };
+  // Older records predate the piece column and show the name alone.
+  function leaderboardName(name, piece) {
+    let wrap = document.createElement("span");
+    if (glyph[piece]) {
+      let icon = document.createElement("span");
+      icon.className = "leaderboard-piece";
+      icon.textContent = glyph[piece] + "\uFE0E";
+      icon.title = PIECE_NAMES[piece];
+      icon.setAttribute("aria-label", PIECE_NAMES[piece]);
+      wrap.append(icon);
+    }
+    wrap.append(name);
+    return wrap;
+  }
+  function leaderboardDate(value) {
+    let date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+  }
   function renderLeaderboard(rows, offset = 0) {
     ui.leaderboardList.textContent = "";
     if (!rows.length) {
@@ -297,8 +317,13 @@
       name.className = "leaderboard-name";
       score.className = "leaderboard-score";
       rank.textContent = String(offset + index + 1).padStart(2, "0");
-      name.textContent = leaderboardMode === "coop" ? row.name1 + " & " + row.name2 : row.name;
+      if (leaderboardMode === "coop") name.append(leaderboardName(row.name1, row.piece1), " & ", leaderboardName(row.name2, row.piece2));
+      else name.append(leaderboardName(row.name, row.piece));
       score.textContent = Number(row.score).toLocaleString() + " PTS";
+      let date = document.createElement("small");
+      date.className = "leaderboard-date";
+      date.textContent = leaderboardDate(row.created_at);
+      score.appendChild(date);
       item.append(rank, name, score);
       if (row.message) {
         let message = document.createElement("span");
@@ -323,7 +348,7 @@
     try {
       const mode = leaderboardMode,
         rows = await leaderboardRequest(
-          (mode === "coop" ? "coop_leaderboard?select=name1,name2,score,wave,created_at" : "leaderboard?select=name,score,message,created_at") +
+          (mode === "coop" ? "coop_leaderboard?select=name1,name2,piece1,piece2,score,wave,created_at" : "leaderboard?select=name,piece,score,message,created_at") +
             "&order=score.desc,created_at.asc&limit=" +
             LEADERBOARD_LIMIT +
             "&offset=" +
@@ -666,6 +691,7 @@
         runId: S.runTicket.runId,
         runToken: S.runTicket.runToken,
         name,
+        piece: S.player.piece,
         score,
         message,
       });
