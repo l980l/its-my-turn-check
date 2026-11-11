@@ -73,7 +73,7 @@ try{
   await enter(b,"Beta");await wait(800);
   const submits=JSON.parse(await a.ev("localStorage.getItem('fakeSubmits')||'[]'"));
   assert.ok(Number(await a.ev("localStorage.getItem('fakeStarts')"))>=2,"a failed ticket request is retried");
-  assert.equal(submits.length,1,"the team score is submitted once");assert.deepEqual(submits[0].names,["Alpha","Beta"]);assert.ok(submits[0].score>0&&submits[0].runToken==="token");
+  assert.equal(submits.length,1,"the team score is submitted once");assert.deepEqual(submits[0].names,["Alpha","Beta"]);assert.ok(submits[0].pieces.length===2&&submits[0].pieces.every(p=>["pawn","knight","bishop","rook","queen","king"].includes(p)),"each player's piece is submitted");assert.ok(submits[0].score>0&&submits[0].runToken==="token");
   assert.match(await b.ev("document.querySelector('#rankStatus').textContent"),/등록했어요/);assert.equal(await b.ev("document.querySelector('#rankSubmit').disabled"),true);
   await b.ev("document.querySelector('#rankSubmit').disabled=false");await enter(b,"Again");await wait(600);
   assert.equal(JSON.parse(await a.ev("localStorage.getItem('fakeSubmits')")).length,1,"a run is never submitted twice");

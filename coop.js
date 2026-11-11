@@ -132,9 +132,9 @@
     const partner=1-slot,missing=[0,1].filter(i=>!names[i]);
     if(missing.includes(slot)||(missing.includes(partner)&&peer&&!peerAway)){rankText="P"+(missing[0]+1)+"의 이름을 기다리는 중…";publish();return;}
     if(!ticket||ticket.failed){rankText="랭킹 서버에 연결하지 못해 등록할 수 없어요.";publish();return;}
-    const world=apis[0].snapshot().world,team=names.map((n,i)=>n||"P"+(i+1));
+    const {world,players}=apis[0].snapshot(),team=names.map((n,i)=>n||"P"+(i+1));
     ranked=true;rankText="등록하는 중…";publish();
-    leaderboard({action:"submit",runId:ticket.runId,runToken:ticket.runToken,score:world.score,wave:world.wave,names:team})
+    leaderboard({action:"submit",runId:ticket.runId,runToken:ticket.runToken,score:world.score,wave:world.wave,names:team,pieces:players.map(p=>p.piece)})
       .then(()=>{rankText="2인 랭킹에 등록했어요. 메인 화면 랭킹의 2인 탭에서 볼 수 있어요.";})
       .catch(error=>{ranked=false;rankText="등록하지 못했어요. "+error.message;})
       .finally(publish);

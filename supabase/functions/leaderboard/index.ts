@@ -35,6 +35,9 @@ async function tokenFor(id: string, createdAt: string) {
   const payload = `${id}.${Math.floor(new Date(createdAt).getTime() / 1000)}`;
   return `${payload}.${await sign(payload)}`;
 }
+const pieces = new Set(["pawn", "knight", "bishop", "rook", "queen", "king"]);
+// Clients older than the piece column send nothing; store null instead of rejecting.
+function pieceOf(value: unknown) { return typeof value === "string" && pieces.has(value) ? value : null; }
 function validString(value: unknown, min: number, max: number) {
   return typeof value === "string" && value.trim().length >= min && value.trim().length <= max;
 }
@@ -59,7 +62,7 @@ Deno.serve(async (request) => {
   }
 
   if (body.action !== "submit") return reply(origin, { error: "Unknown action" }, 400);
-  const { runId, runToken, score, name, names, wave = 0, message = "" } = body;
+  const { runId, runToken, score, name, names, wave = 0, message = "", piece, pieces: teamPieces } = body;
   if (typeof runId !== "string" || typeof runToken !== "string" || !Number.isInteger(score) || (score as number) <= 0) return reply(origin, { error: "Invalid score submission" }, 400);
 
   const { data: run, error: runError } = await admin.from("game_runs").select("id,created_at,claimed_at,expires_at,mode").eq("id", runId).maybeSingle();
@@ -79,8 +82,8 @@ Deno.serve(async (request) => {
   if ((score as number) > maxScore) return reply(origin, { error: "Score exceeds this run's verified time limit" }, 422);
 
   const { error: insertError } = coop
-    ? await admin.from("coop_leaderboard").insert({ name1: (names as string[])[0].trim(), name2: (names as string[])[1].trim(), score, wave })
-    : await admin.from("leaderboard").insert({ name: (name as string).trim(), score, message: String(message).trim() });
+    ? await admin.from("coop_leaderboard").insert({ name1: (names as string[])[0].trim(), name2: (names as string[])[1].trim(), piece1: pieceOf((teamPieces as unknown[])?.[0]), piece2: pieceOf((teamPieces as unknown[])?.[1]), score, wave })
+    : await admin.from("leaderboard").insert({ name: (name as string).trim(), piece: pieceOf(piece), score, message: String(message).trim() });
   if (insertError) return reply(origin, { error: "Could not save score" }, 500);
   await admin.from("game_runs").update({ claimed_at: new Date().toISOString(), submitted_score: score }).eq("id", run.id);
   return reply(origin, { ok: true });
