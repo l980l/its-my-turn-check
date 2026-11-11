@@ -13,7 +13,7 @@ const h = createGameHarness({
     return { ok: true, text: async () => "[]" };
   },
 });
-const { S, ui, openPieceSelect, openUpgrade, over, submitScore, reset } = h.game;
+const { S, ui, openPieceSelect, openUpgrade, over, submitScore, reset, hud } = h.game;
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 const choice = (piece) => ui.pieceSelectList.children.find((button) => button.dataset.piece === piece);
 
@@ -27,6 +27,8 @@ const choice = (piece) => ui.pieceSelectList.children.find((button) => button.da
   assert.equal(S.player.piece, "knight", "the run starts as the chosen piece");
   assert.equal(S.startPiece, "knight");
   assert.equal(S.running, true);
+  hud();
+  assert.equal(ui.scoreMultiplier.textContent, "×1.5", "the HUD shows the multiplier next to the score");
 
   openUpgrade();
   assert.equal(S.upgradeMode, "trait", "the first level-up is a trait reward, not a promotion");
@@ -51,11 +53,13 @@ const choice = (piece) => ui.pieceSelectList.children.find((button) => button.da
   reset();
   assert.equal(S.startPiece, null);
   assert.equal(S.player.piece, "pawn");
+  hud();
+  assert.equal(ui.scoreMultiplier.textContent, "", "no HUD multiplier without a chosen piece");
   openUpgrade();
   assert.equal(S.upgradeMode, "piece", "a pawn start still promotes on the first level-up");
   S.phase = "player";
   S.score = 1001;
   over();
   assert.equal(S.finalScore, 1001, "no multiplier without a chosen piece");
-  console.log("piece select tests passed: choice, no promotion or swap, multiplier, submission, pawn path kept");
+  console.log("piece select tests passed: choice, HUD multiplier, no promotion or swap, multiplier, submission, pawn path kept");
 })();
