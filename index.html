@@ -750,6 +750,11 @@
     .leaderboard-tabs { display: flex; justify-content: center; gap: 8px; margin: 4px 0 10px; }
     .leaderboard-tabs button { min-width: 72px; margin: 0; padding: 8px 14px; font-size: 13px; opacity: .55; }
     .leaderboard-tabs button[aria-selected="true"] { opacity: 1; border-color: #ffd166; color: #ffd166; }
+    .leaderboard-categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 12px; }
+    .leaderboard-categories.hidden { display: none; }
+    .leaderboard-categories button { margin: 0; padding: 6px 10px; font-size: 12px; opacity: .55; }
+    .leaderboard-categories button[aria-selected="true"] { opacity: 1; border-color: #53f0e4; color: #53f0e4; }
+    .leaderboard-categories .leaderboard-piece { margin-right: 4px; font-size: 17px; vertical-align: -2px; }
     .leaderboard-pagination { display: flex; align-items: center; justify-content: center; gap: 13px; margin-top: 16px; }
     .leaderboard-pagination button { min-width: 88px; margin: 0; padding: 10px 14px; font-size: 13px; }
     .leaderboard-pagination button:disabled { cursor: default; opacity: .32; filter: none; transform: none; }
@@ -827,6 +832,9 @@
       .leaderboard-panel { width: min(94vw, 630px); padding: 24px 16px; }
       .leaderboard-row { grid-template-columns: 28px minmax(0, 1fr) auto; gap: 7px; padding: 9px; }
       .leaderboard-message { font-size: 11px; }
+      .leaderboard-categories { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+      .leaderboard-categories button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; min-height: 44px; padding: 4px 2px; font-size: 11px; letter-spacing: 0; white-space: nowrap; }
+      .leaderboard-categories .leaderboard-piece { margin: 0; font-size: 18px; }
       .trait-codex-panel { width: min(94vw, 630px); padding: 24px 16px; }
       .trait-codex-list { grid-template-columns: 1fr; }
     }
@@ -945,7 +953,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.21.0</b> · 2026.11.12</p>
+        <p class="build-version">BUILD <b>v0.21.1</b> · 2026.11.13</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1089,6 +1097,7 @@
             <button class="secondary-button" id="rankingSolo" role="tab" aria-selected="true">1인</button>
             <button class="secondary-button" id="rankingCoop" role="tab" aria-selected="false">2인</button>
           </div>
+          <div class="leaderboard-categories" id="rankingCategories" role="tablist" aria-label="1인 랭킹 기물"></div>
           <p class="leaderboard-note" id="leaderboardStatus">기록을 불러오는 중…</p>
           <div class="leaderboard-list" id="leaderboardList"></div>
           <div class="leaderboard-pagination" aria-label="랭킹 페이지 탐색">
@@ -1112,6 +1121,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.0"></script>
-    <script src="game.js?v=v0.21.0"></script>
+    <script src="game.js?v=v0.21.1"></script>
   </body>
 </html>
