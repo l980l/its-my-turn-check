@@ -999,7 +999,8 @@
     S.deathReason = "";
     ui.rewindControls.classList.add("hidden");
     S.upgradeOptions = [];
-    // beginRun/restart set the chosen piece; co-op and tests start as a pawn.
+    // beginRun/restart set the chosen piece, and co-op sets "coop" when both players
+    // chose; a pawn start (tests, old co-op) keeps the promotion path.
     S.startPiece = null;
     S.player = { x: 0, y: 0, hp: 5, xp: 0, rank: 0, piece: "pawn", traits: [], traitLevels: {}, traitXp: {}, mastered: {}, masteryEscapeReady: false, moveNumber: 0, directKills: 0, traitMemory: {} };
     S.enemies = [

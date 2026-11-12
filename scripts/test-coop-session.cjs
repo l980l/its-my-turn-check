@@ -85,6 +85,20 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   assert.equal(S.wave,1);
 }
 {
+  // Chosen start pieces: both keep their pieces, with no promotion and no piece swap.
+  const h=createGameHarness({coop:true,withUpgradeUi:true,withHeldUi:true,seed:20261023});
+  const e=h.context.window.CoopGame,S=h.game.S;e.start(["rook","king"]);
+  assert.deepEqual(e.roster.map(p=>p.piece),["rook","king"],"each player starts as the chosen piece");
+  S.enemies=[pawn(1,0)];S.items=[];S.terrain=[];e.roster[0].x=0;e.roster[0].y=0;e.roster[1].x=4;e.roster[1].y=0;
+  e.roster[0].xp=5;let r=e.act(0,{x:1,y:0});assert.equal(r.pending,true);
+  assert.equal(S.upgradeMode,"trait","the first team level is a trait reward, not a promotion");
+  h.advance(700);e.choose(0,0,"upgrade");
+  assert.deepEqual(e.roster.map(p=>p.piece),["rook","king"],"a shared level never promotes a chosen piece");
+  e.roster[0].rank=4;e.roster[0].xp=50;S.enemies=[pawn(2,0)];r=e.act(0,{x:2,y:0});
+  assert.equal(r.pending,true);assert.notEqual(S.upgradeMode,"fork","no piece swap at level 5");
+  assert.equal(e.snapshot().world.startPiece,"coop","the rule travels with the snapshot for a host handoff");
+}
+{
   const {e,S}=setup();e.debug("trait","longStride",0);assert.equal(e.roster[0].traits.length,0,"solo traits are not in the co-op catalog");
   e.debug("trait","pin",0);assert.deepEqual(e.roster[1].traits,["pin"],"team traits are shared");
   e.balance.teamTraits=false;e.roster.forEach(p=>{p.traits=[];p.traitLevels={};});e.debug("trait","longStride",0);
@@ -173,6 +187,10 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   s.move(1,{x:1,y:0},s.flow().roundId);step();step();step();assert.deepEqual(s.flow().eligible,[0]);assert.deepEqual(actions,[0,0,1]);
   for(const factor of [2,3,4,1]){s.speed(factor);assert.equal(s.flow().duration,1800/factor);}
   s.pause(true);const left=s.timeLeft();time+=10000;s.update();assert.equal(s.timeLeft(),left);s.pause(false);assert.equal(s.timeLeft(),left);
+  // A DEV tool used while a move resolves keeps that move.
+  s.move(0,{x:1,y:0},s.flow().roundId);s.update();assert.equal(s.flow().stage,"focus");
+  const act=engine.act;let played=null;engine.act=(i,m)=>{played=m;return act(i,m);};
+  s.debug("piece","king",0);step();assert.deepEqual(played,{x:1,y:0},"the resolving move still plays after a DEV tool");
 }
 {
   // Host handoff: a second authority resumes from the published flow without
@@ -373,4 +391,4 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
     t.S.enemies=[pawn(2,0)];t.S.coopActed=acted;const m=t.e.auto(0);return m.x===1&&m.y===0;};
   assert.equal(pinStep([1]),true,"AUTO trusts a pin the settled ally holds");assert.equal(pinStep([]),false,"but not one the ally may break");
 }
-console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, co-op traits, masteries, synergies, co-op AUTO, authority handoff, and isolated replay renderer");
+console.log("co-op shared runtime/session tests passed: combat/progression, order/retention, camera, survivor continuation, both-dead termination, frozen ten-action replay, reward revive, team progress, chosen start pieces, co-op traits, masteries, synergies, co-op AUTO, authority handoff, and isolated replay renderer");

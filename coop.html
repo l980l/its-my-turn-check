@@ -8,7 +8,7 @@
     <link rel="preload" as="font" href="assets/fonts/Bungee-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="font" href="assets/fonts/GowunBatang-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" type="image/webp" />
-    <link rel="stylesheet" href="coop.css?v=v0.19.6" />
+    <link rel="stylesheet" href="coop.css?v=v0.21.0" />
   </head>
   <body>
     <main id="coopApp" data-screen="lobby">
@@ -29,7 +29,7 @@
           <p id="lobbyStatus" class="status" role="status" aria-live="polite"></p>
         </div>
         <button id="devButton" class="ghost lobby-dev" type="button">DEV</button>
-        <p class="build-version">BUILD <b>v0.20.2</b> · CO-OP ALPHA</p>
+        <p class="build-version">BUILD <b>v0.21.1</b> · CO-OP ALPHA</p>
       </section>
       <dialog id="joinDialog" class="coop-dialog" aria-labelledby="joinTitle">
         <button id="joinClose" class="dialog-close" type="button" aria-label="초대 코드 입력 닫기">×</button>
@@ -47,10 +47,11 @@
         <ol class="help-steps">
           <li>방을 만들고 친구에게 6자리 초대 코드를 보내세요.</li>
           <li>친구는 JOIN ROOM에서 코드를 입력하면 됩니다.</li>
+          <li>방에서 각자 시작 기물을 고르고 준비하세요. 고른 기물로 끝까지 싸웁니다.</li>
           <li>몬스터가 움직이면 각자 수를 고르세요. P1, P2 순서로 서로의 행동을 봅니다.</li>
           <li>공격하거나 추가 행동을 얻은 사람은 다시 움직입니다. 둘 다 끝나야 몬스터 턴입니다.</li>
         </ol>
-        <p class="help-note">2인 협동 알파 · 랭킹에는 기록되지 않습니다.</p>
+        <p class="help-note">2인 협동 알파 · 팀 점수는 메인 화면 랭킹의 2인 탭에 기록됩니다.</p>
         <p class="help-note">DEV를 누르면 접속 없이 로컬 2인 테스트가 시작됩니다. 하단 도구에서 두 말의 자동 플레이를 함께 제어할 수 있습니다.</p>
       </dialog>
       <dialog id="deathDialog" class="solo-panel" aria-labelledby="deathTitle">
@@ -89,6 +90,17 @@
           <button id="cameraButton" class="ghost" type="button" disabled>동료 보기</button>
           <button id="reviewDeathButton" class="ghost" type="button" hidden>사망 직전 10수</button>
           <button id="autoButton" class="ghost" type="button" aria-pressed="false" aria-label="내 말 자동 플레이">AUTO OFF</button>
+        </div>
+        <div id="pickScreen" class="pick-screen" hidden>
+          <div class="solo-panel pick-panel" role="dialog" aria-labelledby="pickTitle">
+            <p class="eyebrow">CHOOSE YOUR PIECE</p>
+            <h2 id="pickTitle">기물 선택</h2>
+            <p>고른 기물로 끝까지 싸웁니다. 팀 점수에는 두 기물 배율의 평균이 곱해집니다.</p>
+            <div id="pickList" class="pick-list" role="group" aria-label="시작 기물"></div>
+            <ul id="pickPlayers" class="pick-players" aria-live="polite"></ul>
+            <p id="pickStatus" class="pick-status" role="status"></p>
+            <div class="result-actions"><button id="pickReady" class="primary-button" type="button" disabled>준비</button></div>
+          </div>
         </div>
         <div class="legend"><i class="cyan"></i>내 기물 <i class="ally"></i>P1 / P2 동료 · 공격 시 추가 행동</div>
         <aside id="devTools" class="dev-tools" aria-label="로컬 코옵 개발 도구" hidden>
@@ -141,7 +153,7 @@
       </section>
     </main>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="coop-session.js?v=v0.19.6"></script>
-    <script src="coop.js?v=v0.20.2"></script>
+    <script src="coop-session.js?v=v0.21.0"></script>
+    <script src="coop.js?v=v0.21.1"></script>
   </body>
 </html>

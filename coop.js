@@ -14,6 +14,16 @@
   // Co-op ranking: the authority holds a server run ticket, collects both
   // names after the run and submits the team score once.
   let ticket=null, names=[null,null], ranked=false, rankText="";
+  // Start pieces: both players pick in the room, and the host starts once both are ready.
+  // Multipliers match game.js START_PIECES; the team score uses the mean of both.
+  const PIECES=[["queen","퀸","♛","8방향 직선 3칸",1],["rook","룩","♜","상하좌우 직선 3칸",1.5],["bishop","비숍","♝","대각선 3칸 · 위로 1칸",1.5],["knight","나이트","♞","L자로 뛰어넘기",1.5],["king","킹","♚","8방향 1칸",2]];
+  const pieceName=piece=>PIECES.find(p=>p[0]===piece)?.[1]||"";
+  const validPiece=piece=>PIECES.some(p=>p[0]===piece)?piece:null;
+  const pieceMultiplier=piece=>PIECES.find(p=>p[0]===piece)?.[4]||1;
+  // Runs started without chosen pieces (pawn promotion) keep the raw score.
+  const teamMultiplier=game=>game.world.startPiece==="coop"?(pieceMultiplier(game.players[0]?.piece)+pieceMultiplier(game.players[1]?.piece))/2:1;
+  const finalScore=game=>Math.round(game.world.score*teamMultiplier(game));
+  let myPiece=validPiece(localStorage.getItem("its-my-turn-start-piece"))||"queen", picks=[];
   const cameras=[0,1].map(i=>window.CoopSession.createCamera(i));
   const cameraStates=[];
   let replays=[null,null],sentReplays=[false,false],deathNotified=[false,false],reviewSlot=0,reviewIndex=0,replayReady=null,replayApi=null;
@@ -98,7 +108,8 @@
     if(!session)apis[0].apply(snapshot.game);
     present(apis[0],localDev?0:slot,flow);
     if(localDev){apis[1].apply(snapshot.game);present(apis[1],1,flow);}
-    $("#scoreText").textContent=snapshot.game.world.score.toLocaleString();
+    const multiplier=teamMultiplier(snapshot.game);
+    $("#scoreText").textContent=snapshot.game.world.score.toLocaleString()+(multiplier!==1?" ×"+multiplier.toFixed(2).replace(/0$/,""):"");
     const me=localDev?controlled:slot,myTurn=flow.phase==="planning"&&flow.eligible.includes(me);
     $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?"P"+(flow.actor+1)+" MOVE":flow.phase==="upgrade"?"P"+(flow.actor+1)+" LEVEL UP":flow.phase==="risk"?"RISK":"ENEMY TURN";
     $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?"P"+(flow.actor+1)+" 보상 선택 중":flow.phase==="acting"?"P"+(flow.actor+1)+"의 행동을 보고 있습니다.":"몬스터 이동";
@@ -107,7 +118,7 @@
       $("#rankForm").hidden=localDev;$("#rankStatus").textContent=snapshot.rankText||"";
       $("#rankSubmit").disabled=Boolean(snapshot.ranked||snapshot.names?.[slot]);
     }
-    if(flow.phase==="over"){for(const api of apis)if(api)api.suspended=true;$("#endText").textContent="팀 점수 "+snapshot.game.world.score.toLocaleString()+"점 · 웨이브 "+snapshot.game.world.wave+" · "+snapshot.game.world.kills+"기 처치";show(endScreen);}
+    if(flow.phase==="over"){for(const api of apis)if(api)api.suspended=true;$("#endText").textContent="팀 점수 "+(multiplier!==1?snapshot.game.world.score.toLocaleString()+" × "+multiplier.toFixed(2).replace(/0$/,"")+" = ":"")+finalScore(snapshot.game).toLocaleString()+"점 · 웨이브 "+snapshot.game.world.wave+" · "+snapshot.game.world.kills+"기 처치";show(endScreen);}
     updateDeaths();
     updateTools();
   }
@@ -125,34 +136,58 @@
     });
   }
   // A partner who leaves after the run no longer holds up the ranking entry.
-  function partnerGone(){peer=null;peerAway=true;if(names[slot]&&!ranked)tryRank();}
+  function partnerGone(){peer=null;peerAway=true;if(!session){picks[1-slot]={piece:null,ready:false};renderPicks();return;}if(names[slot]&&!ranked)tryRank();}
   // Authority only. Waits for both names; a partner who left is listed as P1/P2.
   function setName(i,name){if(ranked||!session)return;names[i]=name;tryRank();}
   function tryRank(){
     const partner=1-slot,missing=[0,1].filter(i=>!names[i]);
     if(missing.includes(slot)||(missing.includes(partner)&&peer&&!peerAway)){rankText="P"+(missing[0]+1)+"의 이름을 기다리는 중…";publish();return;}
     if(!ticket||ticket.failed){rankText="랭킹 서버에 연결하지 못해 등록할 수 없어요.";publish();return;}
-    const {world,players}=apis[0].snapshot(),team=names.map((n,i)=>n||"P"+(i+1));
+    const game=apis[0].snapshot(),{world,players}=game,team=names.map((n,i)=>n||"P"+(i+1));
     ranked=true;rankText="등록하는 중…";publish();
-    leaderboard({action:"submit",runId:ticket.runId,runToken:ticket.runToken,score:world.score,wave:world.wave,names:team,pieces:players.map(p=>p.piece)})
+    leaderboard({action:"submit",runId:ticket.runId,runToken:ticket.runToken,score:finalScore(game),wave:world.wave,names:team,pieces:players.map(p=>p.piece)})
       .then(()=>{rankText="2인 랭킹에 등록했어요. 메인 화면 랭킹의 2인 탭에서 볼 수 있어요.";})
       .catch(error=>{ranked=false;rankText="등록하지 못했어요. "+error.message;})
       .finally(publish);
   }
-  function startAuthority(){
+  function startAuthority(pieces){
     remote=null;runId=crypto.randomUUID();submittedKey="";cameras.forEach(c=>c.reset());resetReviews();
     ticket=null;names=[null,null];ranked=false;rankText="";if(!localDev)requestTicket();
+    $("#pickScreen").hidden=true;
     session=window.CoopSession.create(apis[0],publish);
-    session.start();apis[0].audio();publish();
+    session.start(pieces);apis[0].audio();publish();
+  }
+  function renderPicks(){
+    $("#pickScreen").hidden=false;
+    const mine=picks[slot]||{};
+    for(const button of $("#pickList").children){button.setAttribute("aria-pressed",String(button.dataset.piece===mine.piece));button.disabled=Boolean(mine.ready);}
+    $("#pickPlayers").replaceChildren(...[0,1].map(i=>{
+      const row=document.createElement("li"),pick=picks[i]||{},waiting=i!==slot&&!peer;
+      row.textContent="P"+(i+1)+(i===slot?" (나)":"")+" · "+(waiting?"참가 대기 중":(pieceName(pick.piece)||"고르는 중")+(pick.ready?" · 준비 완료":""));
+      row.classList.toggle("ready",Boolean(pick.ready));return row;
+    }));
+    $("#pickReady").textContent=mine.ready?"준비 취소":"준비";
+    $("#pickReady").disabled=!mine.piece||!peer;
+    $("#pickStatus").textContent=!peer?(host?"초대 코드를 친구에게 보내세요.":"방에 접속하는 중입니다."):picks.every(p=>p?.ready)?"곧 시작합니다.":"둘 다 준비하면 바로 시작합니다.";
+  }
+  function sendPick(){
+    picks[slot]={piece:myPiece,ready:Boolean(picks[slot]?.ready)};
+    if(host)picksChanged();else{send("pick",picks[slot]);renderPicks();}
+  }
+  // Host only: shares the picks, or starts the run once both players are ready.
+  function picksChanged(){
+    if(session)return;
+    if(peer&&picks.every(p=>p?.piece&&p.ready)){startAuthority(picks.map(p=>p.piece));send("welcome",{to:peer,slot:1-slot,snapshot:packet()});return;}
+    if(peer)send("picks",{picks});renderPicks();
   }
   async function startLocalDev(){
     generation++;clearTimeout(joinTimer);channel?.unsubscribe();channel=null;
     host=true;localDev=true;slot=0;controlled=0;paused=false;speed=1;autos=[true,true];session=null;
     $("#coopApp").dataset.dev="true";$("#boardViews").classList.add("split");
-    await ready();roomCode="LOCAL DEV";$("#roomCode").textContent=roomCode;
+    await ready();roomCode="LOCAL DEV";$("#roomCode").textContent=roomCode;$("#pickScreen").hidden=true;
     $("#devControls").hidden=false;$("#devToolsToggle").textContent="도구 숨기기";$("#devToolsToggle").setAttribute("aria-expanded","true");
     if(!$("#devTraitSelect").options.length)for(const trait of apis[0].catalog){const option=document.createElement("option");option.value=trait.id;option.textContent=trait.name;$("#devTraitSelect").append(option);}
-    startAuthority();
+    startAuthority([myPiece,myPiece]);
   }
   function input(event,fromPeer=false){
     const snapshot=remote;if(!snapshot)return;
@@ -210,7 +245,7 @@
     resetReviews();
     generation++;clearTimeout(joinTimer);
     if(channel)send(host?"host-left":"guest-left");channel?.unsubscribe();channel=null;
-    session=null;remote=null;runId=null;paused=false;localDev=false;auto=false;cameras.forEach(c=>c.reset());
+    session=null;remote=null;runId=null;paused=false;localDev=false;auto=false;cameras.forEach(c=>c.reset());$("#pickScreen").hidden=true;
     for(const api of apis)if(api)api.suspended=true;
     $("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");updateTools();show(lobby);status("방에서 나왔습니다.");
   }
@@ -221,11 +256,24 @@
     client??=window.supabase?.createClient(URL,KEY);if(!client){status("연결 모듈을 불러오지 못했습니다. 다시 시도해주세요.");return;}
     await ready();if(token!==generation)return;
     roomCode=code;$("#roomCode").textContent=code;updateTools();$("#phaseText").textContent="WAITING";
+    picks=[0,1].map(i=>({piece:i===slot?myPiece:null,ready:false}));renderPicks();
     $("#actionHint").textContent=host?"초대 코드를 친구에게 보내세요.":"방에 접속하는 중입니다.";
     channel=client.channel("coop:"+code,{config:{broadcast:{self:false}}});
     const welcome=to=>{peer=to;peerAway=false;lastHeard=Date.now();if(!session)startAuthority();send("welcome",{to,slot:1-slot,snapshot:packet()});};
     channel.on("broadcast",{event:"hello"},({payload})=>{
-      if(token!==generation||!host||peer)return;welcome(payload.from);
+      if(token!==generation||!host||peer)return;
+      if(session){welcome(payload.from);return;}
+      peer=payload.from;peerAway=false;lastHeard=Date.now();picks[1-slot]={piece:null,ready:false};
+      send("room",{to:peer,slot:1-slot,picks});renderPicks();
+    }).on("broadcast",{event:"room"},({payload})=>{
+      if(token!==generation||host||payload.to!==me||remote)return;
+      peer=payload.from;slot=payload.slot??1;clearTimeout(joinTimer);picks=payload.picks;sendPick();
+    }).on("broadcast",{event:"picks"},({payload})=>{
+      if(token!==generation||host||payload.from!==peer||remote)return;
+      picks=[0,1].map(i=>i===slot?picks[i]:payload.picks[i]);renderPicks();
+    }).on("broadcast",{event:"pick"},({payload})=>{
+      if(token!==generation||!host||payload.from!==peer||session)return;
+      picks[1-slot]={piece:validPiece(payload.piece),ready:Boolean(payload.ready&&validPiece(payload.piece))};picksChanged();
     }).on("broadcast",{event:"beat"},({payload})=>{
       if(token!==generation)return;
       if(payload.from===peer){lastHeard=Date.now();return;}
@@ -235,7 +283,7 @@
       if(token!==generation||payload.to!==me)return;
       // A host that comes back after the guest took over follows the newer authority.
       if(host){if(!session||(payload.epoch||0)<=epoch)return;host=false;session=null;submittedKey="";}
-      peer=payload.from;runId=payload.runId;epoch=payload.epoch||0;slot=payload.slot??1;peerAway=false;lastHeard=Date.now();remote=payload.snapshot;clearTimeout(joinTimer);render(remote);apis[0].audio();
+      peer=payload.from;runId=payload.runId;epoch=payload.epoch||0;slot=payload.slot??1;peerAway=false;lastHeard=Date.now();remote=payload.snapshot;clearTimeout(joinTimer);$("#pickScreen").hidden=true;render(remote);apis[0].audio();
     }).on("broadcast",{event:"state"},({payload})=>{
       if(token!==generation||payload.runId!==runId)return;
       if(host)return;
@@ -249,16 +297,26 @@
       lastHeard=Date.now();if(payload.roundId!==session.flow().roundId)return;
       const event={...payload.event,slot:1-slot};input(event,true);
     }).on("broadcast",{event:"host-left"},({payload})=>{
-      if(token!==generation||host||payload.from!==peer)return;takeOver();
+      if(token!==generation||host||payload.from!==peer)return;
+      if(!remote){leaveRoom();status("방장이 나가서 방이 닫혔습니다.");return;}
+      takeOver();
     }).on("broadcast",{event:"rank-name"},({payload})=>{
       if(token!==generation||!host||payload.from!==peer||payload.runId!==runId)return;setName(1-slot,String(payload.name).slice(0,18));
     }).on("broadcast",{event:"guest-left"},({payload})=>{
       if(token!==generation||!host||payload.from!==peer)return;partnerGone();
     }).subscribe(value=>{
       if(value!=="SUBSCRIBED"||token!==generation)return;
-      if(!host){send("hello");joinTimer=setTimeout(()=>{if(!remote){leaveRoom();status("방을 찾지 못했습니다. 코드를 확인해주세요.");}},6000);}
+      // The host may subscribe a moment later, so say hello again until it answers.
+      if(!host){const started=Date.now(),hello=()=>{if(token!==generation||remote||peer)return;if(Date.now()-started>=6000){leaveRoom();status("방을 찾지 못했습니다. 코드를 확인해주세요.");return;}send("hello");joinTimer=setTimeout(hello,1000);};hello();}
     });
   }
+  $("#pickList").replaceChildren(...PIECES.map(([piece,name,glyph,move,multiplier])=>{
+    const button=document.createElement("button");button.type="button";button.className="pick-choice";button.dataset.piece=piece;
+    button.innerHTML='<span class="pick-glyph">'+glyph+'\uFE0E</span><strong>'+name+'</strong><small>'+move+'</small><em>×'+multiplier.toFixed(1)+'</em>';
+    button.addEventListener("click",()=>{myPiece=piece;try{localStorage.setItem("its-my-turn-start-piece",piece);}catch(_){}sendPick();});
+    return button;
+  }));
+  $("#pickReady").addEventListener("click",()=>{if(!picks[slot]?.piece)return;picks[slot].ready=!picks[slot].ready;sendPick();});
   $("#devButton").addEventListener("click",startLocalDev);$("#devRestart").addEventListener("click",startLocalDev);$("#devRestartEnd").addEventListener("click",startLocalDev);
   $("#cameraButton").addEventListener("click",()=>{const view=localDev?controlled:slot;if(remote&&cameras[view].toggle(apis[0].players()))render(remote);});
   $("#devAutoBoth").addEventListener("click",()=>{autos=autos.every(Boolean)?[false,false]:[true,true];updateTools();});

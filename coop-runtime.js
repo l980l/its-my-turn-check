@@ -73,11 +73,14 @@
     api.audio = () => fn.audio();
     api.choiceReady = () => clock()>=(S.upgradeLock||0);
     api.request = message => { if(api.interactive||message.type!=="move")api.onInput({...message,slot:api.view}); };
-    api.start = () => {
+    // Each player may bring a chosen start piece; chosen pieces never promote or swap.
+    api.start = pieces => {
       api.suspended=false;api.replaying=false;
       api.roster=[];api.turns=[];fn.reset();S.coopSpawnCarry=0;S.coopReviveReady=S.coopGuardReady=S.coopCastleReady=S.coopJoinReady=0;S.running=true;S.autoPlay=false;S.dev=false;S.runTicket=null;
+      if(pieces)S.startPiece="coop";
       const original=copy(S.player); const defaults=Object.fromEntries(fields.map(key=>[key,S[key]]));
       api.roster=[{...copy(original),x:-2,y:0,alive:true},{...copy(original),x:2,y:0,alive:true}];
+      if(pieces)api.roster.forEach((p,i)=>{p.piece=pieces[i];});
       api.turns=[copy(defaults),copy(defaults)];S.player=api.roster[0];api.view=0;api.focus=0;api.pendingOwner=null;
       S.camera={x:-2,y:0};ui.start.classList.add("hidden");ui.over.classList.add("hidden");refresh();
     };
