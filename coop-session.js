@@ -67,7 +67,7 @@
       } else if (flow.phase === "enemy") enemy();
     }
     return {
-      start() { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:PLAN_MS }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start();remember("시작");enemy(); },
+      start(pieces) { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:PLAN_MS }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start(pieces);remember("시작");enemy(); },
       // Take over authority from the last state another device published, e.g.
       // when the host left. Moves in flight are re-planned; replay frames restart.
       resume(saved, savedDeaths = [null,null]) {
@@ -97,7 +97,8 @@
         return true;
       },
       update,
-      debug(action,value,slot) { engine.debug(action,value,slot); if(engine.pending()){flow.phase="upgrade";flow.actor=slot;flow.debugPending=true;}delete flow.actions[slot];notify(); },
+      // A move already resolving stays: engine.act rechecks it against the new board.
+      debug(action,value,slot) { engine.debug(action,value,slot); if(engine.pending()){flow.phase="upgrade";flow.actor=slot;flow.debugPending=true;}if(flow.phase!=="acting")delete flow.actions[slot];notify(); },
       pause(value) { if (!flow || paused===value) return; if(value) remaining=Math.max(0,flow.deadline-now()); else flow.deadline=now()+remaining; paused=value;notify(); },
       paused: () => paused,
       speed(value) { if(![1,2,3,4].includes(value)||!flow)return;remaining=(paused?remaining:Math.max(0,flow.deadline-now()))*speed/value;flow.duration*=speed/value;speed=value;flow.deadline=now()+remaining;notify(); },

@@ -36,7 +36,7 @@ try {
   // Headless pages can start hidden, and Chrome then delays every timer to about once a second.
   await send("Emulation.setFocusEmulationEnabled", { enabled: true });
   await send("Network.setBlockedURLs", { urls: ["*cdn.jsdelivr.net*", "*supabase.co*"] });
-  await send("Page.addScriptToEvaluateOnNewDocument", { source: "window.channelCalls=0;window.supabase={createClient(){channelCalls++;throw new Error('Local DEV must not initialize networking')}};" });
+  await send("Page.addScriptToEvaluateOnNewDocument", { source: "localStorage.setItem('its-my-turn-start-piece','queen');window.channelCalls=0;window.supabase={createClient(){channelCalls++;throw new Error('Local DEV must not initialize networking')}};" });
   for (const [width, height] of [[320,568], [390,844], [844,390], [768,1024], [1440,900]]) {
     await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 621 });
     await send("Page.navigate", { url: base + "/coop.html" });
@@ -83,7 +83,7 @@ try {
     assert.equal(await ev("document.querySelector('#coopFrame1').contentWindow.CoopGame.focus"),otherFocus,"switching does not affect the other player's camera");
     for (const factor of [2,3,4,1]) { await click("#devSpeed"); assert.equal(await text("devSpeed"), "SPEED ×"+factor); }
     await click("#devPlayer"); assert.equal(await text("devPlayer"), "조작 P2");
-    await click("#devPiece"); assert.equal(await text("devPiece"), "기물 KNIGHT");
+    await click("#devPiece"); assert.equal(await text("devPiece"), "기물 KING");
     await click("#devSpawnrook"); await click("#devClear");
     await click("#devToolsToggle"); assert.equal(await ev("document.querySelector('#devControls').hidden"), true);
     await click("#devToolsToggle");
