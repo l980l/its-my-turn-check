@@ -1,0 +1,9476 @@
+{
+ "profile": "coop-piece-choice-v1",
+ "seedBase": 20261026,
+ "seedStep": 7919,
+ "runs": 48,
+ "waveCap": 300,
+ "secondsPerWave": 3.34,
+ "policy": "co-op AUTO for both players; first reward option; contracts declined; chosen pieces never promote or swap ('pawn' = old pawn start with promotion)",
+ "runtime": {
+  "game.js": "2c0de57fba435402",
+  "coop-runtime.js": "52fb3b8d97ddf49f",
+  "coop-session.js": "c9e9c5b9cf0a1be1",
+  "traits.js": "596af37541f5313d",
+  "enemy-traits.js": "8bb338d9e40bc877"
+ },
+ "summary": [
+  {
+   "pair": "queen+queen",
+   "n": 48,
+   "cap": 40,
+   "w25": 300,
+   "w50": 300,
+   "w75": 300,
+   "first50": 216,
+   "meanScore": 124152,
+   "ratio": 1,
+   "avgSolo": 1,
+   "prodSolo": 1
+  },
+  {
+   "pair": "queen+rook",
+   "n": 48,
+   "cap": 34,
+   "w25": 259,
+   "w50": 300,
+   "w75": 300,
+   "first50": 137,
+   "meanScore": 113702,
+   "ratio": 1.09,
+   "avgSolo": 1.25,
+   "prodSolo": 1.5
+  },
+  {
+   "pair": "queen+bishop",
+   "n": 48,
+   "cap": 35,
+   "w25": 283,
+   "w50": 300,
+   "w75": 300,
+   "first50": 149,
+   "meanScore": 112553,
+   "ratio": 1.1,
+   "avgSolo": 1.25,
+   "prodSolo": 1.5
+  },
+  {
+   "pair": "queen+king",
+   "n": 48,
+   "cap": 17,
+   "w25": 131,
+   "w50": 206,
+   "w75": 300,
+   "first50": 72,
+   "meanScore": 106078,
+   "ratio": 1.17,
+   "avgSolo": 1.5,
+   "prodSolo": 2
+  },
+  {
+   "pair": "rook+bishop",
+   "n": 48,
+   "cap": 38,
+   "w25": 300,
+   "w50": 300,
+   "w75": 300,
+   "first50": 153,
+   "meanScore": 104885,
+   "ratio": 1.18,
+   "avgSolo": 1.5,
+   "prodSolo": 2.25
+  },
+  {
+   "pair": "bishop+king",
+   "n": 48,
+   "cap": 19,
+   "w25": 157,
+   "w50": 267,
+   "w75": 300,
+   "first50": 68,
+   "meanScore": 104609,
+   "ratio": 1.19,
+   "avgSolo": 1.75,
+   "prodSolo": 3
+  },
+  {
+   "pair": "bishop+bishop",
+   "n": 48,
+   "cap": 37,
+   "w25": 300,
+   "w50": 300,
+   "w75": 300,
+   "first50": 172,
+   "meanScore": 95888,
+   "ratio": 1.29,
+   "avgSolo": 1.5,
+   "prodSolo": 2.25
+  },
+  {
+   "pair": "rook+rook",
+   "n": 48,
+   "cap": 29,
+   "w25": 241,
+   "w50": 300,
+   "w75": 300,
+   "first50": 191,
+   "meanScore": 89473,
+   "ratio": 1.39,
+   "avgSolo": 1.5,
+   "prodSolo": 2.25
+  },
+  {
+   "pair": "rook+king",
+   "n": 48,
+   "cap": 13,
+   "w25": 127,
+   "w50": 175,
+   "w75": 300,
+   "first50": 65,
+   "meanScore": 80334,
+   "ratio": 1.55,
+   "avgSolo": 1.75,
+   "prodSolo": 3
+  },
+  {
+   "pair": "queen+knight",
+   "n": 48,
+   "cap": 9,
+   "w25": 103,
+   "w50": 149,
+   "w75": 228,
+   "first50": 64,
+   "meanScore": 68877,
+   "ratio": 1.8,
+   "avgSolo": 1.25,
+   "prodSolo": 1.5
+  },
+  {
+   "pair": "bishop+knight",
+   "n": 48,
+   "cap": 9,
+   "w25": 104,
+   "w50": 125,
+   "w75": 281,
+   "first50": 54,
+   "meanScore": 57931,
+   "ratio": 2.14,
+   "avgSolo": 1.5,
+   "prodSolo": 2.25
+  },
+  {
+   "pair": "pawn",
+   "n": 48,
+   "cap": 8,
+   "w25": 88,
+   "w50": 165,
+   "w75": 243,
+   "first50": 69,
+   "meanScore": 54409,
+   "ratio": 2.28,
+   "avgSolo": null,
+   "prodSolo": null
+  },
+  {
+   "pair": "rook+knight",
+   "n": 48,
+   "cap": 6,
+   "w25": 100,
+   "w50": 158,
+   "w75": 215,
+   "first50": 61,
+   "meanScore": 52992,
+   "ratio": 2.34,
+   "avgSolo": 1.5,
+   "prodSolo": 2.25
+  },
+  {
+   "pair": "king+king",
+   "n": 48,
+   "cap": 2,
+   "w25": 56,
+   "w50": 78,
+   "w75": 104,
+   "first50": 48,
+   "meanScore": 28444,
+   "ratio": 4.36,
+   "avgSolo": 2,
+   "prodSolo": 4
+  },
+  {
+   "pair": "knight+king",
+   "n": 48,
+   "cap": 0,
+   "w25": 52,
+   "w50": 72,
+   "w75": 90,
+   "first50": 40,
+   "meanScore": 22056,
+   "ratio": 5.63,
+   "avgSolo": 1.75,
+   "prodSolo": 3
+  },
+  {
+   "pair": "knight+knight",
+   "n": 48,
+   "cap": 0,
+   "w25": 49,
+   "w50": 65,
+   "w75": 88,
+   "first50": 46,
+   "meanScore": 12327,
+   "ratio": 10.07,
+   "avgSolo": 1.5,
+   "prodSolo": 2.25
+  }
+ ],
+ "raw": {
+  "bishop+bishop": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 82000,
+    "kills": 311,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 295,
+    "teamDeath": 300,
+    "score": 113350,
+    "kills": 335,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 105,
+    "teamDeath": 300,
+    "score": 135850,
+    "kills": 386,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 87700,
+    "kills": 314,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 147,
+    "score": 52375,
+    "kills": 162,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 223,
+    "teamDeath": 300,
+    "score": 97400,
+    "kills": 343,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 95,
+    "teamDeath": 300,
+    "score": 115725,
+    "kills": 351,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 145,
+    "teamDeath": 189,
+    "score": 53425,
+    "kills": 197,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 77900,
+    "kills": 321,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 88575,
+    "kills": 337,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": true,
+    "firstDeath": 65,
+    "teamDeath": 300,
+    "score": 77975,
+    "kills": 298,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": true,
+    "firstDeath": 42,
+    "teamDeath": 300,
+    "score": 139000,
+    "kills": 384,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 188,
+    "teamDeath": 300,
+    "score": 140075,
+    "kills": 359,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 117,
+    "teamDeath": 300,
+    "score": 84525,
+    "kills": 262,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": true,
+    "firstDeath": 194,
+    "teamDeath": 300,
+    "score": 138725,
+    "kills": 392,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 279,
+    "teamDeath": 300,
+    "score": 126300,
+    "kills": 338,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 165,
+    "teamDeath": 181,
+    "score": 95625,
+    "kills": 238,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": true,
+    "firstDeath": 116,
+    "teamDeath": 300,
+    "score": 84275,
+    "kills": 283,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": true,
+    "firstDeath": 58,
+    "teamDeath": 300,
+    "score": 81800,
+    "kills": 273,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 70650,
+    "kills": 256,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 249,
+    "teamDeath": 300,
+    "score": 106325,
+    "kills": 328,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 187,
+    "score": 49425,
+    "kills": 180,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 111525,
+    "kills": 354,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 277,
+    "teamDeath": 283,
+    "score": 90375,
+    "kills": 269,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 131,
+    "teamDeath": 147,
+    "score": 42000,
+    "kills": 151,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 96,
+    "teamDeath": 279,
+    "score": 107450,
+    "kills": 310,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 120,
+    "teamDeath": 300,
+    "score": 82250,
+    "kills": 306,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 196,
+    "teamDeath": 300,
+    "score": 92450,
+    "kills": 324,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 127,
+    "teamDeath": 300,
+    "score": 189875,
+    "kills": 413,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 76625,
+    "kills": 268,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 136,
+    "teamDeath": 300,
+    "score": 101475,
+    "kills": 327,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 288,
+    "teamDeath": 300,
+    "score": 189700,
+    "kills": 415,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 141,
+    "teamDeath": 300,
+    "score": 126225,
+    "kills": 348,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 220,
+    "teamDeath": 300,
+    "score": 90100,
+    "kills": 314,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 93000,
+    "kills": 295,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 94,
+    "teamDeath": 300,
+    "score": 74675,
+    "kills": 302,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 112025,
+    "kills": 375,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 65725,
+    "kills": 269,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 121,
+    "score": 30650,
+    "kills": 133,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 70700,
+    "kills": 257,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 204,
+    "teamDeath": 283,
+    "score": 109625,
+    "kills": 336,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": true,
+    "firstDeath": 128,
+    "teamDeath": 300,
+    "score": 83400,
+    "kills": 316,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 131,
+    "score": 53475,
+    "kills": 153,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": true,
+    "firstDeath": 154,
+    "teamDeath": 300,
+    "score": 100150,
+    "kills": 312,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 118525,
+    "kills": 328,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 147,
+    "teamDeath": 300,
+    "score": 99425,
+    "kills": 347,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 172,
+    "teamDeath": 300,
+    "score": 129900,
+    "kills": 372,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 197,
+    "teamDeath": 221,
+    "score": 62275,
+    "kills": 222,
+    "pieces": [
+     "bishop",
+     "bishop"
+    ]
+   }
+  ],
+  "bishop+king": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 284,
+    "teamDeath": 300,
+    "score": 100300,
+    "kills": 379,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 77,
+    "score": 17350,
+    "kills": 75,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 33,
+    "teamDeath": 300,
+    "score": 128625,
+    "kills": 343,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 79,
+    "teamDeath": 240,
+    "score": 102850,
+    "kills": 287,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": true,
+    "firstDeath": 81,
+    "teamDeath": 300,
+    "score": 113850,
+    "kills": 336,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 62,
+    "teamDeath": 300,
+    "score": 157150,
+    "kills": 402,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 75,
+    "teamDeath": 135,
+    "score": 35300,
+    "kills": 143,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 198,
+    "score": 84550,
+    "kills": 252,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 212,
+    "score": 86200,
+    "kills": 259,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 157,
+    "score": 31325,
+    "kills": 136,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 77,
+    "score": 13850,
+    "kills": 74,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 79,
+    "teamDeath": 271,
+    "score": 123900,
+    "kills": 343,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 85,
+    "teamDeath": 300,
+    "score": 154050,
+    "kills": 392,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 205,
+    "score": 71625,
+    "kills": 242,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 81,
+    "teamDeath": 118,
+    "score": 37500,
+    "kills": 132,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 66,
+    "teamDeath": 181,
+    "score": 51225,
+    "kills": 166,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 71,
+    "teamDeath": 189,
+    "score": 84625,
+    "kills": 249,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 124,
+    "teamDeath": 158,
+    "score": 65425,
+    "kills": 208,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": true,
+    "firstDeath": 77,
+    "teamDeath": 300,
+    "score": 154700,
+    "kills": 403,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 273,
+    "score": 115550,
+    "kills": 347,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 53,
+    "teamDeath": 300,
+    "score": 131325,
+    "kills": 382,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 17,
+    "teamDeath": 156,
+    "score": 54850,
+    "kills": 170,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 23,
+    "teamDeath": 300,
+    "score": 168050,
+    "kills": 413,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 132,
+    "teamDeath": 267,
+    "score": 138875,
+    "kills": 342,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 109,
+    "teamDeath": 247,
+    "score": 126825,
+    "kills": 326,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 29,
+    "teamDeath": 300,
+    "score": 116725,
+    "kills": 366,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 94,
+    "teamDeath": 300,
+    "score": 170200,
+    "kills": 404,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 75,
+    "teamDeath": 300,
+    "score": 171675,
+    "kills": 435,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 289,
+    "score": 160850,
+    "kills": 357,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 73,
+    "teamDeath": 300,
+    "score": 142425,
+    "kills": 391,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 95,
+    "teamDeath": 300,
+    "score": 174525,
+    "kills": 424,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 25,
+    "teamDeath": 300,
+    "score": 120600,
+    "kills": 331,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 68,
+    "teamDeath": 300,
+    "score": 159525,
+    "kills": 419,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 32,
+    "teamDeath": 121,
+    "score": 61050,
+    "kills": 152,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 123,
+    "score": 36975,
+    "kills": 148,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 36,
+    "teamDeath": 300,
+    "score": 169025,
+    "kills": 397,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 91,
+    "teamDeath": 300,
+    "score": 184600,
+    "kills": 439,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 179,
+    "score": 76425,
+    "kills": 212,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 83,
+    "teamDeath": 107,
+    "score": 26650,
+    "kills": 114,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 288,
+    "score": 159350,
+    "kills": 378,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 143,
+    "teamDeath": 157,
+    "score": 58775,
+    "kills": 167,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 33,
+    "teamDeath": 288,
+    "score": 140025,
+    "kills": 351,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 120,
+    "teamDeath": 121,
+    "score": 27450,
+    "kills": 142,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 90,
+    "teamDeath": 261,
+    "score": 108750,
+    "kills": 319,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 24,
+    "teamDeath": 300,
+    "score": 139375,
+    "kills": 411,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 151,
+    "score": 48750,
+    "kills": 184,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 75,
+    "teamDeath": 300,
+    "score": 168800,
+    "kills": 446,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 179,
+    "score": 48825,
+    "kills": 197,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   }
+  ],
+  "bishop+knight": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 59,
+    "score": 8300,
+    "kills": 52,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 69,
+    "teamDeath": 281,
+    "score": 145225,
+    "kills": 369,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 87,
+    "teamDeath": 115,
+    "score": 27150,
+    "kills": 118,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 49,
+    "teamDeath": 300,
+    "score": 107275,
+    "kills": 298,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 290,
+    "score": 120750,
+    "kills": 353,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 102,
+    "teamDeath": 104,
+    "score": 18625,
+    "kills": 90,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 64,
+    "teamDeath": 79,
+    "score": 11575,
+    "kills": 69,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 34,
+    "teamDeath": 300,
+    "score": 109650,
+    "kills": 332,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 107,
+    "score": 35050,
+    "kills": 120,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 139,
+    "score": 48300,
+    "kills": 157,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 123,
+    "score": 48550,
+    "kills": 144,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": true,
+    "firstDeath": 57,
+    "teamDeath": 300,
+    "score": 89850,
+    "kills": 272,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 32,
+    "teamDeath": 87,
+    "score": 14375,
+    "kills": 88,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 175,
+    "score": 35100,
+    "kills": 144,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 106,
+    "score": 24800,
+    "kills": 113,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 140,
+    "score": 51925,
+    "kills": 177,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 102,
+    "teamDeath": 289,
+    "score": 120800,
+    "kills": 355,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 88,
+    "teamDeath": 240,
+    "score": 121425,
+    "kills": 328,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 54,
+    "score": 6575,
+    "kills": 45,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": true,
+    "firstDeath": 51,
+    "teamDeath": 300,
+    "score": 100075,
+    "kills": 340,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 87,
+    "teamDeath": 123,
+    "score": 34200,
+    "kills": 129,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": true,
+    "firstDeath": 39,
+    "teamDeath": 300,
+    "score": 88750,
+    "kills": 290,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 125,
+    "score": 56925,
+    "kills": 145,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 91,
+    "teamDeath": 292,
+    "score": 118900,
+    "kills": 355,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 107,
+    "score": 23100,
+    "kills": 106,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 223,
+    "score": 81125,
+    "kills": 254,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 83,
+    "score": 11125,
+    "kills": 72,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 208,
+    "score": 77050,
+    "kills": 204,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 63,
+    "teamDeath": 91,
+    "score": 20175,
+    "kills": 74,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 155,
+    "score": 44275,
+    "kills": 160,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 32,
+    "teamDeath": 300,
+    "score": 107875,
+    "kills": 358,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 67,
+    "teamDeath": 87,
+    "score": 13050,
+    "kills": 72,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 55,
+    "teamDeath": 140,
+    "score": 26325,
+    "kills": 125,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 62,
+    "teamDeath": 300,
+    "score": 149350,
+    "kills": 412,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 121,
+    "score": 44150,
+    "kills": 147,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 257,
+    "score": 97625,
+    "kills": 302,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 190,
+    "score": 80750,
+    "kills": 222,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 47,
+    "score": 4600,
+    "kills": 35,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 109,
+    "score": 29275,
+    "kills": 119,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 71,
+    "score": 10825,
+    "kills": 67,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 66,
+    "teamDeath": 70,
+    "score": 13225,
+    "kills": 64,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 69,
+    "teamDeath": 112,
+    "score": 32775,
+    "kills": 120,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 102,
+    "teamDeath": 105,
+    "score": 19925,
+    "kills": 100,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": true,
+    "firstDeath": 37,
+    "teamDeath": 300,
+    "score": 132525,
+    "kills": 376,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 77,
+    "teamDeath": 300,
+    "score": 143775,
+    "kills": 379,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 25,
+    "teamDeath": 61,
+    "score": 7150,
+    "kills": 56,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 155,
+    "score": 47825,
+    "kills": 193,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 114,
+    "score": 18650,
+    "kills": 98,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   }
+  ],
+  "king+king": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 63,
+    "score": 9425,
+    "kills": 63,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 141,
+    "score": 63375,
+    "kills": 201,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 15,
+    "teamDeath": 37,
+    "score": 4175,
+    "kills": 33,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 100,
+    "score": 29650,
+    "kills": 117,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 80,
+    "score": 25100,
+    "kills": 96,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 81,
+    "teamDeath": 300,
+    "score": 194125,
+    "kills": 432,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 114,
+    "teamDeath": 117,
+    "score": 40250,
+    "kills": 149,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 172,
+    "score": 73750,
+    "kills": 212,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 90,
+    "score": 32925,
+    "kills": 105,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 68,
+    "teamDeath": 71,
+    "score": 13525,
+    "kills": 78,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 103,
+    "score": 27150,
+    "kills": 106,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 71,
+    "score": 10275,
+    "kills": 66,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 95,
+    "score": 26000,
+    "kills": 96,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 78,
+    "score": 13050,
+    "kills": 75,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 34,
+    "score": 3425,
+    "kills": 30,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 70,
+    "teamDeath": 100,
+    "score": 26950,
+    "kills": 109,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 125,
+    "score": 59500,
+    "kills": 155,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 110,
+    "teamDeath": 125,
+    "score": 44750,
+    "kills": 136,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 97,
+    "teamDeath": 98,
+    "score": 20275,
+    "kills": 97,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 18,
+    "teamDeath": 47,
+    "score": 11450,
+    "kills": 59,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 107,
+    "teamDeath": 107,
+    "score": 45525,
+    "kills": 130,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 56,
+    "score": 8250,
+    "kills": 55,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 50,
+    "score": 7950,
+    "kills": 56,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 76,
+    "score": 12725,
+    "kills": 80,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 53,
+    "score": 11475,
+    "kills": 51,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 71,
+    "score": 20475,
+    "kills": 85,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 123,
+    "score": 47525,
+    "kills": 150,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 56,
+    "teamDeath": 66,
+    "score": 8900,
+    "kills": 59,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 117,
+    "score": 32675,
+    "kills": 129,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 54,
+    "score": 5950,
+    "kills": 45,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 74,
+    "teamDeath": 105,
+    "score": 30350,
+    "kills": 126,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 22,
+    "teamDeath": 81,
+    "score": 17675,
+    "kills": 80,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 63,
+    "score": 9825,
+    "kills": 64,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 81,
+    "score": 18525,
+    "kills": 82,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 53,
+    "score": 8400,
+    "kills": 51,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 74,
+    "score": 11725,
+    "kills": 81,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 21,
+    "teamDeath": 78,
+    "score": 24000,
+    "kills": 83,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 57,
+    "score": 13275,
+    "kills": 54,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 41,
+    "score": 4275,
+    "kills": 34,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 70,
+    "score": 10325,
+    "kills": 64,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 160,
+    "score": 76375,
+    "kills": 222,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 33,
+    "teamDeath": 49,
+    "score": 5050,
+    "kills": 43,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 75,
+    "score": 17425,
+    "kills": 80,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 50,
+    "score": 6200,
+    "kills": 45,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 90,
+    "teamDeath": 100,
+    "score": 27925,
+    "kills": 118,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 91,
+    "teamDeath": 300,
+    "score": 126300,
+    "kills": 386,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 48,
+    "score": 5075,
+    "kills": 43,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 104,
+    "score": 22000,
+    "kills": 108,
+    "pieces": [
+     "king",
+     "king"
+    ]
+   }
+  ],
+  "knight+king": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 100,
+    "teamDeath": 245,
+    "score": 114775,
+    "kills": 311,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 187,
+    "score": 109950,
+    "kills": 255,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 53,
+    "score": 5975,
+    "kills": 47,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 72,
+    "score": 9900,
+    "kills": 63,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 40,
+    "teamDeath": 74,
+    "score": 15750,
+    "kills": 65,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 49,
+    "score": 4250,
+    "kills": 35,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 22,
+    "teamDeath": 86,
+    "score": 23425,
+    "kills": 92,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 41,
+    "score": 3975,
+    "kills": 31,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 49,
+    "score": 11000,
+    "kills": 42,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 67,
+    "score": 13150,
+    "kills": 71,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 57,
+    "score": 6775,
+    "kills": 49,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 71,
+    "score": 8450,
+    "kills": 64,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 30,
+    "score": 2950,
+    "kills": 23,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 55,
+    "teamDeath": 101,
+    "score": 25050,
+    "kills": 117,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 64,
+    "score": 10925,
+    "kills": 64,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 39,
+    "teamDeath": 110,
+    "score": 35200,
+    "kills": 127,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 87,
+    "score": 18500,
+    "kills": 89,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 57,
+    "score": 5025,
+    "kills": 42,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 81,
+    "teamDeath": 90,
+    "score": 36025,
+    "kills": 98,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 25,
+    "teamDeath": 89,
+    "score": 25375,
+    "kills": 104,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 85,
+    "score": 16150,
+    "kills": 87,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 39,
+    "teamDeath": 121,
+    "score": 43100,
+    "kills": 142,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 33,
+    "score": 1950,
+    "kills": 18,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 37,
+    "score": 2275,
+    "kills": 20,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 71,
+    "teamDeath": 96,
+    "score": 25350,
+    "kills": 107,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 157,
+    "teamDeath": 213,
+    "score": 91875,
+    "kills": 274,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 100,
+    "score": 22100,
+    "kills": 97,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 81,
+    "score": 25975,
+    "kills": 89,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 80,
+    "score": 18675,
+    "kills": 81,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 55,
+    "teamDeath": 73,
+    "score": 13075,
+    "kills": 79,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 66,
+    "score": 17100,
+    "kills": 63,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 52,
+    "score": 5900,
+    "kills": 45,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 117,
+    "score": 32300,
+    "kills": 136,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 80,
+    "teamDeath": 93,
+    "score": 13750,
+    "kills": 76,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 74,
+    "teamDeath": 83,
+    "score": 14475,
+    "kills": 87,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 71,
+    "teamDeath": 79,
+    "score": 18550,
+    "kills": 85,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 101,
+    "score": 27275,
+    "kills": 103,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 56,
+    "score": 7275,
+    "kills": 53,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 85,
+    "score": 23300,
+    "kills": 110,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 47,
+    "score": 5050,
+    "kills": 38,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 69,
+    "teamDeath": 71,
+    "score": 9550,
+    "kills": 68,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 42,
+    "score": 3400,
+    "kills": 30,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 40,
+    "teamDeath": 43,
+    "score": 4550,
+    "kills": 37,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 72,
+    "score": 12675,
+    "kills": 75,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 234,
+    "score": 102000,
+    "kills": 301,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 37,
+    "score": 4525,
+    "kills": 31,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 60,
+    "score": 6475,
+    "kills": 47,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 31,
+    "teamDeath": 33,
+    "score": 3575,
+    "kills": 25,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   }
+  ],
+  "knight+knight": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 53,
+    "score": 5675,
+    "kills": 40,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 40,
+    "score": 2875,
+    "kills": 23,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 77,
+    "score": 7800,
+    "kills": 58,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 102,
+    "score": 30325,
+    "kills": 111,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 60,
+    "score": 7075,
+    "kills": 53,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 33,
+    "score": 2125,
+    "kills": 20,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 62,
+    "teamDeath": 106,
+    "score": 21200,
+    "kills": 103,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 48,
+    "score": 4775,
+    "kills": 37,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 98,
+    "score": 25675,
+    "kills": 105,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 74,
+    "score": 15400,
+    "kills": 70,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 20,
+    "teamDeath": 47,
+    "score": 6300,
+    "kills": 42,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 70,
+    "teamDeath": 79,
+    "score": 13175,
+    "kills": 77,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 58,
+    "score": 5725,
+    "kills": 45,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 21,
+    "teamDeath": 71,
+    "score": 7850,
+    "kills": 52,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 49,
+    "score": 7000,
+    "kills": 46,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 111,
+    "score": 25250,
+    "kills": 115,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 39,
+    "score": 2975,
+    "kills": 27,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 74,
+    "score": 11300,
+    "kills": 69,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 59,
+    "score": 10850,
+    "kills": 68,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 50,
+    "score": 5600,
+    "kills": 41,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 45,
+    "score": 3350,
+    "kills": 30,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 55,
+    "score": 9075,
+    "kills": 60,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 65,
+    "score": 9000,
+    "kills": 65,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 31,
+    "teamDeath": 41,
+    "score": 2075,
+    "kills": 20,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 40,
+    "teamDeath": 41,
+    "score": 4425,
+    "kills": 36,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 27,
+    "teamDeath": 40,
+    "score": 3125,
+    "kills": 28,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 33,
+    "teamDeath": 62,
+    "score": 10225,
+    "kills": 60,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 40,
+    "teamDeath": 97,
+    "score": 17200,
+    "kills": 89,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 72,
+    "teamDeath": 115,
+    "score": 26275,
+    "kills": 114,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 89,
+    "score": 19150,
+    "kills": 81,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 135,
+    "score": 41050,
+    "kills": 145,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 59,
+    "score": 6950,
+    "kills": 52,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 88,
+    "score": 22700,
+    "kills": 85,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 50,
+    "teamDeath": 88,
+    "score": 20675,
+    "kills": 89,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 60,
+    "teamDeath": 71,
+    "score": 13225,
+    "kills": 69,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 94,
+    "score": 14125,
+    "kills": 85,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 46,
+    "score": 4600,
+    "kills": 33,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 64,
+    "teamDeath": 70,
+    "score": 8975,
+    "kills": 59,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 50,
+    "teamDeath": 54,
+    "score": 4900,
+    "kills": 40,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 78,
+    "score": 18075,
+    "kills": 87,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 78,
+    "teamDeath": 114,
+    "score": 28450,
+    "kills": 113,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 42,
+    "teamDeath": 53,
+    "score": 7425,
+    "kills": 49,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 52,
+    "score": 7100,
+    "kills": 47,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 31,
+    "score": 1775,
+    "kills": 17,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 66,
+    "teamDeath": 72,
+    "score": 14175,
+    "kills": 80,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 88,
+    "teamDeath": 90,
+    "score": 19975,
+    "kills": 95,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 36,
+    "teamDeath": 97,
+    "score": 23700,
+    "kills": 93,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 68,
+    "score": 10950,
+    "kills": 67,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   }
+  ],
+  "pawn": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 173,
+    "score": 68650,
+    "kills": 182,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 174,
+    "score": 73425,
+    "kills": 221,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 253,
+    "score": 107050,
+    "kills": 351,
+    "pieces": [
+     "king",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 99,
+    "teamDeath": 243,
+    "score": 101400,
+    "kills": 290,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 97,
+    "teamDeath": 122,
+    "score": 44650,
+    "kills": 141,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 84,
+    "score": 13100,
+    "kills": 78,
+    "pieces": [
+     "bishop",
+     "king"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 106,
+    "teamDeath": 296,
+    "score": 126850,
+    "kills": 383,
+    "pieces": [
+     "knight",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 70,
+    "teamDeath": 74,
+    "score": 14575,
+    "kills": 63,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 25,
+    "teamDeath": 41,
+    "score": 2350,
+    "kills": 22,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 102,
+    "score": 15250,
+    "kills": 94,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 227,
+    "teamDeath": 228,
+    "score": 66050,
+    "kills": 246,
+    "pieces": [
+     "king",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 262,
+    "teamDeath": 279,
+    "score": 97075,
+    "kills": 312,
+    "pieces": [
+     "king",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 88,
+    "score": 27500,
+    "kills": 93,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 41,
+    "score": 4300,
+    "kills": 32,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 43,
+    "score": 3975,
+    "kills": 34,
+    "pieces": [
+     "king",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 70,
+    "score": 11400,
+    "kills": 73,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 127,
+    "score": 38750,
+    "kills": 131,
+    "pieces": [
+     "knight",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 90,
+    "score": 13250,
+    "kills": 85,
+    "pieces": [
+     "king",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 69,
+    "teamDeath": 173,
+    "score": 39425,
+    "kills": 166,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 92,
+    "score": 22250,
+    "kills": 93,
+    "pieces": [
+     "knight",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 37,
+    "teamDeath": 50,
+    "score": 12375,
+    "kills": 50,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 94,
+    "score": 18650,
+    "kills": 84,
+    "pieces": [
+     "knight",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 63,
+    "teamDeath": 300,
+    "score": 113500,
+    "kills": 367,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 86,
+    "teamDeath": 300,
+    "score": 109950,
+    "kills": 359,
+    "pieces": [
+     "bishop",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 165,
+    "score": 55350,
+    "kills": 175,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 86,
+    "teamDeath": 300,
+    "score": 106275,
+    "kills": 340,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 33,
+    "teamDeath": 64,
+    "score": 7550,
+    "kills": 57,
+    "pieces": [
+     "king",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 63,
+    "teamDeath": 129,
+    "score": 40300,
+    "kills": 136,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 93625,
+    "kills": 298,
+    "pieces": [
+     "rook",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 52,
+    "score": 6800,
+    "kills": 47,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 137,
+    "teamDeath": 196,
+    "score": 56100,
+    "kills": 216,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 122,
+    "score": 27800,
+    "kills": 139,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 113,
+    "score": 25600,
+    "kills": 108,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 174,
+    "score": 68400,
+    "kills": 201,
+    "pieces": [
+     "knight",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 93,
+    "teamDeath": 300,
+    "score": 142375,
+    "kills": 424,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 167,
+    "teamDeath": 199,
+    "score": 54475,
+    "kills": 215,
+    "pieces": [
+     "bishop",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 285,
+    "score": 138675,
+    "kills": 412,
+    "pieces": [
+     "king",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 107550,
+    "kills": 311,
+    "pieces": [
+     "rook",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 21,
+    "teamDeath": 219,
+    "score": 70350,
+    "kills": 253,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 127,
+    "score": 36600,
+    "kills": 138,
+    "pieces": [
+     "bishop",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 31,
+    "teamDeath": 35,
+    "score": 3675,
+    "kills": 28,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 201,
+    "score": 68950,
+    "kills": 232,
+    "pieces": [
+     "bishop",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 74325,
+    "kills": 307,
+    "pieces": [
+     "rook",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 83,
+    "teamDeath": 121,
+    "score": 30125,
+    "kills": 123,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 155,
+    "teamDeath": 170,
+    "score": 33975,
+    "kills": 159,
+    "pieces": [
+     "knight",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 64,
+    "score": 16650,
+    "kills": 64,
+    "pieces": [
+     "knight",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 213,
+    "score": 69200,
+    "kills": 241,
+    "pieces": [
+     "knight",
+     "king"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": true,
+    "firstDeath": 30,
+    "teamDeath": 300,
+    "score": 131150,
+    "kills": 322,
+    "pieces": [
+     "bishop",
+     "queen"
+    ]
+   }
+  ],
+  "queen+bishop": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 65975,
+    "kills": 279,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 207,
+    "teamDeath": 300,
+    "score": 171100,
+    "kills": 394,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 179,
+    "teamDeath": 300,
+    "score": 101550,
+    "kills": 342,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 279,
+    "teamDeath": 283,
+    "score": 99775,
+    "kills": 275,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": true,
+    "firstDeath": 178,
+    "teamDeath": 300,
+    "score": 128500,
+    "kills": 326,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 194,
+    "teamDeath": 300,
+    "score": 122450,
+    "kills": 361,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 161,
+    "score": 80500,
+    "kills": 219,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 155,
+    "teamDeath": 300,
+    "score": 137675,
+    "kills": 345,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 131,
+    "teamDeath": 133,
+    "score": 63100,
+    "kills": 164,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 133725,
+    "kills": 358,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 116,
+    "teamDeath": 125,
+    "score": 46200,
+    "kills": 148,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": true,
+    "firstDeath": 84,
+    "teamDeath": 300,
+    "score": 95750,
+    "kills": 319,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 101,
+    "teamDeath": 300,
+    "score": 164875,
+    "kills": 391,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 126,
+    "teamDeath": 300,
+    "score": 171575,
+    "kills": 428,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 124,
+    "teamDeath": 189,
+    "score": 72725,
+    "kills": 231,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 94,
+    "teamDeath": 283,
+    "score": 108575,
+    "kills": 313,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": true,
+    "firstDeath": 149,
+    "teamDeath": 300,
+    "score": 114100,
+    "kills": 337,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": true,
+    "firstDeath": 202,
+    "teamDeath": 300,
+    "score": 123100,
+    "kills": 347,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 133,
+    "teamDeath": 145,
+    "score": 69475,
+    "kills": 171,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 106125,
+    "kills": 311,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 174,
+    "teamDeath": 300,
+    "score": 169675,
+    "kills": 388,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 125,
+    "score": 63150,
+    "kills": 152,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 125,
+    "teamDeath": 300,
+    "score": 144850,
+    "kills": 344,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 248,
+    "teamDeath": 300,
+    "score": 165750,
+    "kills": 394,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 200,
+    "teamDeath": 300,
+    "score": 146475,
+    "kills": 360,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 131,
+    "teamDeath": 135,
+    "score": 59500,
+    "kills": 142,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 133,
+    "teamDeath": 300,
+    "score": 149225,
+    "kills": 344,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 133,
+    "teamDeath": 300,
+    "score": 109250,
+    "kills": 313,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 212,
+    "teamDeath": 300,
+    "score": 74225,
+    "kills": 269,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 128,
+    "teamDeath": 177,
+    "score": 73650,
+    "kills": 199,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 172,
+    "teamDeath": 300,
+    "score": 89750,
+    "kills": 289,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 151,
+    "teamDeath": 300,
+    "score": 208250,
+    "kills": 392,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 135,
+    "teamDeath": 137,
+    "score": 60300,
+    "kills": 161,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 177,
+    "score": 92875,
+    "kills": 201,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 85,
+    "teamDeath": 300,
+    "score": 76925,
+    "kills": 285,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 167,
+    "teamDeath": 300,
+    "score": 134875,
+    "kills": 387,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 71725,
+    "kills": 284,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 150,
+    "teamDeath": 300,
+    "score": 141775,
+    "kills": 352,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": true,
+    "firstDeath": 123,
+    "teamDeath": 300,
+    "score": 175600,
+    "kills": 401,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": true,
+    "firstDeath": 165,
+    "teamDeath": 300,
+    "score": 150175,
+    "kills": 378,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": true,
+    "firstDeath": 138,
+    "teamDeath": 300,
+    "score": 142350,
+    "kills": 377,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 100900,
+    "kills": 324,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 133,
+    "score": 56725,
+    "kills": 160,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": true,
+    "firstDeath": 293,
+    "teamDeath": 300,
+    "score": 118925,
+    "kills": 348,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 73725,
+    "kills": 272,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 54,
+    "teamDeath": 300,
+    "score": 133750,
+    "kills": 391,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 98,
+    "teamDeath": 300,
+    "score": 150675,
+    "kills": 356,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 90625,
+    "kills": 293,
+    "pieces": [
+     "queen",
+     "bishop"
+    ]
+   }
+  ],
+  "queen+king": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 24,
+    "teamDeath": 300,
+    "score": 137500,
+    "kills": 366,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 101,
+    "score": 33325,
+    "kills": 113,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 31,
+    "teamDeath": 180,
+    "score": 95250,
+    "kills": 251,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 98,
+    "teamDeath": 300,
+    "score": 185425,
+    "kills": 405,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 135,
+    "teamDeath": 273,
+    "score": 188700,
+    "kills": 370,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 26,
+    "teamDeath": 199,
+    "score": 73300,
+    "kills": 239,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 84,
+    "teamDeath": 88,
+    "score": 23075,
+    "kills": 96,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 237025,
+    "kills": 434,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 178800,
+    "kills": 424,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 87,
+    "teamDeath": 300,
+    "score": 199950,
+    "kills": 439,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": true,
+    "firstDeath": 68,
+    "teamDeath": 300,
+    "score": 165075,
+    "kills": 371,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": true,
+    "firstDeath": 185,
+    "teamDeath": 300,
+    "score": 204450,
+    "kills": 403,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 95,
+    "teamDeath": 207,
+    "score": 110800,
+    "kills": 273,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 202,
+    "score": 91325,
+    "kills": 228,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 188,
+    "score": 85600,
+    "kills": 225,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 96,
+    "teamDeath": 300,
+    "score": 175625,
+    "kills": 397,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 114,
+    "teamDeath": 132,
+    "score": 58900,
+    "kills": 151,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 120,
+    "teamDeath": 233,
+    "score": 86675,
+    "kills": 278,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": true,
+    "firstDeath": 16,
+    "teamDeath": 300,
+    "score": 165250,
+    "kills": 416,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 82,
+    "teamDeath": 152,
+    "score": 66125,
+    "kills": 177,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 221,
+    "score": 129400,
+    "kills": 286,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 106,
+    "teamDeath": 117,
+    "score": 30625,
+    "kills": 120,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 36,
+    "teamDeath": 300,
+    "score": 127500,
+    "kills": 397,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 55,
+    "teamDeath": 131,
+    "score": 56225,
+    "kills": 155,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 42,
+    "teamDeath": 300,
+    "score": 200050,
+    "kills": 444,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 65,
+    "score": 9425,
+    "kills": 64,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 34,
+    "teamDeath": 300,
+    "score": 151925,
+    "kills": 387,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 26,
+    "teamDeath": 300,
+    "score": 140300,
+    "kills": 383,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 87,
+    "teamDeath": 206,
+    "score": 64175,
+    "kills": 204,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 72,
+    "teamDeath": 157,
+    "score": 69425,
+    "kills": 190,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 66,
+    "teamDeath": 173,
+    "score": 95400,
+    "kills": 240,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 64,
+    "teamDeath": 76,
+    "score": 11150,
+    "kills": 73,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 176,
+    "teamDeath": 272,
+    "score": 148050,
+    "kills": 373,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 40,
+    "teamDeath": 300,
+    "score": 169750,
+    "kills": 413,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 117,
+    "score": 46325,
+    "kills": 134,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 109,
+    "score": 38050,
+    "kills": 123,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 67,
+    "score": 16975,
+    "kills": 78,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 288,
+    "score": 156950,
+    "kills": 369,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": true,
+    "firstDeath": 28,
+    "teamDeath": 300,
+    "score": 153375,
+    "kills": 388,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 56,
+    "score": 12000,
+    "kills": 52,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 129,
+    "teamDeath": 141,
+    "score": 56075,
+    "kills": 154,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 143,
+    "score": 72050,
+    "kills": 195,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 234,
+    "score": 118025,
+    "kills": 291,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": true,
+    "firstDeath": 129,
+    "teamDeath": 300,
+    "score": 186200,
+    "kills": 406,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 149,
+    "score": 56850,
+    "kills": 176,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 87,
+    "teamDeath": 125,
+    "score": 33350,
+    "kills": 136,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 143,
+    "teamDeath": 300,
+    "score": 134200,
+    "kills": 434,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 116,
+    "teamDeath": 117,
+    "score": 45725,
+    "kills": 142,
+    "pieces": [
+     "queen",
+     "king"
+    ]
+   }
+  ],
+  "queen+knight": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 82,
+    "teamDeath": 131,
+    "score": 56500,
+    "kills": 167,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 193,
+    "score": 48875,
+    "kills": 185,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 40,
+    "teamDeath": 300,
+    "score": 113500,
+    "kills": 376,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 105,
+    "teamDeath": 121,
+    "score": 44175,
+    "kills": 136,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 36,
+    "teamDeath": 151,
+    "score": 55575,
+    "kills": 161,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 75,
+    "teamDeath": 300,
+    "score": 115350,
+    "kills": 348,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 89,
+    "score": 22900,
+    "kills": 87,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 86,
+    "score": 18000,
+    "kills": 80,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 96,
+    "teamDeath": 104,
+    "score": 27825,
+    "kills": 114,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 225,
+    "score": 84550,
+    "kills": 264,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 18,
+    "teamDeath": 298,
+    "score": 119525,
+    "kills": 305,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 47,
+    "score": 9350,
+    "kills": 40,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 85,
+    "score": 16250,
+    "kills": 74,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 68,
+    "teamDeath": 71,
+    "score": 15075,
+    "kills": 63,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 89,
+    "teamDeath": 125,
+    "score": 56325,
+    "kills": 146,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 70,
+    "teamDeath": 77,
+    "score": 14875,
+    "kills": 64,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 102,
+    "teamDeath": 137,
+    "score": 69850,
+    "kills": 167,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 71,
+    "score": 13675,
+    "kills": 65,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 82,
+    "teamDeath": 87,
+    "score": 32050,
+    "kills": 92,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 95,
+    "teamDeath": 131,
+    "score": 54150,
+    "kills": 157,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 129,
+    "score": 64650,
+    "kills": 162,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 67,
+    "teamDeath": 85,
+    "score": 11600,
+    "kills": 78,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 121,
+    "score": 50875,
+    "kills": 133,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 85,
+    "teamDeath": 103,
+    "score": 23025,
+    "kills": 96,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 102,
+    "teamDeath": 103,
+    "score": 26300,
+    "kills": 113,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 54,
+    "teamDeath": 118,
+    "score": 32150,
+    "kills": 122,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 98,
+    "teamDeath": 178,
+    "score": 65775,
+    "kills": 212,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 60,
+    "teamDeath": 62,
+    "score": 8775,
+    "kills": 59,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 293,
+    "score": 126300,
+    "kills": 332,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 153,
+    "teamDeath": 300,
+    "score": 188800,
+    "kills": 433,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 126,
+    "teamDeath": 172,
+    "score": 75775,
+    "kills": 212,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 64,
+    "teamDeath": 221,
+    "score": 107800,
+    "kills": 276,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 44,
+    "teamDeath": 191,
+    "score": 44675,
+    "kills": 177,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 44,
+    "teamDeath": 300,
+    "score": 113625,
+    "kills": 347,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 163,
+    "teamDeath": 300,
+    "score": 140975,
+    "kills": 354,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 85,
+    "teamDeath": 300,
+    "score": 123200,
+    "kills": 330,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 38,
+    "teamDeath": 300,
+    "score": 173050,
+    "kills": 389,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 69,
+    "teamDeath": 149,
+    "score": 61800,
+    "kills": 182,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 87,
+    "teamDeath": 134,
+    "score": 39400,
+    "kills": 135,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 40,
+    "teamDeath": 167,
+    "score": 66050,
+    "kills": 174,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": true,
+    "firstDeath": 86,
+    "teamDeath": 300,
+    "score": 122725,
+    "kills": 339,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 29,
+    "teamDeath": 213,
+    "score": 97650,
+    "kills": 260,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 228,
+    "score": 84625,
+    "kills": 268,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 149,
+    "score": 40400,
+    "kills": 136,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 287,
+    "score": 132925,
+    "kills": 361,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 163,
+    "score": 57275,
+    "kills": 173,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 37,
+    "teamDeath": 300,
+    "score": 146225,
+    "kills": 379,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 219,
+    "score": 91300,
+    "kills": 265,
+    "pieces": [
+     "queen",
+     "knight"
+    ]
+   }
+  ],
+  "queen+queen": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 197050,
+    "kills": 412,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 292,
+    "teamDeath": 300,
+    "score": 189725,
+    "kills": 462,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 69725,
+    "kills": 269,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 186,
+    "teamDeath": 300,
+    "score": 157950,
+    "kills": 362,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": true,
+    "firstDeath": 224,
+    "teamDeath": 300,
+    "score": 199125,
+    "kills": 410,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 244,
+    "teamDeath": 300,
+    "score": 183850,
+    "kills": 422,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 85425,
+    "kills": 287,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 264,
+    "teamDeath": 300,
+    "score": 177200,
+    "kills": 396,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 199400,
+    "kills": 407,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 190,
+    "teamDeath": 217,
+    "score": 91400,
+    "kills": 260,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 84825,
+    "kills": 303,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 175,
+    "teamDeath": 251,
+    "score": 122800,
+    "kills": 284,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 296,
+    "teamDeath": 300,
+    "score": 112975,
+    "kills": 357,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 115925,
+    "kills": 339,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": true,
+    "firstDeath": 249,
+    "teamDeath": 300,
+    "score": 137150,
+    "kills": 406,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 168,
+    "teamDeath": 300,
+    "score": 158200,
+    "kills": 403,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": true,
+    "firstDeath": 103,
+    "teamDeath": 300,
+    "score": 116850,
+    "kills": 312,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 100525,
+    "kills": 315,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 175,
+    "teamDeath": 175,
+    "score": 85550,
+    "kills": 216,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 185,
+    "teamDeath": 188,
+    "score": 64575,
+    "kills": 191,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 87000,
+    "kills": 321,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": true,
+    "firstDeath": 229,
+    "teamDeath": 300,
+    "score": 172900,
+    "kills": 381,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 158075,
+    "kills": 388,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 119,
+    "teamDeath": 300,
+    "score": 148300,
+    "kills": 374,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 126,
+    "teamDeath": 184,
+    "score": 98950,
+    "kills": 214,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 180,
+    "score": 85950,
+    "kills": 217,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 85,
+    "teamDeath": 300,
+    "score": 83225,
+    "kills": 268,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 88050,
+    "kills": 301,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 94,
+    "teamDeath": 300,
+    "score": 92875,
+    "kills": 306,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 207,
+    "teamDeath": 300,
+    "score": 163000,
+    "kills": 387,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 154,
+    "teamDeath": 300,
+    "score": 159850,
+    "kills": 386,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 58125,
+    "kills": 232,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 269,
+    "teamDeath": 300,
+    "score": 133250,
+    "kills": 358,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 164,
+    "teamDeath": 300,
+    "score": 186500,
+    "kills": 423,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 108,
+    "teamDeath": 300,
+    "score": 133100,
+    "kills": 338,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 154,
+    "teamDeath": 300,
+    "score": 120625,
+    "kills": 329,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 96,
+    "teamDeath": 300,
+    "score": 151500,
+    "kills": 410,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 76800,
+    "kills": 308,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": true,
+    "firstDeath": 211,
+    "teamDeath": 300,
+    "score": 130775,
+    "kills": 355,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": true,
+    "firstDeath": 175,
+    "teamDeath": 300,
+    "score": 161375,
+    "kills": 395,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 106850,
+    "kills": 338,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": true,
+    "firstDeath": 216,
+    "teamDeath": 300,
+    "score": 103225,
+    "kills": 283,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 78,
+    "teamDeath": 187,
+    "score": 75375,
+    "kills": 222,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": true,
+    "firstDeath": 136,
+    "teamDeath": 300,
+    "score": 141725,
+    "kills": 355,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 91775,
+    "kills": 299,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 78650,
+    "kills": 270,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 141,
+    "teamDeath": 141,
+    "score": 54600,
+    "kills": 182,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 166625,
+    "kills": 381,
+    "pieces": [
+     "queen",
+     "queen"
+    ]
+   }
+  ],
+  "queen+rook": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 208,
+    "teamDeath": 300,
+    "score": 120125,
+    "kills": 327,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 64,
+    "teamDeath": 300,
+    "score": 155900,
+    "kills": 389,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 82350,
+    "kills": 296,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 66,
+    "teamDeath": 259,
+    "score": 74775,
+    "kills": 267,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 202,
+    "teamDeath": 223,
+    "score": 62650,
+    "kills": 216,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 119,
+    "teamDeath": 300,
+    "score": 175625,
+    "kills": 345,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 66475,
+    "kills": 254,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 221,
+    "teamDeath": 300,
+    "score": 94500,
+    "kills": 334,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 101,
+    "teamDeath": 300,
+    "score": 208075,
+    "kills": 450,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 161,
+    "teamDeath": 300,
+    "score": 156050,
+    "kills": 379,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 94175,
+    "kills": 230,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": true,
+    "firstDeath": 129,
+    "teamDeath": 300,
+    "score": 150625,
+    "kills": 352,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 184,
+    "teamDeath": 300,
+    "score": 105475,
+    "kills": 347,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 113,
+    "teamDeath": 299,
+    "score": 105825,
+    "kills": 315,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 110,
+    "teamDeath": 123,
+    "score": 33825,
+    "kills": 107,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 80,
+    "teamDeath": 300,
+    "score": 121675,
+    "kills": 366,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": true,
+    "firstDeath": 122,
+    "teamDeath": 300,
+    "score": 163650,
+    "kills": 375,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 100125,
+    "kills": 280,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 123100,
+    "kills": 327,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 157,
+    "score": 70725,
+    "kills": 178,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 271,
+    "score": 113400,
+    "kills": 319,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": true,
+    "firstDeath": 110,
+    "teamDeath": 300,
+    "score": 119050,
+    "kills": 334,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 131,
+    "score": 38650,
+    "kills": 152,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 141,
+    "teamDeath": 300,
+    "score": 145900,
+    "kills": 412,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 109,
+    "teamDeath": 300,
+    "score": 154575,
+    "kills": 397,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 89,
+    "teamDeath": 300,
+    "score": 141200,
+    "kills": 368,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 124375,
+    "kills": 373,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 155,
+    "teamDeath": 300,
+    "score": 228625,
+    "kills": 471,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 288,
+    "teamDeath": 300,
+    "score": 158300,
+    "kills": 403,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 151,
+    "teamDeath": 247,
+    "score": 103975,
+    "kills": 272,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 200,
+    "teamDeath": 300,
+    "score": 152475,
+    "kills": 423,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 80125,
+    "kills": 296,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 185,
+    "score": 94700,
+    "kills": 228,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 87,
+    "teamDeath": 300,
+    "score": 167050,
+    "kills": 397,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 135,
+    "score": 54350,
+    "kills": 145,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 91375,
+    "kills": 299,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 253,
+    "teamDeath": 300,
+    "score": 138325,
+    "kills": 357,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 91425,
+    "kills": 280,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": true,
+    "firstDeath": 169,
+    "teamDeath": 300,
+    "score": 117350,
+    "kills": 305,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": true,
+    "firstDeath": 156,
+    "teamDeath": 300,
+    "score": 176100,
+    "kills": 385,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": true,
+    "firstDeath": 85,
+    "teamDeath": 300,
+    "score": 76650,
+    "kills": 277,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 83,
+    "teamDeath": 121,
+    "score": 41025,
+    "kills": 117,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 219,
+    "teamDeath": 300,
+    "score": 135650,
+    "kills": 365,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 120,
+    "teamDeath": 135,
+    "score": 53350,
+    "kills": 170,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 137,
+    "teamDeath": 300,
+    "score": 143975,
+    "kills": 368,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 118,
+    "teamDeath": 131,
+    "score": 27175,
+    "kills": 126,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 193,
+    "teamDeath": 300,
+    "score": 144050,
+    "kills": 390,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 163,
+    "score": 78775,
+    "kills": 193,
+    "pieces": [
+     "queen",
+     "rook"
+    ]
+   }
+  ],
+  "rook+bishop": [
+   {
+    "seed": 20261026,
+    "capped": true,
+    "firstDeath": 106,
+    "teamDeath": 300,
+    "score": 107025,
+    "kills": 343,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 80,
+    "teamDeath": 300,
+    "score": 99175,
+    "kills": 327,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 199,
+    "teamDeath": 300,
+    "score": 101750,
+    "kills": 379,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 179,
+    "teamDeath": 300,
+    "score": 91675,
+    "kills": 319,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": true,
+    "firstDeath": 149,
+    "teamDeath": 300,
+    "score": 186125,
+    "kills": 424,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 110,
+    "teamDeath": 111,
+    "score": 19950,
+    "kills": 99,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 58575,
+    "kills": 246,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": true,
+    "firstDeath": 165,
+    "teamDeath": 300,
+    "score": 173400,
+    "kills": 430,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 176,
+    "teamDeath": 300,
+    "score": 153425,
+    "kills": 383,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 169,
+    "teamDeath": 300,
+    "score": 110000,
+    "kills": 363,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": true,
+    "firstDeath": 56,
+    "teamDeath": 300,
+    "score": 110500,
+    "kills": 334,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 129,
+    "score": 49025,
+    "kills": 152,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 197,
+    "teamDeath": 300,
+    "score": 169150,
+    "kills": 428,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 142,
+    "teamDeath": 300,
+    "score": 153775,
+    "kills": 401,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 89575,
+    "kills": 335,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 57,
+    "teamDeath": 300,
+    "score": 141225,
+    "kills": 397,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 67475,
+    "kills": 245,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 258,
+    "teamDeath": 277,
+    "score": 60975,
+    "kills": 263,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": true,
+    "firstDeath": 148,
+    "teamDeath": 300,
+    "score": 132200,
+    "kills": 379,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": true,
+    "firstDeath": 88,
+    "teamDeath": 300,
+    "score": 171650,
+    "kills": 448,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 148,
+    "teamDeath": 300,
+    "score": 133550,
+    "kills": 393,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 129,
+    "score": 42000,
+    "kills": 145,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 83325,
+    "kills": 305,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 273,
+    "teamDeath": 300,
+    "score": 131575,
+    "kills": 395,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 129375,
+    "kills": 399,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 113850,
+    "kills": 390,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 153,
+    "teamDeath": 300,
+    "score": 92375,
+    "kills": 322,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": true,
+    "firstDeath": 152,
+    "teamDeath": 300,
+    "score": 73200,
+    "kills": 276,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 76175,
+    "kills": 294,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 175,
+    "teamDeath": 300,
+    "score": 129425,
+    "kills": 372,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 146650,
+    "kills": 444,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 177,
+    "teamDeath": 300,
+    "score": 73450,
+    "kills": 297,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 68,
+    "teamDeath": 300,
+    "score": 104300,
+    "kills": 338,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 131,
+    "teamDeath": 131,
+    "score": 34375,
+    "kills": 150,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 104,
+    "teamDeath": 300,
+    "score": 116500,
+    "kills": 347,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 263,
+    "teamDeath": 273,
+    "score": 128475,
+    "kills": 375,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 152,
+    "teamDeath": 300,
+    "score": 82925,
+    "kills": 310,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 244,
+    "teamDeath": 300,
+    "score": 116650,
+    "kills": 381,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 137,
+    "teamDeath": 169,
+    "score": 62950,
+    "kills": 197,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": true,
+    "firstDeath": 91,
+    "teamDeath": 300,
+    "score": 82800,
+    "kills": 317,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 130650,
+    "kills": 406,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": true,
+    "firstDeath": 88,
+    "teamDeath": 300,
+    "score": 82800,
+    "kills": 334,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 148,
+    "teamDeath": 300,
+    "score": 119375,
+    "kills": 352,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 102050,
+    "kills": 357,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 84,
+    "teamDeath": 277,
+    "score": 135350,
+    "kills": 351,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 168,
+    "teamDeath": 300,
+    "score": 161150,
+    "kills": 423,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 192,
+    "teamDeath": 192,
+    "score": 67650,
+    "kills": 198,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 119,
+    "teamDeath": 123,
+    "score": 34900,
+    "kills": 141,
+    "pieces": [
+     "rook",
+     "bishop"
+    ]
+   }
+  ],
+  "rook+king": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 31,
+    "teamDeath": 280,
+    "score": 111700,
+    "kills": 314,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 87,
+    "teamDeath": 173,
+    "score": 70075,
+    "kills": 217,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 133,
+    "teamDeath": 174,
+    "score": 43425,
+    "kills": 178,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 100,
+    "teamDeath": 169,
+    "score": 44425,
+    "kills": 174,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 59,
+    "teamDeath": 147,
+    "score": 46200,
+    "kills": 165,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": true,
+    "firstDeath": 58,
+    "teamDeath": 300,
+    "score": 200850,
+    "kills": 437,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": false,
+    "firstDeath": 23,
+    "teamDeath": 172,
+    "score": 71650,
+    "kills": 228,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 36,
+    "teamDeath": 133,
+    "score": 47725,
+    "kills": 161,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 80,
+    "teamDeath": 88,
+    "score": 19000,
+    "kills": 98,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 103,
+    "teamDeath": 156,
+    "score": 29325,
+    "kills": 134,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": true,
+    "firstDeath": 25,
+    "teamDeath": 300,
+    "score": 154825,
+    "kills": 433,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 127,
+    "score": 36025,
+    "kills": 139,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 86,
+    "score": 26550,
+    "kills": 92,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 153,
+    "score": 58575,
+    "kills": 192,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 24,
+    "teamDeath": 66,
+    "score": 10925,
+    "kills": 67,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 89,
+    "teamDeath": 300,
+    "score": 95400,
+    "kills": 348,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 223,
+    "teamDeath": 239,
+    "score": 84800,
+    "kills": 305,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 84,
+    "teamDeath": 147,
+    "score": 72000,
+    "kills": 184,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 178,
+    "score": 70525,
+    "kills": 204,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 28,
+    "teamDeath": 104,
+    "score": 27750,
+    "kills": 116,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": false,
+    "firstDeath": 65,
+    "teamDeath": 118,
+    "score": 39450,
+    "kills": 150,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 38,
+    "teamDeath": 63,
+    "score": 12600,
+    "kills": 65,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 51,
+    "teamDeath": 230,
+    "score": 126125,
+    "kills": 320,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 111,
+    "teamDeath": 300,
+    "score": 157275,
+    "kills": 435,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": true,
+    "firstDeath": 88,
+    "teamDeath": 300,
+    "score": 114500,
+    "kills": 339,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 133950,
+    "kills": 447,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 58,
+    "teamDeath": 99,
+    "score": 20275,
+    "kills": 105,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 125,
+    "teamDeath": 249,
+    "score": 126250,
+    "kills": 334,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": true,
+    "firstDeath": 30,
+    "teamDeath": 300,
+    "score": 154225,
+    "kills": 419,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 139,
+    "score": 49300,
+    "kills": 155,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 165,
+    "teamDeath": 185,
+    "score": 71575,
+    "kills": 222,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 154,
+    "teamDeath": 300,
+    "score": 87925,
+    "kills": 320,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 119,
+    "teamDeath": 121,
+    "score": 40225,
+    "kills": 157,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": true,
+    "firstDeath": 41,
+    "teamDeath": 300,
+    "score": 141775,
+    "kills": 409,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 121,
+    "teamDeath": 300,
+    "score": 103300,
+    "kills": 354,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 65,
+    "teamDeath": 300,
+    "score": 179450,
+    "kills": 447,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 193,
+    "teamDeath": 266,
+    "score": 89400,
+    "kills": 289,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 230,
+    "score": 128000,
+    "kills": 323,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 223,
+    "score": 61900,
+    "kills": 241,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 129,
+    "score": 38825,
+    "kills": 146,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 102,
+    "score": 22750,
+    "kills": 105,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": true,
+    "firstDeath": 24,
+    "teamDeath": 300,
+    "score": 126350,
+    "kills": 392,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 174,
+    "teamDeath": 300,
+    "score": 129575,
+    "kills": 397,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 35,
+    "teamDeath": 237,
+    "score": 132300,
+    "kills": 296,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": false,
+    "firstDeath": 117,
+    "teamDeath": 263,
+    "score": 135900,
+    "kills": 403,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 67,
+    "teamDeath": 123,
+    "score": 40700,
+    "kills": 149,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 47,
+    "teamDeath": 122,
+    "score": 21825,
+    "kills": 108,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 175,
+    "score": 48550,
+    "kills": 192,
+    "pieces": [
+     "rook",
+     "king"
+    ]
+   }
+  ],
+  "rook+knight": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 185,
+    "teamDeath": 261,
+    "score": 72350,
+    "kills": 271,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": false,
+    "firstDeath": 100,
+    "teamDeath": 159,
+    "score": 61150,
+    "kills": 184,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 215,
+    "score": 91350,
+    "kills": 256,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": false,
+    "firstDeath": 34,
+    "teamDeath": 127,
+    "score": 61125,
+    "kills": 168,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 169,
+    "score": 67800,
+    "kills": 198,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 98,
+    "teamDeath": 99,
+    "score": 21050,
+    "kills": 105,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 125,
+    "teamDeath": 300,
+    "score": 99100,
+    "kills": 344,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 36,
+    "teamDeath": 233,
+    "score": 113975,
+    "kills": 290,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": false,
+    "firstDeath": 81,
+    "teamDeath": 98,
+    "score": 17675,
+    "kills": 93,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 92,
+    "score": 27100,
+    "kills": 81,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 84,
+    "teamDeath": 98,
+    "score": 16025,
+    "kills": 93,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": true,
+    "firstDeath": 25,
+    "teamDeath": 300,
+    "score": 90600,
+    "kills": 286,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 61,
+    "teamDeath": 300,
+    "score": 136650,
+    "kills": 360,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": false,
+    "firstDeath": 48,
+    "teamDeath": 71,
+    "score": 7925,
+    "kills": 63,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": false,
+    "firstDeath": 57,
+    "teamDeath": 242,
+    "score": 82000,
+    "kills": 250,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": false,
+    "firstDeath": 32,
+    "teamDeath": 35,
+    "score": 3150,
+    "kills": 25,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": false,
+    "firstDeath": 49,
+    "teamDeath": 130,
+    "score": 30600,
+    "kills": 131,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 79,
+    "teamDeath": 183,
+    "score": 48575,
+    "kills": 183,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 61,
+    "teamDeath": 215,
+    "score": 79150,
+    "kills": 267,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 90,
+    "teamDeath": 90,
+    "score": 15175,
+    "kills": 87,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 38,
+    "teamDeath": 300,
+    "score": 77250,
+    "kills": 267,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 83,
+    "score": 17575,
+    "kills": 79,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 158,
+    "score": 40175,
+    "kills": 154,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": false,
+    "firstDeath": 45,
+    "teamDeath": 136,
+    "score": 52300,
+    "kills": 167,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 75,
+    "teamDeath": 107,
+    "score": 28075,
+    "kills": 121,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": false,
+    "firstDeath": 153,
+    "teamDeath": 182,
+    "score": 57550,
+    "kills": 211,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": false,
+    "firstDeath": 173,
+    "teamDeath": 187,
+    "score": 72525,
+    "kills": 218,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 55,
+    "teamDeath": 57,
+    "score": 9775,
+    "kills": 57,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 97,
+    "teamDeath": 237,
+    "score": 72675,
+    "kills": 268,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": false,
+    "firstDeath": 50,
+    "teamDeath": 124,
+    "score": 25250,
+    "kills": 125,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": false,
+    "firstDeath": 71,
+    "teamDeath": 123,
+    "score": 32025,
+    "kills": 124,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": false,
+    "firstDeath": 149,
+    "teamDeath": 212,
+    "score": 94275,
+    "kills": 259,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": false,
+    "firstDeath": 41,
+    "teamDeath": 166,
+    "score": 54075,
+    "kills": 198,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 164,
+    "teamDeath": 167,
+    "score": 57600,
+    "kills": 192,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": false,
+    "firstDeath": 106,
+    "teamDeath": 173,
+    "score": 61825,
+    "kills": 199,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": false,
+    "firstDeath": 81,
+    "teamDeath": 138,
+    "score": 35250,
+    "kills": 135,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": false,
+    "firstDeath": 53,
+    "teamDeath": 71,
+    "score": 7025,
+    "kills": 57,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": true,
+    "firstDeath": 35,
+    "teamDeath": 300,
+    "score": 94950,
+    "kills": 326,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 46,
+    "teamDeath": 190,
+    "score": 78075,
+    "kills": 234,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 159,
+    "teamDeath": 161,
+    "score": 66450,
+    "kills": 197,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": false,
+    "firstDeath": 25,
+    "teamDeath": 111,
+    "score": 28250,
+    "kills": 119,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 136,
+    "teamDeath": 295,
+    "score": 73250,
+    "kills": 245,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": false,
+    "firstDeath": 43,
+    "teamDeath": 125,
+    "score": 30350,
+    "kills": 134,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 73,
+    "teamDeath": 121,
+    "score": 23500,
+    "kills": 110,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 35,
+    "teamDeath": 300,
+    "score": 107200,
+    "kills": 331,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": false,
+    "firstDeath": 83,
+    "teamDeath": 125,
+    "score": 55675,
+    "kills": 145,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": false,
+    "firstDeath": 52,
+    "teamDeath": 99,
+    "score": 28675,
+    "kills": 110,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 100,
+    "score": 19500,
+    "kills": 91,
+    "pieces": [
+     "rook",
+     "knight"
+    ]
+   }
+  ],
+  "rook+rook": [
+   {
+    "seed": 20261026,
+    "capped": false,
+    "firstDeath": 91,
+    "teamDeath": 123,
+    "score": 42150,
+    "kills": 155,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20292702,
+    "capped": true,
+    "firstDeath": 214,
+    "teamDeath": 300,
+    "score": 118925,
+    "kills": 435,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20324378,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 70300,
+    "kills": 271,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20356054,
+    "capped": true,
+    "firstDeath": 133,
+    "teamDeath": 300,
+    "score": 102600,
+    "kills": 360,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20387730,
+    "capped": false,
+    "firstDeath": 223,
+    "teamDeath": 241,
+    "score": 77225,
+    "kills": 286,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20419406,
+    "capped": false,
+    "firstDeath": 76,
+    "teamDeath": 123,
+    "score": 38375,
+    "kills": 148,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20451082,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 66175,
+    "kills": 281,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20482758,
+    "capped": false,
+    "firstDeath": 116,
+    "teamDeath": 131,
+    "score": 35825,
+    "kills": 150,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20514434,
+    "capped": true,
+    "firstDeath": 263,
+    "teamDeath": 300,
+    "score": 116950,
+    "kills": 368,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20546110,
+    "capped": true,
+    "firstDeath": 191,
+    "teamDeath": 300,
+    "score": 91150,
+    "kills": 310,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20577786,
+    "capped": false,
+    "firstDeath": 273,
+    "teamDeath": 289,
+    "score": 116975,
+    "kills": 344,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20609462,
+    "capped": false,
+    "firstDeath": 104,
+    "teamDeath": 147,
+    "score": 46925,
+    "kills": 166,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20268945,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 144075,
+    "kills": 409,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20300621,
+    "capped": true,
+    "firstDeath": 202,
+    "teamDeath": 300,
+    "score": 94475,
+    "kills": 329,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20332297,
+    "capped": true,
+    "firstDeath": 291,
+    "teamDeath": 300,
+    "score": 106250,
+    "kills": 346,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20363973,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 67475,
+    "kills": 285,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20395649,
+    "capped": true,
+    "firstDeath": 256,
+    "teamDeath": 300,
+    "score": 135925,
+    "kills": 368,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20427325,
+    "capped": false,
+    "firstDeath": 121,
+    "teamDeath": 121,
+    "score": 27675,
+    "kills": 129,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20459001,
+    "capped": false,
+    "firstDeath": 126,
+    "teamDeath": 193,
+    "score": 98175,
+    "kills": 264,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20490677,
+    "capped": false,
+    "firstDeath": 86,
+    "teamDeath": 291,
+    "score": 136925,
+    "kills": 389,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20522353,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 69250,
+    "kills": 305,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20554029,
+    "capped": true,
+    "firstDeath": 230,
+    "teamDeath": 300,
+    "score": 118725,
+    "kills": 353,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20585705,
+    "capped": false,
+    "firstDeath": 78,
+    "teamDeath": 289,
+    "score": 105575,
+    "kills": 372,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20617381,
+    "capped": true,
+    "firstDeath": 172,
+    "teamDeath": 300,
+    "score": 111875,
+    "kills": 388,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20276864,
+    "capped": false,
+    "firstDeath": 166,
+    "teamDeath": 166,
+    "score": 34550,
+    "kills": 170,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20308540,
+    "capped": true,
+    "firstDeath": 209,
+    "teamDeath": 300,
+    "score": 163050,
+    "kills": 427,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20340216,
+    "capped": true,
+    "firstDeath": 78,
+    "teamDeath": 300,
+    "score": 147125,
+    "kills": 461,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20371892,
+    "capped": false,
+    "firstDeath": 77,
+    "teamDeath": 145,
+    "score": 59975,
+    "kills": 172,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20403568,
+    "capped": false,
+    "firstDeath": 281,
+    "teamDeath": 285,
+    "score": 121950,
+    "kills": 389,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20435244,
+    "capped": true,
+    "firstDeath": 88,
+    "teamDeath": 300,
+    "score": 78000,
+    "kills": 298,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20466920,
+    "capped": true,
+    "firstDeath": 281,
+    "teamDeath": 300,
+    "score": 78350,
+    "kills": 315,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20498596,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 77650,
+    "kills": 340,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20530272,
+    "capped": true,
+    "firstDeath": 65,
+    "teamDeath": 300,
+    "score": 110950,
+    "kills": 354,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20561948,
+    "capped": false,
+    "firstDeath": 135,
+    "teamDeath": 177,
+    "score": 64875,
+    "kills": 210,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20593624,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 98575,
+    "kills": 380,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20625300,
+    "capped": true,
+    "firstDeath": 280,
+    "teamDeath": 300,
+    "score": 46425,
+    "kills": 219,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20284783,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 65000,
+    "kills": 293,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20316459,
+    "capped": false,
+    "firstDeath": 185,
+    "teamDeath": 287,
+    "score": 126875,
+    "kills": 379,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20348135,
+    "capped": false,
+    "firstDeath": 30,
+    "teamDeath": 288,
+    "score": 151025,
+    "kills": 399,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20379811,
+    "capped": false,
+    "firstDeath": 147,
+    "teamDeath": 283,
+    "score": 139775,
+    "kills": 360,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20411487,
+    "capped": true,
+    "firstDeath": 95,
+    "teamDeath": 300,
+    "score": 99950,
+    "kills": 333,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20443163,
+    "capped": false,
+    "firstDeath": 123,
+    "teamDeath": 123,
+    "score": 43875,
+    "kills": 160,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20474839,
+    "capped": true,
+    "firstDeath": 112,
+    "teamDeath": 300,
+    "score": 109900,
+    "kills": 372,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20506515,
+    "capped": false,
+    "firstDeath": 108,
+    "teamDeath": 108,
+    "score": 16075,
+    "kills": 96,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20538191,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 81700,
+    "kills": 306,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20569867,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 65775,
+    "kills": 277,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20601543,
+    "capped": true,
+    "firstDeath": 300,
+    "teamDeath": 300,
+    "score": 66500,
+    "kills": 284,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   },
+   {
+    "seed": 20633219,
+    "capped": true,
+    "firstDeath": 297,
+    "teamDeath": 300,
+    "score": 106800,
+    "kills": 348,
+    "pieces": [
+     "rook",
+     "rook"
+    ]
+   }
+  ]
+ }
+}

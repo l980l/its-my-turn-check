@@ -34,8 +34,20 @@ try{
   const code=await a.ev("document.querySelector('#roomCode').textContent");assert.match(code,/^[A-Z2-9]{6}$/);
   await b.ev(`document.querySelector('#roomInput').value=${JSON.stringify(code)};document.querySelector('#joinForm').requestSubmit()`);
   await wait(500);
+  // Both players pick a start piece in the room; the run starts once both are ready.
+  const pick=(p,piece)=>p.ev(`document.querySelector('.pick-choice[data-piece="${piece}"]').click()`);
+  const picked=p=>p.ev("({open:!document.querySelector('#pickScreen').hidden,rows:[...document.querySelectorAll('#pickPlayers li')].map(li=>li.textContent),ready:document.querySelector('#pickReady').textContent})");
+  assert.equal((await picked(a)).open,true,"the host waits in the piece picker");assert.equal((await picked(b)).open,true,"the guest joins the piece picker");
+  await pick(a,"rook");await pick(b,"king");await wait(300);
+  assert.deepEqual((await picked(b)).rows,["P1 · 룩","P2 (나) · 킹"],"the guest sees the host's piece");
+  assert.deepEqual((await picked(a)).rows,["P1 (나) · 룩","P2 · 킹"],"the host sees the guest's piece");
+  await a.ev("document.querySelector('#pickReady').click()");await wait(300);
+  assert.equal((await picked(b)).rows[0],"P1 · 룩 · 준비 완료");assert.equal((await picked(a)).open,true,"one ready player does not start the run");
+  await b.ev("document.querySelector('#pickReady').click()");await wait(500);
+  assert.equal((await picked(a)).open,false);assert.equal((await picked(b)).open,false,"both ready starts the run");
   const state=p=>p.ev("(()=>{const e=document.querySelector('#coopFrame0').contentWindow.CoopGame;return{view:e.view,players:e.players(),wave:e.snapshot().world.wave}})()");
   let as=await state(a),bs=await state(b);assert.equal(as.view,0);assert.equal(bs.view,1);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,1);
+  assert.deepEqual(as.players.map(p=>p.piece),["rook","king"],"each player starts as the chosen piece");
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");await wait(7500);
   as=await state(a);bs=await state(b);assert.ok(as.wave>=2);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
   assert.ok(as.players.every((p,i)=>p.x!==[-2,2][i]||p.y!==0),"both clients submit their own core AI moves");
@@ -55,9 +67,10 @@ try{
   assert.equal(await a.ev("document.querySelector('#coopApp').dataset.screen"),"gameScreen","the remaining player keeps playing");
   assert.match(await a.ev("document.querySelector('#actionHint').textContent"),/AUTO가 대신/,"the absent player is shown as played by AUTO");
   await b.ev(`document.querySelector('#roomInput').value=${JSON.stringify(code)};document.querySelector('#joinForm').requestSubmit()`);await wait(1500);
-  as=await state(a);bs=await state(b);assert.equal(bs.view,1,"the rejoining player gets its own piece back");assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
+  as=await state(a);bs=await state(b);assert.equal(bs.view,1,"the rejoining player gets its own piece back");assert.equal((await picked(b)).open,false,"a rejoin mid-run skips the piece picker");assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");
   await a.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.players().forEach(p=>{p.alive=false;p.deathReason='network death fixture'})");
+  const rawScore=await a.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.snapshot().world.score");
   for(let n=0;n<200;n++){if(await b.ev("document.querySelector('#coopApp').dataset.screen==='endScreen'"))break;await wait(40);}
   assert.equal(await b.ev("document.querySelector('#coopApp').dataset.screen"),"endScreen");
   assert.equal(await b.ev("document.querySelector('#endReview0').disabled||document.querySelector('#endReview1').disabled"),false,"both death records arrive at guest");
@@ -74,6 +87,8 @@ try{
   const submits=JSON.parse(await a.ev("localStorage.getItem('fakeSubmits')||'[]'"));
   assert.ok(Number(await a.ev("localStorage.getItem('fakeStarts')"))>=2,"a failed ticket request is retried");
   assert.equal(submits.length,1,"the team score is submitted once");assert.deepEqual(submits[0].names,["Alpha","Beta"]);assert.ok(submits[0].pieces.length===2&&submits[0].pieces.every(p=>["pawn","knight","bishop","rook","queen","king"].includes(p)),"each player's piece is submitted");assert.ok(submits[0].score>0&&submits[0].runToken==="token");
+  assert.equal(submits[0].score,Math.round(rawScore*1.75),"the team score carries the mean of rook ×1.5 and king ×2.0");
+  assert.match(await b.ev("document.querySelector('#endText').textContent"),/× 1\.75 = /,"the result shows the team multiplication");
   assert.match(await b.ev("document.querySelector('#rankStatus').textContent"),/등록했어요/);assert.equal(await b.ev("document.querySelector('#rankSubmit').disabled"),true);
   await b.ev("document.querySelector('#rankSubmit').disabled=false");await enter(b,"Again");await wait(600);
   assert.equal(JSON.parse(await a.ev("localStorage.getItem('fakeSubmits')")).length,1,"a run is never submitted twice");
