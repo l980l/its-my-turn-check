@@ -103,6 +103,7 @@
       rankingNext: $("#rankingNext"),
       rankingSolo: $("#rankingSolo"),
       rankingCoop: $("#rankingCoop"),
+      rankingCategories: $("#rankingCategories"),
       scoreSubmit: $("#scoreSubmit"),
       scoreSubmitTitle: $("#scoreSubmitTitle"),
       scoreSubmitIntro: $("#scoreSubmitIntro"),
@@ -229,11 +230,20 @@
     SUPABASE_KEY = "sb_publishable_9VAPG9uz4EonoI_naGXemw_PCGDqOc4",
     LEADERBOARD_LIMIT = 10,
     LEADERBOARD_VIEW_LIMIT = 1000,
-    LEADERBOARD_STORE_LIMIT = 10000;
+    LEADERBOARD_STORE_LIMIT = 10000,
+    // v0.20.0 (start piece choice and score multipliers) went live with PR #29.
+    // Solo boards and rank checks count later records; earlier ones keep a 레거시 tab.
+    LEADERBOARD_SINCE = "2026-11-11T15:48:55Z";
   let leaderboardRows = [],
     leaderboardPage = 0,
     // Two-player runs rank on their own board (coop_leaderboard) with both names.
-    leaderboardMode = "solo";
+    leaderboardMode = "solo",
+    // Solo category tab: null is the overall board, a start piece, or "legacy".
+    leaderboardPiece = null;
+  function soloFilter(category = null) {
+    if (category === "legacy") return "&created_at=lt." + LEADERBOARD_SINCE;
+    return "&created_at=gte." + LEADERBOARD_SINCE + (category ? "&piece=eq." + category : "");
+  }
   async function leaderboardRequest(path, options = {}) {
     let response = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
       ...options,
@@ -350,19 +360,20 @@
     ui.rankingNext.disabled = true;
     try {
       const mode = leaderboardMode,
+        piece = mode === "solo" ? leaderboardPiece : null,
         rows = await leaderboardRequest(
-          (mode === "coop" ? "coop_leaderboard?select=name1,name2,piece1,piece2,score,wave,created_at" : "leaderboard?select=name,piece,score,message,created_at") +
+          (mode === "coop" ? "coop_leaderboard?select=name1,name2,piece1,piece2,score,wave,created_at" : "leaderboard?select=name,piece,score,message,created_at" + soloFilter(piece)) +
             "&order=score.desc,created_at.asc&limit=" +
             LEADERBOARD_LIMIT +
             "&offset=" +
             leaderboardPage * LEADERBOARD_LIMIT,
         );
-      if (mode !== leaderboardMode) return rows;
-      // Solo score submission compares against these rows, so keep them solo-only.
-      if (mode === "solo") leaderboardRows = rows;
+      if (mode !== leaderboardMode || piece !== (mode === "solo" ? leaderboardPiece : null)) return rows;
+      // Solo score submission compares against these rows, so keep them to the overall solo board.
+      if (mode === "solo" && !piece) leaderboardRows = rows;
       renderLeaderboard(rows, leaderboardPage * LEADERBOARD_LIMIT);
       updateLeaderboardPager(rows);
-      ui.leaderboardStatus.textContent = `${mode === "coop" ? "2인 · " : ""}TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + rows.length}위 · 점수 기준`;
+      ui.leaderboardStatus.textContent = `${mode === "coop" ? "2인 · " : piece === "legacy" ? "레거시 · " : piece ? PIECE_NAMES[piece] + " · " : ""}TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + rows.length}위 · 점수 기준`;
       return rows;
     } catch (error) {
       ui.leaderboardList.textContent = "";
@@ -375,7 +386,7 @@
   }
   async function leaderboardCutoff() {
     let rows = await leaderboardRequest(
-      "leaderboard?select=score&order=score.desc,created_at.asc&offset=" +
+      "leaderboard?select=score" + soloFilter() + "&order=score.desc,created_at.asc&offset=" +
         (LEADERBOARD_STORE_LIMIT - 1) +
         "&limit=1",
     );
@@ -383,7 +394,7 @@
   }
   async function leaderboardRank(score) {
     let response = await fetch(
-      SUPABASE_URL + "/rest/v1/leaderboard?select=score&score=gt." + encodeURIComponent(score),
+      SUPABASE_URL + "/rest/v1/leaderboard?select=score" + soloFilter() + "&score=gt." + encodeURIComponent(score),
       {
         headers: {
           apikey: SUPABASE_KEY,
@@ -402,9 +413,35 @@
     leaderboardMode = mode;
     ui.rankingSolo.setAttribute("aria-selected", String(mode === "solo"));
     ui.rankingCoop.setAttribute("aria-selected", String(mode === "coop"));
+    ui.rankingCategories.classList.toggle("hidden", mode !== "solo");
+  }
+  function setLeaderboardPiece(piece) {
+    leaderboardPiece = piece;
+    for (const button of ui.rankingCategories.children) button.setAttribute("aria-selected", String((button.dataset.category || null) === piece));
+  }
+  // 종합, one tab per start piece, and 레거시 for records before LEADERBOARD_SINCE.
+  function renderRankingCategories() {
+    ui.rankingCategories.replaceChildren(
+      ...[null, ...START_PIECES.map((option) => option.piece), "legacy"].map((piece) => {
+        let button = document.createElement("button");
+        button.className = "secondary-button";
+        button.setAttribute("role", "tab");
+        if (piece) button.dataset.category = piece;
+        if (glyph[piece]) button.innerHTML = `<span class="leaderboard-piece" aria-hidden="true">${glyph[piece]}\uFE0E</span>${PIECE_NAMES[piece]}`;
+        else button.textContent = piece ? "레거시" : "종합";
+        button.addEventListener("click", () => {
+          if (leaderboardPiece === piece) return;
+          setLeaderboardPiece(piece);
+          loadLeaderboard(0).catch(() => {});
+        });
+        return button;
+      }),
+    );
+    setLeaderboardPiece(leaderboardPiece);
   }
   async function openRanking() {
     setLeaderboardMode("solo");
+    setLeaderboardPiece(null);
     ui.ranking.classList.remove("hidden");
     try {
       await loadLeaderboard(0);
@@ -3756,6 +3793,7 @@
     startBgm();
     ui.over.classList.add("hidden");
   });
+  renderRankingCategories();
   ui.rankingButton.addEventListener("click", openRanking);
   ui.gameOverRanking.addEventListener("click", openRanking);
   ui.mainMenuButton.addEventListener("click", returnToMenu);
