@@ -16,4 +16,17 @@ assert.equal(ui.modeToggles.hidden, true, "taps older than three seconds do not 
 for (let i = 0; i < 4; i++) { h.advance(400); tap(); }
 assert.equal(ui.modeToggles.hidden, false, "five quick taps reveal DEV and PRE");
 
-console.log("dev switch tests passed: hidden by default, five quick taps, stale taps ignored");
+// DEV BEAT does nothing once the player is down; during the rewind it used to kill them again.
+const run = createGameHarness();
+for (const phase of ["dead", "rewind"]) {
+  const S = run.reset({ phase });
+  const wave = S.wave;
+  run.game.devBeat();
+  assert.equal(S.phase, phase, "DEV BEAT is ignored during " + phase);
+  assert.equal(S.wave, wave, "no enemy beat runs during " + phase);
+}
+const S = run.reset({ phase: "player" });
+const wave = S.wave;
+run.game.devBeat();
+assert.equal(S.wave, wave + 1, "DEV BEAT still runs an enemy beat during play");
+console.log("dev tool tests passed: switches hidden by default, five quick taps, stale taps ignored, no DEV BEAT after death");

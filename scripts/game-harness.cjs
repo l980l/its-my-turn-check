@@ -113,7 +113,7 @@ function createGameHarness(options = {}) {
   const boot = "  reset();\n  requestAnimationFrame(tick);";
   const hook = [
     "  reset();",
-    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick, resolveRisk, offerRisk, draw, drawRewind, rememberRewind, inspectEnemy, tap, advanceDifficultyClock, projectedEnemyCapture, startVerifiedRun, pos, size, updateEnemyTraitTip, toward, ui, loadLeaderboard, submitScore, openPieceSelect, over, leaderboardRank, leaderboardCutoff, offerScoreSubmission };",
+    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick, resolveRisk, offerRisk, draw, drawRewind, rememberRewind, inspectEnemy, tap, advanceDifficultyClock, projectedEnemyCapture, startVerifiedRun, pos, size, updateEnemyTraitTip, toward, ui, loadLeaderboard, submitScore, openPieceSelect, over, leaderboardRank, leaderboardCutoff, offerScoreSubmission, devBeat };",
     "  requestAnimationFrame(tick);",
   ].join("\n");
   if (!source.includes(boot)) throw new Error(`game bootstrap marker changed in ${gamePath}`);

@@ -80,5 +80,10 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
   await offerScoreSubmission(9050);
   assert.equal(ui.scoreSubmitTitle.textContent, "TOP 10,000 진입!", "9,050 is below the 10th score of 9,100");
   assert.equal(tab("king").attributes["aria-selected"], "true", "checking a score leaves the ranking tab alone");
-  console.log("ranking category tests passed: 종합/piece/레거시 tabs, v0.20.0 cutoff, rank checks, stale responses, co-op board, TOP 10 check");
+  // A 0-point run never reaches the board, so the result screen skips the rank estimate.
+  const before = urls.length;
+  await offerScoreSubmission(0);
+  assert.equal(urls.length, before, "a 0-point run asks the server nothing");
+  assert.equal(ui.resultRank.textContent, "0점 기록은 랭킹에 오르지 않습니다.");
+  console.log("ranking category tests passed: 종합/piece/레거시 tabs, v0.20.0 cutoff, rank checks, stale responses, co-op board, TOP 10 check, 0-point result");
 })();
