@@ -97,7 +97,6 @@
       mainMenuButton: $("#mainMenuButton"),
       rankingClose: $("#rankingClose"),
       leaderboardList: $("#leaderboardList"),
-      leaderboardStatus: $("#leaderboardStatus"),
       rankingPrev: $("#rankingPrev"),
       rankingPage: $("#rankingPage"),
       rankingNext: $("#rankingNext"),
@@ -318,13 +317,17 @@
     if (Number.isNaN(date.getTime())) return "";
     return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
   }
+  // Loading, empty and error notes sit in the middle of the list.
+  function showLeaderboardNote(text) {
+    let note = document.createElement("p");
+    note.className = "leaderboard-empty";
+    note.textContent = text;
+    ui.leaderboardList.replaceChildren(note);
+  }
   function renderLeaderboard(rows, offset = 0) {
     ui.leaderboardList.textContent = "";
     if (!rows.length) {
-      let empty = document.createElement("p");
-      empty.className = "leaderboard-empty";
-      empty.textContent = "첫 번째 기록을 남겨보세요.";
-      ui.leaderboardList.appendChild(empty);
+      showLeaderboardNote("기록이 아직 없습니다.\n첫 번째 기록을 남겨보세요.");
       return;
     }
     rows.forEach((row, index) => {
@@ -366,7 +369,7 @@
   async function loadLeaderboard(page = 0) {
     const size = leaderboardPageSize();
     leaderboardPage = Math.max(0, Math.min(LEADERBOARD_VIEW_LIMIT / size - 1, page));
-    ui.leaderboardStatus.textContent = "기록을 불러오는 중…";
+    showLeaderboardNote("기록을 불러오는 중…");
     ui.rankingPrev.disabled = true;
     ui.rankingNext.disabled = true;
     try {
@@ -383,14 +386,9 @@
       if (mode !== leaderboardMode || piece !== (mode === "solo" ? leaderboardPiece : null)) return rows;
       renderLeaderboard(rows, leaderboardPage * size);
       updateLeaderboardPager(rows, total, size);
-      let board = mode === "coop" ? "2인 · " : piece === "legacy" ? "레거시 · " : piece ? PIECE_NAMES[piece] + " · " : "";
-      ui.leaderboardStatus.textContent = rows.length
-        ? `${board}TOP 1,000 · ${leaderboardPage * size + 1}–${leaderboardPage * size + rows.length}위 · 점수 기준`
-        : `${board}아직 기록이 없습니다`;
       return rows;
     } catch (error) {
-      ui.leaderboardList.textContent = "";
-      ui.leaderboardStatus.textContent = "랭킹을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+      showLeaderboardNote("랭킹을 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.");
       throw error;
     }
   }

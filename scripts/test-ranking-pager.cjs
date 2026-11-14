@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const { createGameHarness } = require("./game-harness.cjs");
 
 // The pager counts pages from the board's total (Content-Range), and an empty
-// tab says so instead of showing a "1–0위" range.
+// tab says so in the middle of the list.
 let rows = [];
 let range = "*/0";
 const urls = [];
@@ -22,13 +22,13 @@ const row = (score) => ({ name: "P" + score, piece: "queen", score, message: "",
   assert.equal(requests.at(-1).headers.Prefer, "count=exact", "the board request asks for the total");
   assert.equal(ui.rankingPage.textContent, "1 / 1", "an empty board has one page");
   assert.equal(ui.rankingNext.disabled, true);
-  assert.equal(ui.leaderboardStatus.textContent, "아직 기록이 없습니다", "an empty board has no rank range");
+  assert.equal(ui.leaderboardList.children[0].textContent, "기록이 아직 없습니다.\n첫 번째 기록을 남겨보세요.", "the empty board says so in the list");
 
   rows = [row(3), row(2), row(1)];
   range = "0-2/3";
   await loadLeaderboard();
   assert.equal(ui.rankingPage.textContent, "1 / 1", "three records fit on one page");
-  assert.equal(ui.leaderboardStatus.textContent, "TOP 1,000 · 1–3위 · 점수 기준");
+  assert.equal(ui.leaderboardList.children.length, 3, "three rows render");
 
   rows = Array.from({ length: 10 }, (_, index) => row(100 - index));
   range = "0-9/23";
@@ -54,7 +54,7 @@ const row = (score) => ({ name: "P" + score, piece: "queen", score, message: "",
   range = "*/0";
   ui.rankingTabs.children.find((button) => button.dataset.category === "coop").handlers.click();
   await new Promise((resolve) => setImmediate(resolve));
-  assert.equal(ui.leaderboardStatus.textContent, "2인 · 아직 기록이 없습니다", "the empty status names the board");
+  assert.equal(ui.leaderboardList.children[0].textContent, "기록이 아직 없습니다.\n첫 번째 기록을 남겨보세요.", "an empty co-op board says so too");
   // Short screens show five rows a page; the pager and offsets follow.
   h.context.matchMedia = () => ({ matches: true });
   ui.rankingTabs.children[0].handlers.click();
@@ -62,10 +62,14 @@ const row = (score) => ({ name: "P" + score, piece: "queen", score, message: "",
   range = "5-9/23";
   await loadLeaderboard(1);
   assert.ok(urls.at(-1).includes("&limit=5&offset=5"), "a compact page asks for five rows");
-  assert.equal(ui.rankingPage.textContent, "2 / 5", "23 records make five compact pages");
-  assert.equal(ui.leaderboardStatus.textContent, "TOP 1,000 · 6–10위 · 점수 기준");
+  assert.equal(ui.rankingPage.textContent, "2 / 5", "23 records make five compact pages, errors");
+  assert.equal(ui.leaderboardList.children[0].children[0].text, "06", "page 2 of five-row pages starts at 6th");
   range = null;
   await loadLeaderboard();
   assert.equal(ui.rankingPage.textContent, "1 / 200", "without a total the compact pager spans TOP 1,000");
-  console.log("ranking pager tests passed: totals, empty boards, last page, TOP 1,000 cap, missing header, compact pages");
+  // A failed request leaves a note in the list instead of a blank board.
+  h.context.fetch = async () => ({ ok: false, text: async () => "down" });
+  await loadLeaderboard().catch(() => {});
+  assert.equal(ui.leaderboardList.children[0].textContent, "랭킹을 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.");
+  console.log("ranking pager tests passed: totals, empty boards, last page, TOP 1,000 cap, missing header, compact pages, errors");
 })();
