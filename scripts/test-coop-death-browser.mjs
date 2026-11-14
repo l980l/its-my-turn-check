@@ -41,9 +41,9 @@ try{
     if(width===390){
       await ev(`(()=>{const f=document.querySelector('#coopFrame0'),w=f.contentWindow,e=w.CoopGame,g=f.contentDocument.querySelector('canvas').getContext('2d');w.allyDraws=[];const fill=g.fillText.bind(g),arc=g.arc.bind(g);g.fillText=function(t,...args){if(t==='P2')w.allyDraws.push({text:t,color:this.fillStyle,shadow:this.shadowColor,blur:this.shadowBlur});return fill(t,...args)};g.arc=function(x,y,r,...args){if(r===13)w.allyDraws.push({ring:r,shadow:this.shadowColor,blur:this.shadowBlur});return arc(x,y,r,...args)};e.roster[1].x=e.roster[0].x+2;e.roster[1].y=e.roster[0].y})()`);
       await wait(150);
-      assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.allyDraws.some(r=>r.text==='P2'&&r.blur===30&&r.shadow==='#f1ffff')"),"visible teammate has white bloom and player label");
+      assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.allyDraws.some(r=>r.text==='P2'&&r.blur===30&&r.shadow==='#5dff9a'&&r.color==='#5dff9a')"),"visible teammate has a green bloom and a green player label");
       await ev(`${core}.roster[1].x=80`);await wait(150);
-      assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.allyDraws.some(r=>r.ring===13&&r.shadow==='#f1ffff'&&r.blur>0)"),"offscreen teammate has circular white glowing border");
+      assert.ok(await ev("document.querySelector('#coopFrame0').contentWindow.allyDraws.some(r=>r.ring===13&&r.shadow==='#5dff9a'&&r.blur>0)"),"offscreen teammate has a circular green glowing border");
       fs.writeFileSync('/tmp/coop-ally-390.png',Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
     }
     await fixture(0);await stepUntil(`${core}.players()[0].alive===false`);

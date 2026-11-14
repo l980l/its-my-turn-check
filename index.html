@@ -53,6 +53,13 @@
       .choices .upgrade-info[aria-expanded="true"] { color: #53f0e4; }
       .upgrade-detail { margin-top: 16px; padding: 14px; border-top: 1px solid #53f0e444; text-align: left; }
       .upgrade-detail.hidden { display: none; }
+      /* Co-op: the teammate watches the reward choice and may recommend a card. */
+      .coop-reward-note { margin: -4px 0 14px; color: #53f0e4; font-size: 13px; }
+      .coop-reward-note[hidden] { display: none; }
+      .upgrade[data-watching] .upgrade-choice { border-style: dashed; }
+      .choices .upgrade-choice[data-recommend] { position: relative; border-color: #ffd166; border-style: solid; box-shadow: 0 0 18px #ffd16655; }
+      .choices .upgrade-choice[data-recommend]::after { content: attr(data-recommend); position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 2px 8px; background: #ffd166; color: #08091a; font: 700 11px/1.4 'Space Grotesk', sans-serif; letter-spacing: .04em; white-space: nowrap; }
+      .choices .upgrade-choice.coop-picked { border-color: #53f0e4; border-style: solid; box-shadow: 0 0 26px #53f0e4aa; }
       .upgrade-detail strong { color: var(--trait-color, #53f0e4); font-size: 14px; }
       .upgrade-detail p { margin: 6px 0 0; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
       .upgrade { max-height: 86dvh; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
@@ -1026,7 +1033,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version" id="buildVersion">BUILD <b>v0.21.7</b> · 2026.11.14</p>
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.8</b> · 2026.11.14</p>
         <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1093,6 +1100,7 @@
         <div class="panel upgrade">
           <p class="eyebrow" id="upgradeEyebrow">PROMOTION AVAILABLE</p>
           <h2 id="upgradeTitle">어떤 말이 될까요?</h2>
+          <p class="coop-reward-note" id="coopRewardNote" hidden></p>
           <div class="choices">
             <div class="upgrade-option">
               <button class="upgrade-choice" data-choice="0"><b>♞</b><strong>KNIGHT</strong><span>L자 이동</span></button>
@@ -1191,7 +1199,7 @@
       .coop-embedded .overlay { background:rgba(7,9,24,.6); }
       .coop-replay .hud { display:none !important; }
     </style>
-    <script src="coop-runtime.js?v=v0.21.0"></script>
-    <script src="game.js?v=v0.21.6"></script>
+    <script src="coop-runtime.js?v=v0.21.8"></script>
+    <script src="game.js?v=v0.21.8"></script>
   </body>
 </html>

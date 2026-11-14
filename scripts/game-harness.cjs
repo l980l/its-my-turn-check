@@ -15,7 +15,13 @@ class Element {
     this.checked = false;
     this.disabled = false;
     this.handlers = {};
-    this.classList = { add() {}, remove() {}, toggle() { return false; }, contains() { return false; } };
+    const classes = new Set();
+    this.classList = {
+      add: (...names) => names.forEach((name) => classes.add(name)),
+      remove: (...names) => names.forEach((name) => classes.delete(name)),
+      toggle: (name, force) => ((force ?? !classes.has(name)) ? classes.add(name) : classes.delete(name), classes.has(name)),
+      contains: (name) => classes.has(name),
+    };
   }
   append(...children) { this.children.push(...children); }
   appendChild(child) { this.append(child); return child; }

@@ -58,12 +58,13 @@ try{
   const wave=p=>p.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.snapshot().world.wave");
   // Keep both pieces alive through the handoff checks: a natural game over would end the run first.
   await a.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.turns.forEach(t=>t.grace=1e6)");await wait(300);
-  await a.ev("window.__offline=true");await wait(6500);const w1=await wave(b);await wait(3000);
+  // A silent player's turn times out after the 3 s selection window, so one wave can take ~3.5 s.
+  await a.ev("window.__offline=true");await wait(6500);const w1=await wave(b);await wait(5000);
   assert.ok(await wave(b)>w1,"the guest continues the run as the new authority");
   // The old host comes back, follows the newer authority and keeps its own player.
   await a.ev("window.__offline=false");await wait(3000);
   as=await state(a);bs=await state(b);assert.equal(as.view,0);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
-  await wait(2500);assert.ok(await wave(a)>as.wave,"the returned host follows the shared run");
+  await wait(4500);assert.ok(await wave(a)>as.wave,"the returned host follows the shared run");
   assert.doesNotMatch(await b.ev("document.querySelector('#actionHint').textContent"),/AUTO가 대신/,"the new authority seats the returned player again");
   // The current authority leaves explicitly: the other takes over at once, and the leaver rejoins by code.
   await b.ev("document.querySelector('#leaveButton').click()");await wait(2500);

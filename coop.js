@@ -195,6 +195,7 @@
     if(host){
       if(!session)return;
       if(event.type==="move")session.move(event.slot,event.move,session.flow().roundId);
+      else if(event.type==="recommend")session.recommend(event.slot,event.index);
       else session.choose(event.slot,event.index,event.type);
     }else send("intent",{event,roundId:snapshot.flow.roundId});
   }
