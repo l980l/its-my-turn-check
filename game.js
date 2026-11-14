@@ -244,7 +244,7 @@
     if (category === "legacy") return "&created_at=lt." + LEADERBOARD_SINCE;
     return "&created_at=gte." + LEADERBOARD_SINCE + (category ? "&piece=eq." + category : "");
   }
-  async function leaderboardRequest(path, options = {}) {
+  async function leaderboardRequest(path, { withTotal = false, ...options } = {}) {
     let response = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
       ...options,
       headers: {
@@ -258,8 +258,12 @@
       let body = await response.text();
       throw new Error(body || "랭킹 서버에 연결할 수 없습니다.");
     }
-    let body = await response.text();
-    return body ? JSON.parse(body) : null;
+    let body = await response.text(),
+      rows = body ? JSON.parse(body) : null;
+    if (!withTotal) return rows;
+    // With Prefer: count=exact the Content-Range header ends in the total, e.g. "0-9/37".
+    let total = response.headers?.get("content-range")?.match(/\/(\d+)$/)?.[1];
+    return { rows, total: total === undefined ? null : Number(total) };
   }
   async function leaderboardFunction(body) {
     let response = await fetch(SUPABASE_URL + "/functions/v1/leaderboard", {
@@ -347,8 +351,9 @@
       ui.leaderboardList.appendChild(item);
     });
   }
-  function updateLeaderboardPager(rows) {
-    let maxPage = LEADERBOARD_VIEW_LIMIT / LEADERBOARD_LIMIT - 1;
+  function updateLeaderboardPager(rows, total) {
+    // Without a total (count header missing) fall back to the full TOP 1,000 range.
+    let maxPage = total === null ? LEADERBOARD_VIEW_LIMIT / LEADERBOARD_LIMIT - 1 : Math.max(0, Math.ceil(Math.min(total, LEADERBOARD_VIEW_LIMIT) / LEADERBOARD_LIMIT) - 1);
     ui.rankingPage.textContent = `${leaderboardPage + 1} / ${maxPage + 1}`;
     ui.rankingPrev.disabled = leaderboardPage === 0;
     ui.rankingNext.disabled = leaderboardPage === maxPage || rows.length < LEADERBOARD_LIMIT;
@@ -361,19 +366,23 @@
     try {
       const mode = leaderboardMode,
         piece = mode === "solo" ? leaderboardPiece : null,
-        rows = await leaderboardRequest(
+        { rows, total } = await leaderboardRequest(
           (mode === "coop" ? "coop_leaderboard?select=name1,name2,piece1,piece2,score,wave,created_at" : "leaderboard?select=name,piece,score,message,created_at" + soloFilter(piece)) +
             "&order=score.desc,created_at.asc&limit=" +
             LEADERBOARD_LIMIT +
             "&offset=" +
             leaderboardPage * LEADERBOARD_LIMIT,
+          { withTotal: true, headers: { Prefer: "count=exact" } },
         );
       if (mode !== leaderboardMode || piece !== (mode === "solo" ? leaderboardPiece : null)) return rows;
       // Solo score submission compares against these rows, so keep them to the overall solo board.
       if (mode === "solo" && !piece) leaderboardRows = rows;
       renderLeaderboard(rows, leaderboardPage * LEADERBOARD_LIMIT);
-      updateLeaderboardPager(rows);
-      ui.leaderboardStatus.textContent = `${mode === "coop" ? "2인 · " : piece === "legacy" ? "레거시 · " : piece ? PIECE_NAMES[piece] + " · " : ""}TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + rows.length}위 · 점수 기준`;
+      updateLeaderboardPager(rows, total);
+      let board = mode === "coop" ? "2인 · " : piece === "legacy" ? "레거시 · " : piece ? PIECE_NAMES[piece] + " · " : "";
+      ui.leaderboardStatus.textContent = rows.length
+        ? `${board}TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + rows.length}위 · 점수 기준`
+        : `${board}아직 기록이 없습니다`;
       return rows;
     } catch (error) {
       ui.leaderboardList.textContent = "";
