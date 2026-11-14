@@ -71,7 +71,7 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
   assert.ok(urls.at(-1).startsWith("https://ganvrpzlsmvbmcilerpq.supabase.co/rest/v1/coop_leaderboard") && !urls.at(-1).includes("created_at=") && !urls.at(-1).includes("piece=eq."));
   // The result screen's TOP 10 check reads the overall top ten, even while the
   // ranking screen shows another tab or five-row pages.
-  h.context.matchMedia = () => ({ matches: true });
+  h.context.matchMedia = (query) => ({ matches: query === "(max-height: 799px)" });
   tab("king").handlers.click();
   await settle();
   await offerScoreSubmission(9200);

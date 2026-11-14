@@ -337,7 +337,7 @@
     .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #adb3d0; font-size: 10px; }
     .setting-row input { width: auto; accent-color: #53f0e4; }
     .tutorial-panel { display: flex; flex-direction: column; width: min(94vw, 560px); max-width: 560px; max-height: 90dvh; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; text-align: left; }
-    .tutorial-step { margin: 0 0 10px; color: #53f0e4; font: 700 11px monospace; letter-spacing: .2em; }
+    .tutorial-step { margin: 0 0 10px; color: #53f0e4; font: 700 12px monospace; letter-spacing: .2em; }
     .tutorial-panel h2 { margin-bottom: 13px; }
     .tutorial-copy { min-height: 5.4em; margin: 0; color: #d9def2; line-height: 1.75; }
     .tutorial-visual { display: flex; flex-shrink: 0; min-height: 75px; align-items: center; justify-content: center; gap: 8px; margin: 20px 0 16px; padding: 13px; border: 1px solid #ffffff22; background: #0c1125cc; }
@@ -399,6 +399,14 @@
     .tutorial-actions button { min-width: 92px; margin: 0; }
     .tutorial-actions button:disabled { cursor: default; opacity: .3; filter: none; transform: none; }
     .tutorial-skip { border-color: #ffffff44; background: transparent; color: #aeb7d3; box-shadow: none; }
+    /* Landscape phones: smaller title and copy so less of each page sits under the sticky buttons. */
+    @media (max-height: 519px) {
+      .tutorial-panel > * { flex-shrink: 0; }
+      .tutorial-panel h2 { margin: 4px 0 6px; font-size: 24px; }
+      .tutorial-copy { min-height: 0; font-size: 13px; line-height: 1.6; }
+      .tutorial-visual { margin: 10px 0 8px; }
+      .tutorial-actions { padding: 8px 0 14px; }
+    }
     @media (max-width: 560px) {
       .sound-control {
         right: 10px;
@@ -489,19 +497,19 @@
     .held-trait-detail button { position: absolute; top: 3px; right: 4px; min-height: 32px; width: 30px; margin: 0; padding: 0; border: 0; background: transparent; color: #d8e1ee; box-shadow: none; font-size: 22px; }
     .xp-progress-label { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
     .stats .player-level { color: #53f0e4; font-size: 16px; letter-spacing: .02em; }
-    .stats .xp-count { color: #aeb9d3; font-size: 11px; letter-spacing: .02em; }
-    .stats .xp-count b { color: #e5edff; font-size: 12px; }
+    .stats .xp-count { color: #aeb9d3; font-size: 13px; letter-spacing: .02em; }
+    .stats .xp-count b { color: #e5edff; font-size: 13px; }
     .xp-track { height: 5px; margin-top: 5px; overflow: hidden; border-radius: 3px; background: #ffffff1a; }
     .xp-track i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #3ac8c1, #8cfff3); box-shadow: 0 0 8px #53f0e466; }
     @media (max-width: 560px) {
       .stats { gap: 4px; padding: 0; }
-      .stats > span { font-size: 8px; flex-direction: column; align-items: flex-start; gap: 0; }
+      .stats > span { font-size: 11px; flex-direction: column; align-items: flex-start; gap: 0; }
       .stats > span:nth-child(2) { align-items: flex-end; }
       .stats > span:first-child { position: relative; }
-      .score-multiplier { position: absolute; top: 0; left: 36px; font-size: 9px; line-height: 12px; }
+      .score-multiplier { position: absolute; top: 0; left: 43px; font-size: 11px; line-height: 14px; }
       .stats > span b { font-size: clamp(12px, 3.3vw, 17px); }
       .stats .player-level { font-size: 14px; }
-      .stats .xp-count, .stats .xp-count b { font-size: 10px; }
+      .stats .xp-count, .stats .xp-count b { font-size: 12px; }
       .held-traits { --trait-slot-size: clamp(24px, calc((100vw - 180px) / 6), 36px); gap: 2px; }
       .held-trait-slot { padding: 2px; }
     }
@@ -534,6 +542,7 @@
       backdrop-filter: blur(4px);
     }
     .build-version b { color: #ffd166; font-weight: 700; }
+    #buildVersion { user-select: none; -webkit-user-select: none; }
     #startScreen .start-menu {
       position: absolute;
       top: 50%;
@@ -545,6 +554,8 @@
       gap: 9px;
       transform: translateY(-50%);
     }
+    /* Landscape phones: keep the menu clear of the ⚙ button in the bottom-right corner. */
+    @media (max-height: 519px) and (min-width: 561px) { #startScreen .start-menu { right: max(84px, env(safe-area-inset-right)); } }
     #startScreen .start-menu button {
       position: relative;
       display: block;
@@ -654,6 +665,7 @@
       border-color: #53f0e488;
     }
     #startScreen .start-pre { cursor: pointer; }
+    #startScreen .mode-toggles[hidden] { display: none; }
     #startScreen .start-pre.active { background: #123137cc; box-shadow: 0 0 18px #53f0e455; }
     .pre-mode-panel { max-width: 720px; }
     .piece-select-panel { max-width: 760px; max-height: calc(100dvh - 16px); overflow-y: auto; }
@@ -677,6 +689,17 @@
       .piece-select-note { margin-bottom: 10px; font-size: 12px; }
       .piece-choice { padding: 6px 12px; }
       .piece-choice-glyph { font-size: 28px; }
+    }
+    /* Landscape phones: a slimmer header and cards so the five pieces and 취소 fit. */
+    @media (max-height: 519px) {
+      .piece-select-panel { padding: 14px 24px 16px; }
+      .piece-select-panel .eyebrow { display: none; }
+      .piece-select-panel h2 { margin: 0 0 4px; font-size: 22px; }
+      .piece-select-note { margin-bottom: 8px; font-size: 12px; }
+      .piece-choice { gap: 3px; padding: 8px 6px; }
+      .piece-choice-glyph { font-size: 30px; }
+      .piece-choice strong { font-size: 15px; }
+      .piece-select-panel .leaderboard-actions button { margin-top: 10px; padding: 9px 22px; }
     }
     .pre-mode-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .pre-mode-choice { min-height: 180px; margin: 0; padding: 22px 16px; color: #efffff; background: #121a38; box-shadow: none; text-align: left; }
@@ -738,6 +761,14 @@
       text-align: left;
     }
     @media (max-height: 799px) { .leaderboard-panel { --rows: 5; } }
+    /* Landscape phones: three rows and a tighter frame so the pager stays on screen. */
+    @media (max-height: 519px) {
+      .leaderboard-panel { --rows: 3; padding: 12px 20px 14px; }
+      .leaderboard-head { margin-bottom: 6px; }
+      .leaderboard-sheet { padding-top: 10px; padding-bottom: 8px; }
+      .leaderboard-pagination { margin-top: 8px; }
+      .leaderboard-pagination button { padding: 7px 14px; }
+    }
     .leaderboard-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 12px; }
     .leaderboard-head .eyebrow { margin: 0; }
     .leaderboard-close { display: grid; width: 36px; height: 36px; margin: -8px -12px -8px 0; padding: 0; place-items: center; border: 0; background: transparent; box-shadow: none; color: #e0e8f6; font: 400 26px/1 sans-serif; }
@@ -765,7 +796,7 @@
     .leaderboard-message { grid-area: 2 / 2; overflow: hidden; color: #bfc5df; font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
     .leaderboard-score { color: #53f0e4; font: 700 16px monospace; text-align: right; }
     .leaderboard-piece { margin-right: 5px; color: #ffd166; font: 400 1.45em/1 "Apple Symbols", "Segoe UI Symbol", serif; vertical-align: -0.12em; }
-    .leaderboard-date { display: block; margin-top: 2px; color: #8f96b8; font: 400 11px monospace; }
+    .leaderboard-date { display: block; margin-top: 2px; color: #8f96b8; font: 400 12px monospace; }
     .leaderboard-empty { padding: 30px 0; color: #aeb4ce; text-align: center; white-space: pre-line; }
     /* Browser-style tabs: the selected tab joins the sheet below it, with
        curved feet; the others sit flat, split by thin separators. */
@@ -808,13 +839,25 @@
     .leaderboard-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; }
     .leaderboard-actions button { margin-top: 18px; }
     .secondary-button { border-color: #ffffff44; background: #171a32; color: #dce3ff; box-shadow: none; }
+    /* The head (with ×), note and level filter stay put; only the trait list scrolls. */
     .trait-codex-panel {
+      display: flex;
+      flex-direction: column;
       max-width: 760px;
       max-height: min(84dvh, 760px);
-      overflow: auto;
+      overflow: hidden;
       text-align: left;
     }
-    .trait-codex-panel h2 { margin-bottom: 8px; text-align: center; }
+    .trait-codex-panel > * { flex: none; }
+    .trait-codex-panel .trait-codex-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+    .trait-codex-panel h2 { margin-bottom: 8px; text-align: center; word-break: keep-all; }
+    /* Landscape phones: a compact head so the trait list keeps most of the height. */
+    @media (max-height: 519px) {
+      .trait-codex-panel { max-height: calc(100dvh - 16px); padding: 14px 24px 16px; }
+      .trait-codex-panel .leaderboard-head { margin-bottom: 2px; }
+      .trait-codex-panel h2 { margin: 0 0 4px; font-size: 22px; }
+      .trait-codex-note { margin-bottom: 8px; font-size: 12px; line-height: 1.5; }
+    }
     .trait-codex-note { margin: 0 auto 18px; max-width: 570px; color: #c7cce3; font-size: 13px; line-height: 1.65; text-align: center; }
     .trait-codex-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
     .trait-codex-entry {
@@ -831,7 +874,7 @@
     .trait-codex-entry p { margin: 0; color: #b7bfdc; font-size: 12px; line-height: 1.45; }
     .trait-codex-entry .trait-svg-icon { width: 42px; height: 42px; color: #53f0e4; }
     #traitCodexScreen .panel { touch-action: pan-y; overscroll-behavior: contain; }
-    .trait-codex-kind { color: #f45cf4 !important; font: 700 9px "DM Mono", monospace !important; letter-spacing: .14em; }
+    .trait-codex-kind { color: #f45cf4 !important; font: 700 12px "DM Mono", monospace !important; letter-spacing: .1em; }
     #traitLevelFilter { display: block; margin: 0 auto 16px; padding: 9px 14px; color: #eef3ff; border: 1px solid #53f0e477; background: #101735; font: inherit; }
     @media (max-width: 560px) {
       #startScreen {
@@ -983,8 +1026,8 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.21.4</b> · 2026.11.14</p>
-        <div class="mode-toggles">
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.5</b> · 2026.11.14</p>
+        <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
           ><button class="dev-toggle start-pre" id="preModeButton" type="button"><span class="mode-toggle-check" aria-hidden="true"></span>PRE</button>
@@ -1036,12 +1079,14 @@
       </section>
       <section class="overlay hidden" id="traitCodexScreen" aria-label="특성 도감">
         <div class="panel trait-codex-panel">
-          <p class="eyebrow">TRAIT CODEX</p>
+          <div class="leaderboard-head">
+            <p class="eyebrow">TRAIT CODEX</p>
+            <button class="leaderboard-close" id="traitCodexClose" aria-label="닫기" title="닫기">×</button>
+          </div>
           <h2>나만의 기물을 만드세요</h2>
           <p class="trait-codex-note">특성은 6개까지 획득하며, 모두 채우면 레벨업마다 보유 특성을 강화합니다. 최대 Lv. 5 · 리롤은 게임당 2회. 공격 효과는 직접 처치 후 일반 적에게만 적용됩니다.</p>
           <select id="traitLevelFilter" aria-label="특성 레벨별 효과"><option value="1">Lv. 1 효과</option><option value="2">Lv. 2 효과</option><option value="3">Lv. 3 효과</option><option value="4">Lv. 4 효과</option><option value="5">Lv. 5 효과</option></select>
           <div class="trait-codex-list" id="traitCodexList"></div>
-          <div class="leaderboard-actions"><button class="secondary-button" id="traitCodexClose">닫기</button></div>
         </div>
       </section>
       <section class="overlay hidden" id="upgradeScreen">
@@ -1147,6 +1192,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.0"></script>
-    <script src="game.js?v=v0.21.4"></script>
+    <script src="game.js?v=v0.21.5"></script>
   </body>
 </html>
