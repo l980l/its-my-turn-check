@@ -171,7 +171,8 @@ header {
 .legend i { display: inline-block; width: 7px; height: 7px; margin: 0 5px 0 10px; border-radius: 50%; }
 .legend .cyan { background: var(--cyan); }
 .legend .violet { background: #d66efd; }
-.legend .ally {background:#f1ffff;box-shadow:0 0 8px #f1ffff;}
+.legend .mine {background:#f1ffff;box-shadow:0 0 8px #f1ffff;}
+.legend .ally {background:#f1ffff;border:2px solid #5dff9a;box-shadow:0 0 8px #5dff9a;}
 .legend .red { background: #ff4d6d; }
 .end-reviews {display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px;}
 .end-reviews button:disabled {opacity:.4;}
