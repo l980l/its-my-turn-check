@@ -56,20 +56,28 @@ const row = (score) => ({ name: "P" + score, piece: "queen", score, message: "",
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(ui.leaderboardList.children[0].textContent, "기록이 아직 없습니다.\n첫 번째 기록을 남겨보세요.", "an empty co-op board says so too");
   // Short screens show five rows a page; the pager and offsets follow.
-  h.context.matchMedia = () => ({ matches: true });
+  h.context.matchMedia = (query) => ({ matches: query === "(max-height: 799px)" });
   ui.rankingTabs.children[0].handlers.click();
   rows = Array.from({ length: 5 }, (_, index) => row(100 - index));
   range = "5-9/23";
   await loadLeaderboard(1);
   assert.ok(urls.at(-1).includes("&limit=5&offset=5"), "a compact page asks for five rows");
-  assert.equal(ui.rankingPage.textContent, "2 / 5", "23 records make five compact pages, errors");
+  assert.equal(ui.rankingPage.textContent, "2 / 5", "23 records make five compact and landscape pages, errors");
   assert.equal(ui.leaderboardList.children[0].children[0].text, "06", "page 2 of five-row pages starts at 6th");
   range = null;
   await loadLeaderboard();
   assert.equal(ui.rankingPage.textContent, "1 / 200", "without a total the compact pager spans TOP 1,000");
+  // Landscape phones (under 520px tall) show three rows a page.
+  h.context.matchMedia = () => ({ matches: true });
+  rows = Array.from({ length: 3 }, (_, index) => row(100 - index));
+  range = "3-5/23";
+  await loadLeaderboard(1);
+  assert.ok(urls.at(-1).includes("&limit=3&offset=3"), "a landscape page asks for three rows");
+  assert.equal(ui.rankingPage.textContent, "2 / 8", "23 records make eight three-row pages");
+
   // A failed request leaves a note in the list instead of a blank board.
   h.context.fetch = async () => ({ ok: false, text: async () => "down" });
   await loadLeaderboard().catch(() => {});
   assert.equal(ui.leaderboardList.children[0].textContent, "랭킹을 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.");
-  console.log("ranking pager tests passed: totals, empty boards, last page, TOP 1,000 cap, missing header, compact pages, errors");
+  console.log("ranking pager tests passed: totals, empty boards, last page, TOP 1,000 cap, missing header, compact and landscape pages, errors");
 })();

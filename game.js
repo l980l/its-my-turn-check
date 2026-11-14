@@ -52,6 +52,8 @@
       devBar: $("#devBar"),
       devVisibilityToggle: $("#devVisibilityToggle"),
       devToggle: $("#devToggle"),
+      buildVersion: $("#buildVersion"),
+      modeToggles: $("#modeToggles"),
       preModeButton: $("#preModeButton"),
       preModeScreen: $("#preModeScreen"),
       pieceSelect: $("#pieceSelectScreen"),
@@ -228,8 +230,9 @@
     // The result screen's TOP 10 check; the ranking pages hold fewer rows on short screens.
     LEADERBOARD_TOP = 10,
     LEADERBOARD_VIEW_LIMIT = 1000,
-    // Keep in sync with the .leaderboard-list rows media query in index.html.
+    // Keep in sync with the .leaderboard-panel --rows media queries in index.html.
     LEADERBOARD_COMPACT_QUERY = "(max-height: 799px)",
+    LEADERBOARD_TIGHT_QUERY = "(max-height: 519px)",
     LEADERBOARD_STORE_LIMIT = 10000,
     // v0.20.0 (start piece choice and score multipliers) went live with PR #29.
     // Solo boards and rank checks count later records; earlier ones keep a 레거시 tab.
@@ -240,7 +243,7 @@
     // Solo category tab: null is the overall board, a start piece, or "legacy".
     leaderboardPiece = null;
   function leaderboardPageSize() {
-    return matchMedia(LEADERBOARD_COMPACT_QUERY).matches ? 5 : 10;
+    return matchMedia(LEADERBOARD_TIGHT_QUERY).matches ? 3 : matchMedia(LEADERBOARD_COMPACT_QUERY).matches ? 5 : 10;
   }
   function soloFilter(category = null) {
     if (category === "legacy") return "&created_at=lt." + LEADERBOARD_SINCE;
@@ -636,7 +639,8 @@
     panel.style.minHeight = "";
     for (tutorialPage = 0; tutorialPage < TUTORIAL_PAGES.length; tutorialPage++) {
       renderTutorial();
-      tallest = Math.max(tallest, Math.ceil(panel.getBoundingClientRect().height));
+      // Content height plus borders, not the box height: max-height caps the box, which hid the overflow.
+      tallest = Math.max(tallest, panel.scrollHeight + panel.offsetHeight - panel.clientHeight);
     }
     tutorialPage = current;
     panel.style.minHeight = Math.min(tallest, innerHeight * 0.9) + "px";
@@ -3805,10 +3809,11 @@
     ui.over.classList.add("hidden");
   });
   renderRankingTabs();
-  // Crossing the compact height changes the page size, so reload the open board from its first page.
-  matchMedia(LEADERBOARD_COMPACT_QUERY).addEventListener?.("change", () => {
-    if (!ui.ranking.classList.contains("hidden")) loadLeaderboard(0).catch(() => {});
-  });
+  // Crossing a compact height changes the page size, so reload the open board from its first page.
+  for (const query of [LEADERBOARD_COMPACT_QUERY, LEADERBOARD_TIGHT_QUERY])
+    matchMedia(query).addEventListener?.("change", () => {
+      if (!ui.ranking.classList.contains("hidden")) loadLeaderboard(0).catch(() => {});
+    });
   ui.rankingButton.addEventListener("click", openRanking);
   ui.gameOverRanking.addEventListener("click", openRanking);
   ui.mainMenuButton.addEventListener("click", returnToMenu);
@@ -3823,6 +3828,15 @@
   ui.scoreButton.addEventListener("click", () => {
     localStorage.setItem("its-my-turn-ranking-name", ui.scoreName.value.trim());
     submitScore();
+  });
+  // DEV and PRE are developer switches: hidden until the build label is tapped five
+  // times within three seconds, or shown at once when this session already unlocked them.
+  let buildTaps = [];
+  ui.modeToggles.hidden = !devUnlocked;
+  ui.buildVersion.addEventListener("click", () => {
+    let now = performance.now();
+    buildTaps = buildTaps.filter((time) => now - time < 3000).concat(now);
+    if (buildTaps.length >= 5) ui.modeToggles.hidden = false;
   });
   ui.devToggle.addEventListener("change", () => {
     if (ui.devToggle.checked && !devUnlocked) {
