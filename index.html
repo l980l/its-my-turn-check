@@ -728,7 +728,7 @@
       --sheet: #121433;
       --sheet-line: #5ff7e655;
       --rows: 10;
-      --row-h: 46px;
+      --row-h: 50px;
       --row-gap: 6px;
       width: min(94vw, 680px);
       max-width: 680px;
@@ -743,7 +743,6 @@
     .leaderboard-close { display: grid; width: 36px; height: 36px; margin: -8px -12px -8px 0; padding: 0; place-items: center; border: 0; background: transparent; box-shadow: none; color: #e0e8f6; font: 400 26px/1 sans-serif; }
     .leaderboard-close:hover, .leaderboard-close:focus-visible { color: #fff; filter: none; transform: none; }
     .leaderboard-sheet { position: relative; padding: 14px 14px 12px; border: 1px solid var(--sheet-line); border-radius: 10px; background: var(--sheet); }
-    .leaderboard-note { margin: 0 0 12px; text-align: center; font-size: 13px; line-height: 1.4 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .leaderboard-list { display: grid; grid-auto-rows: var(--row-h); align-content: start; gap: var(--row-gap); height: calc(var(--rows) * var(--row-h) + (var(--rows) - 1) * var(--row-gap)); }
     .leaderboard-list:has(.leaderboard-empty) { align-content: center; }
     .leaderboard-row {
@@ -767,7 +766,7 @@
     .leaderboard-score { color: #53f0e4; font: 700 16px monospace; text-align: right; }
     .leaderboard-piece { margin-right: 5px; color: #ffd166; font: 400 1.45em/1 "Apple Symbols", "Segoe UI Symbol", serif; vertical-align: -0.12em; }
     .leaderboard-date { display: block; margin-top: 2px; color: #8f96b8; font: 400 11px monospace; }
-    .leaderboard-empty { padding: 30px 0; color: #aeb4ce; text-align: center; }
+    .leaderboard-empty { padding: 30px 0; color: #aeb4ce; text-align: center; white-space: pre-line; }
     /* Browser-style tabs: the selected tab joins the sheet below it, with
        curved feet; the others sit flat, split by thin separators. */
     .leaderboard-tabs { position: relative; z-index: 1; display: flex; align-items: flex-end; margin: 0 0 -1px; padding: 0 10px; }
@@ -984,7 +983,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version">BUILD <b>v0.21.3</b> · 2026.11.14</p>
+        <p class="build-version">BUILD <b>v0.21.4</b> · 2026.11.14</p>
         <div class="mode-toggles">
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1128,7 +1127,6 @@
           </div>
           <div class="leaderboard-tabs" id="rankingTabs" role="tablist" aria-label="랭킹 종류"></div>
           <div class="leaderboard-sheet" role="tabpanel">
-            <p class="leaderboard-note" id="leaderboardStatus">기록을 불러오는 중…</p>
             <div class="leaderboard-list" id="leaderboardList"></div>
             <div class="leaderboard-pagination" aria-label="랭킹 페이지 탐색">
               <button class="secondary-button" id="rankingPrev" disabled>← 이전</button>
@@ -1149,6 +1147,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.0"></script>
-    <script src="game.js?v=v0.21.3"></script>
+    <script src="game.js?v=v0.21.4"></script>
   </body>
 </html>

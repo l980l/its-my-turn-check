@@ -24,6 +24,8 @@ const h = createGameHarness({
 const { ui, loadLeaderboard, leaderboardRank, leaderboardCutoff, offerScoreSubmission } = h.game;
 const tabs = () => ui.rankingTabs.children;
 const tab = (category) => tabs().find((button) => (button.dataset.category || null) === category);
+// The score cell of the first row: 9,000 PTS on the overall mock, 4,000 PTS on the king one.
+const firstScore = () => ui.leaderboardList.children[0]?.children?.[2]?.text;
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
 (async () => {
@@ -40,11 +42,10 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
   assert.ok(urls.at(-1).includes("&created_at=gte." + SINCE + "&piece=eq.king"), "a piece tab filters by the start piece");
   assert.equal(tab("king").attributes["aria-selected"], "true");
   assert.equal(tab(null).attributes["aria-selected"], "false");
-  assert.match(ui.leaderboardStatus.textContent, /^킹 · TOP 1,000/, "the status names the piece");
+  assert.equal(firstScore(), "4,000 PTS", "the king tab shows the king board");
   tab("legacy").handlers.click();
   await settle();
   assert.ok(urls.at(-1).includes("&created_at=lt." + SINCE) && !urls.at(-1).includes("piece=eq."), "레거시 holds the earlier records");
-  assert.match(ui.leaderboardStatus.textContent, /^레거시 · /);
 
   // Result-screen rank checks use the same board as 종합.
   await leaderboardRank(5000);
@@ -58,11 +59,11 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
   tab("king").handlers.click();
   tab("rook").handlers.click();
   await settle();
-  assert.match(ui.leaderboardStatus.textContent, /^룩 · /);
+  assert.equal(firstScore(), "9,000 PTS");
   release();
   await settle();
   await settle();
-  assert.match(ui.leaderboardStatus.textContent, /^룩 · /, "the latest tab wins");
+  assert.equal(firstScore(), "9,000 PTS", "the latest tab wins over a slow king response");
 
   // The co-op board ignores the solo tabs.
   tab("coop").handlers.click();
@@ -79,5 +80,5 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
   await offerScoreSubmission(9050);
   assert.equal(ui.scoreSubmitTitle.textContent, "TOP 10,000 진입!", "9,050 is below the 10th score of 9,100");
   assert.equal(tab("king").attributes["aria-selected"], "true", "checking a score leaves the ranking tab alone");
-  console.log("ranking category tests passed: 종합/piece/레거시 tabs, v0.20.0 cutoff, rank checks, status, stale responses, co-op board, TOP 10 check");
+  console.log("ranking category tests passed: 종합/piece/레거시 tabs, v0.20.0 cutoff, rank checks, stale responses, co-op board, TOP 10 check");
 })();
