@@ -255,7 +255,7 @@
     $("#autoButton").textContent="AUTO OFF";$("#autoButton").setAttribute("aria-pressed","false");$("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");
     client??=window.supabase?.createClient(URL,KEY);if(!client){status("연결 모듈을 불러오지 못했습니다. 다시 시도해주세요.");return;}
     await ready();if(token!==generation)return;
-    roomCode=code;$("#roomCode").textContent=code;updateTools();$("#phaseText").textContent="WAITING";
+    roomCode=code;$("#roomCode").textContent=code;$("#pickRoomCode").textContent=code;updateTools();$("#phaseText").textContent="WAITING";
     picks=[0,1].map(i=>({piece:i===slot?myPiece:null,ready:false}));renderPicks();
     $("#actionHint").textContent=host?"초대 코드를 친구에게 보내세요.":"방에 접속하는 중입니다.";
     channel=client.channel("coop:"+code,{config:{broadcast:{self:false}}});
@@ -353,6 +353,10 @@
     event.preventDefault();const name=$("#rankName").value.trim();if(!name||!remote)return;
     $("#rankSubmit").disabled=true;if(host)setName(slot,name);else send("rank-name",{name});
   });
-  $("#copyButton").addEventListener("click",()=>navigator.clipboard?.writeText(roomCode));$("#leaveButton").addEventListener("click",leaveRoom);$("#backToLobby").addEventListener("click",leaveRoom);
+  // The picker covers the match bar, so it repeats the room code with its own COPY.
+  function copyRoomCode(button){
+    navigator.clipboard?.writeText(roomCode).then(()=>{button.textContent="COPIED";setTimeout(()=>{button.textContent="COPY";},1500);}).catch(()=>{});
+  }
+  for(const id of ["#copyButton","#pickCopy"])$(id).addEventListener("click",event=>copyRoomCode(event.currentTarget));$("#leaveButton").addEventListener("click",leaveRoom);$("#backToLobby").addEventListener("click",leaveRoom);
   tick();
 })();
