@@ -32,6 +32,9 @@ try{
   await a.ev("document.querySelector('#hostButton').click()");
   for(let n=0;n<100&&!/^[A-Z2-9]{6}$/.test(await a.ev("document.querySelector('#roomCode').textContent"));n++)await wait(50);
   const code=await a.ev("document.querySelector('#roomCode').textContent");assert.match(code,/^[A-Z2-9]{6}$/);
+  // The picker covers the match bar, so the host still needs the code inside it.
+  const pickRoom=await a.ev("(()=>{const b=document.querySelector('#pickRoomCode'),r=b.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {text:b.textContent,shown:!document.querySelector('#pickScreen').hidden,top:hit===b||b.contains(hit)}})()");
+  assert.deepEqual(pickRoom,{text:code,shown:true,top:true},"the waiting host sees the room code on the piece picker");
   await b.ev(`document.querySelector('#roomInput').value=${JSON.stringify(code)};document.querySelector('#joinForm').requestSubmit()`);
   await wait(500);
   // Both players pick a start piece in the room; the run starts once both are ready.
