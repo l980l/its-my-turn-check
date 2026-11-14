@@ -727,6 +727,12 @@
   }
   async function offerScoreSubmission(score) {
     ui.scoreSubmit.classList.add("hidden");
+    // A 0-point run can never be recorded, so skip the rank estimate ("예상 2위" next to "TOP 10,000 밖").
+    if (!(score > 0)) {
+      ui.resultRank.textContent = "0점 기록은 랭킹에 오르지 않습니다.";
+      ui.scoreStatus.textContent = "적을 잡아 점수를 얻고 다시 도전해보세요.";
+      return;
+    }
     ui.scoreStatus.textContent = "글로벌 랭킹을 확인하는 중…";
     try {
       let [rows, cutoff, rank] = await Promise.all([
@@ -3540,7 +3546,8 @@
     ui.hint.textContent = "DEV: 인접한 폰을 생성했습니다.";
   }
   function devBeat() {
-    if (!S.running || ["upgrade", "dead", "devpick"].includes(S.phase)) return;
+    // No beats once the player is down: during the rewind a beat would kill them again.
+    if (!S.running || ["upgrade", "dead", "rewind", "devpick"].includes(S.phase)) return;
     S.phase = "enemy";
     enemyBeat();
   }
