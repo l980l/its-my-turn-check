@@ -8,7 +8,7 @@
     <link rel="preload" as="font" href="assets/fonts/Bungee-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="font" href="assets/fonts/GowunBatang-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" type="image/webp" />
-    <link rel="stylesheet" href="coop.css?v=v0.21.6" />
+    <link rel="stylesheet" href="coop.css?v=v0.21.7" />
   </head>
   <body>
     <main id="coopApp" data-screen="lobby">
@@ -29,7 +29,7 @@
           <p id="lobbyStatus" class="status" role="status" aria-live="polite"></p>
         </div>
         <button id="devButton" class="ghost lobby-dev" type="button">DEV</button>
-        <p class="build-version">BUILD <b>v0.21.6</b> · CO-OP ALPHA</p>
+        <p class="build-version">BUILD <b>v0.21.7</b> · CO-OP ALPHA</p>
       </section>
       <dialog id="joinDialog" class="coop-dialog" aria-labelledby="joinTitle">
         <button id="joinClose" class="dialog-close" type="button" aria-label="초대 코드 입력 닫기">×</button>
@@ -95,6 +95,7 @@
           <div class="solo-panel pick-panel" role="dialog" aria-labelledby="pickTitle">
             <p class="eyebrow">CHOOSE YOUR PIECE</p>
             <h2 id="pickTitle">기물 선택</h2>
+            <div class="pick-room"><small>초대 코드</small><b id="pickRoomCode">------</b><button id="pickCopy" class="copy" type="button">COPY</button></div>
             <p>고른 기물로 끝까지 싸웁니다. 팀 점수에는 두 기물 배율의 평균이 곱해집니다.</p>
             <div id="pickList" class="pick-list" role="group" aria-label="시작 기물"></div>
             <ul id="pickPlayers" class="pick-players" aria-live="polite"></ul>
@@ -154,6 +155,6 @@
     </main>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="coop-session.js?v=v0.21.0"></script>
-    <script src="coop.js?v=v0.21.1"></script>
+    <script src="coop.js?v=v0.21.7"></script>
   </body>
 </html>
