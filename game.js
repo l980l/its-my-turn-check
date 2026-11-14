@@ -101,9 +101,7 @@
       rankingPrev: $("#rankingPrev"),
       rankingPage: $("#rankingPage"),
       rankingNext: $("#rankingNext"),
-      rankingSolo: $("#rankingSolo"),
-      rankingCoop: $("#rankingCoop"),
-      rankingCategories: $("#rankingCategories"),
+      rankingTabs: $("#rankingTabs"),
       scoreSubmit: $("#scoreSubmit"),
       scoreSubmitTitle: $("#scoreSubmitTitle"),
       scoreSubmitIntro: $("#scoreSubmitIntro"),
@@ -228,18 +226,23 @@
   };
   const SUPABASE_URL = "https://ganvrpzlsmvbmcilerpq.supabase.co",
     SUPABASE_KEY = "sb_publishable_9VAPG9uz4EonoI_naGXemw_PCGDqOc4",
-    LEADERBOARD_LIMIT = 10,
+    // The result screen's TOP 10 check; the ranking pages hold fewer rows on short screens.
+    LEADERBOARD_TOP = 10,
     LEADERBOARD_VIEW_LIMIT = 1000,
+    // Keep in sync with the .leaderboard-list rows media query in index.html.
+    LEADERBOARD_COMPACT_QUERY = "(max-height: 799px)",
     LEADERBOARD_STORE_LIMIT = 10000,
     // v0.20.0 (start piece choice and score multipliers) went live with PR #29.
     // Solo boards and rank checks count later records; earlier ones keep a 레거시 tab.
     LEADERBOARD_SINCE = "2026-11-11T15:48:55Z";
-  let leaderboardRows = [],
-    leaderboardPage = 0,
+  let leaderboardPage = 0,
     // Two-player runs rank on their own board (coop_leaderboard) with both names.
     leaderboardMode = "solo",
     // Solo category tab: null is the overall board, a start piece, or "legacy".
     leaderboardPiece = null;
+  function leaderboardPageSize() {
+    return matchMedia(LEADERBOARD_COMPACT_QUERY).matches ? 5 : 10;
+  }
   function soloFilter(category = null) {
     if (category === "legacy") return "&created_at=lt." + LEADERBOARD_SINCE;
     return "&created_at=gte." + LEADERBOARD_SINCE + (category ? "&piece=eq." + category : "");
@@ -346,20 +349,23 @@
         let message = document.createElement("span");
         message.className = "leaderboard-message";
         message.textContent = row.message;
+        // Messages are clipped to one line so every row keeps the same height.
+        message.title = row.message;
         item.appendChild(message);
       }
       ui.leaderboardList.appendChild(item);
     });
   }
-  function updateLeaderboardPager(rows, total) {
+  function updateLeaderboardPager(rows, total, size) {
     // Without a total (count header missing) fall back to the full TOP 1,000 range.
-    let maxPage = total === null ? LEADERBOARD_VIEW_LIMIT / LEADERBOARD_LIMIT - 1 : Math.max(0, Math.ceil(Math.min(total, LEADERBOARD_VIEW_LIMIT) / LEADERBOARD_LIMIT) - 1);
+    let maxPage = total === null ? LEADERBOARD_VIEW_LIMIT / size - 1 : Math.max(0, Math.ceil(Math.min(total, LEADERBOARD_VIEW_LIMIT) / size) - 1);
     ui.rankingPage.textContent = `${leaderboardPage + 1} / ${maxPage + 1}`;
     ui.rankingPrev.disabled = leaderboardPage === 0;
-    ui.rankingNext.disabled = leaderboardPage === maxPage || rows.length < LEADERBOARD_LIMIT;
+    ui.rankingNext.disabled = leaderboardPage === maxPage || rows.length < size;
   }
   async function loadLeaderboard(page = 0) {
-    leaderboardPage = Math.max(0, Math.min(LEADERBOARD_VIEW_LIMIT / LEADERBOARD_LIMIT - 1, page));
+    const size = leaderboardPageSize();
+    leaderboardPage = Math.max(0, Math.min(LEADERBOARD_VIEW_LIMIT / size - 1, page));
     ui.leaderboardStatus.textContent = "기록을 불러오는 중…";
     ui.rankingPrev.disabled = true;
     ui.rankingNext.disabled = true;
@@ -369,19 +375,17 @@
         { rows, total } = await leaderboardRequest(
           (mode === "coop" ? "coop_leaderboard?select=name1,name2,piece1,piece2,score,wave,created_at" : "leaderboard?select=name,piece,score,message,created_at" + soloFilter(piece)) +
             "&order=score.desc,created_at.asc&limit=" +
-            LEADERBOARD_LIMIT +
+            size +
             "&offset=" +
-            leaderboardPage * LEADERBOARD_LIMIT,
+            leaderboardPage * size,
           { withTotal: true, headers: { Prefer: "count=exact" } },
         );
       if (mode !== leaderboardMode || piece !== (mode === "solo" ? leaderboardPiece : null)) return rows;
-      // Solo score submission compares against these rows, so keep them to the overall solo board.
-      if (mode === "solo" && !piece) leaderboardRows = rows;
-      renderLeaderboard(rows, leaderboardPage * LEADERBOARD_LIMIT);
-      updateLeaderboardPager(rows, total);
+      renderLeaderboard(rows, leaderboardPage * size);
+      updateLeaderboardPager(rows, total, size);
       let board = mode === "coop" ? "2인 · " : piece === "legacy" ? "레거시 · " : piece ? PIECE_NAMES[piece] + " · " : "";
       ui.leaderboardStatus.textContent = rows.length
-        ? `${board}TOP 1,000 · ${leaderboardPage * LEADERBOARD_LIMIT + 1}–${leaderboardPage * LEADERBOARD_LIMIT + rows.length}위 · 점수 기준`
+        ? `${board}TOP 1,000 · ${leaderboardPage * size + 1}–${leaderboardPage * size + rows.length}위 · 점수 기준`
         : `${board}아직 기록이 없습니다`;
       return rows;
     } catch (error) {
@@ -390,8 +394,12 @@
       throw error;
     }
   }
-  function isTopTenScore(score, rows = leaderboardRows) {
-    return score > 0 && (rows.length < LEADERBOARD_LIMIT || score > rows[rows.length - 1].score);
+  function isTopTenScore(score, rows) {
+    return score > 0 && (rows.length < LEADERBOARD_TOP || score > rows[rows.length - 1].score);
+  }
+  // The overall solo TOP 10, whatever tab or page size the ranking screen shows.
+  function leaderboardTopTen() {
+    return leaderboardRequest("leaderboard?select=score" + soloFilter() + "&order=score.desc,created_at.asc&limit=" + LEADERBOARD_TOP);
   }
   async function leaderboardCutoff() {
     let rows = await leaderboardRequest(
@@ -418,39 +426,35 @@
     if (total === undefined) throw new Error("랭킹 수를 받지 못했습니다.");
     return Number(total) + 1;
   }
-  function setLeaderboardMode(mode) {
-    leaderboardMode = mode;
-    ui.rankingSolo.setAttribute("aria-selected", String(mode === "solo"));
-    ui.rankingCoop.setAttribute("aria-selected", String(mode === "coop"));
-    ui.rankingCategories.classList.toggle("hidden", mode !== "solo");
+  // One tab strip: 종합 (null), a tab per start piece, 레거시, then the 2인 board.
+  function selectRankingTab(tab) {
+    leaderboardMode = tab === "coop" ? "coop" : "solo";
+    leaderboardPiece = tab === "coop" ? null : tab;
+    for (const button of ui.rankingTabs.children) button.setAttribute("aria-selected", String((button.dataset.category || null) === tab));
   }
-  function setLeaderboardPiece(piece) {
-    leaderboardPiece = piece;
-    for (const button of ui.rankingCategories.children) button.setAttribute("aria-selected", String((button.dataset.category || null) === piece));
-  }
-  // 종합, one tab per start piece, and 레거시 for records before LEADERBOARD_SINCE.
-  function renderRankingCategories() {
-    ui.rankingCategories.replaceChildren(
-      ...[null, ...START_PIECES.map((option) => option.piece), "legacy"].map((piece) => {
+  function renderRankingTabs() {
+    ui.rankingTabs.replaceChildren(
+      ...[null, ...START_PIECES.map((option) => option.piece), "legacy", "coop"].map((tab) => {
         let button = document.createElement("button");
-        button.className = "secondary-button";
+        button.className = "leaderboard-tab";
         button.setAttribute("role", "tab");
-        if (piece) button.dataset.category = piece;
-        if (glyph[piece]) button.innerHTML = `<span class="leaderboard-piece" aria-hidden="true">${glyph[piece]}\uFE0E</span>${PIECE_NAMES[piece]}`;
-        else button.textContent = piece ? "레거시" : "종합";
+        if (tab) button.dataset.category = tab;
+        if (glyph[tab]) {
+          button.innerHTML = `<span class="leaderboard-piece" aria-hidden="true">${glyph[tab]}\uFE0E</span><span class="leaderboard-tab-name">${PIECE_NAMES[tab]}</span>`;
+          button.setAttribute("aria-label", PIECE_NAMES[tab]);
+        } else button.textContent = tab === "coop" ? "2인" : tab ? "레거시" : "종합";
         button.addEventListener("click", () => {
-          if (leaderboardPiece === piece) return;
-          setLeaderboardPiece(piece);
+          if ((leaderboardMode === "coop" ? "coop" : leaderboardPiece) === tab) return;
+          selectRankingTab(tab);
           loadLeaderboard(0).catch(() => {});
         });
         return button;
       }),
     );
-    setLeaderboardPiece(leaderboardPiece);
+    selectRankingTab(null);
   }
   async function openRanking() {
-    setLeaderboardMode("solo");
-    setLeaderboardPiece(null);
+    selectRankingTab(null);
     ui.ranking.classList.remove("hidden");
     try {
       await loadLeaderboard(0);
@@ -722,10 +726,9 @@
   async function offerScoreSubmission(score) {
     ui.scoreSubmit.classList.add("hidden");
     ui.scoreStatus.textContent = "글로벌 랭킹을 확인하는 중…";
-    setLeaderboardMode("solo");
     try {
       let [rows, cutoff, rank] = await Promise.all([
-          loadLeaderboard(),
+          leaderboardTopTen(),
           leaderboardCutoff(),
           leaderboardRank(score).catch(() => null),
         ]),
@@ -3803,19 +3806,17 @@
     startBgm();
     ui.over.classList.add("hidden");
   });
-  renderRankingCategories();
+  renderRankingTabs();
+  // Crossing the compact height changes the page size, so reload the open board from its first page.
+  matchMedia(LEADERBOARD_COMPACT_QUERY).addEventListener?.("change", () => {
+    if (!ui.ranking.classList.contains("hidden")) loadLeaderboard(0).catch(() => {});
+  });
   ui.rankingButton.addEventListener("click", openRanking);
   ui.gameOverRanking.addEventListener("click", openRanking);
   ui.mainMenuButton.addEventListener("click", returnToMenu);
   ui.rankingClose.addEventListener("click", closeRanking);
   ui.rankingPrev.addEventListener("click", () => loadLeaderboard(leaderboardPage - 1).catch(() => {}));
   ui.rankingNext.addEventListener("click", () => loadLeaderboard(leaderboardPage + 1).catch(() => {}));
-  for (const [button, mode] of [[ui.rankingSolo, "solo"], [ui.rankingCoop, "coop"]])
-    button.addEventListener("click", () => {
-      if (leaderboardMode === mode) return;
-      setLeaderboardMode(mode);
-      loadLeaderboard(0).catch(() => {});
-    });
   ui.riskAccept.addEventListener("click", () => resolveRisk(true));
   ui.riskDecline.addEventListener("click", () => resolveRisk(false));
   ui.rewindPrev.addEventListener("click", () => moveRewind(-1));
