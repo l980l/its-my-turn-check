@@ -141,6 +141,8 @@
     });
   }
   // A partner who leaves after the run no longer holds up the ranking entry.
+  // The host vanished before the run began: nothing to take over, so the room closes.
+  function hostGone(){leaveRoom();status("방장 연결이 끊겨 방이 닫혔습니다.");}
   function partnerGone(){peer=null;peerAway=true;if(!session){picks[1-slot]={piece:null,ready:false};renderPicks();return;}if(names[slot]&&!ranked)tryRank();}
   // Authority only. Waits for both names; a partner who left is listed as P1/P2.
   function setName(i,name){if(ranked||!session)return;names[i]=name;tryRank();}
@@ -239,10 +241,12 @@
     requestAnimationFrame(tick);netStatus();
     if(gameScreen.classList.contains("hidden"))return;
     if(session){automation();session.update();}else if(remote)automation();
-    if(channel&&!localDev&&remote){
+    // Beats run from the moment both players are in the room, so a partner who
+    // vanishes while picking pieces is noticed too.
+    if(channel&&!localDev&&(remote||peer)){
       const time=Date.now();
       if(time-lastBeat>=BEAT_MS){lastBeat=time;send("beat",{t:time,echo:peerBeat,held:peerBeat?time-peerBeatAt:0});}
-      if(time-lastHeard>PEER_TIMEOUT){if(!host)takeOver();else if(peer)partnerGone();}
+      if(time-lastHeard>PEER_TIMEOUT){if(host){if(peer)partnerGone();}else if(remote)takeOver();else hostGone();}
     }
     const snapshot=remote;if(!snapshot)return;
     const f=snapshot.flow,left=session?session.timeLeft():Math.max(0,f.deadline-Date.now());
@@ -380,6 +384,8 @@
   function copyRoomCode(button){
     navigator.clipboard?.writeText(roomCode).then(()=>{button.textContent="COPIED";setTimeout(()=>{button.textContent="COPY";},1500);}).catch(()=>{});
   }
+  // Closing the tab or app tells the partner at once instead of waiting out PEER_TIMEOUT.
+  addEventListener("pagehide",()=>{if(channel&&!localDev)send(host?"host-left":"guest-left");});
   for(const id of ["#copyButton","#pickCopy"])$(id).addEventListener("click",event=>copyRoomCode(event.currentTarget));$("#leaveButton").addEventListener("click",leaveRoom);$("#backToLobby").addEventListener("click",leaveRoom);
   tick();
 })();
