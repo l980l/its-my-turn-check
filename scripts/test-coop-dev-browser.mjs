@@ -49,6 +49,7 @@ try {
     assert.equal(await text("roomCode"), "LOCAL DEV");
     assert.equal(await text("devAutoBoth"), "AUTO BOTH ON");
     assert.equal(await ev("document.querySelector('#timerText').tagName"), "PROGRESS");
+    assert.equal(await ev("document.querySelector('#netStatus').hidden"), true, "local DEV has no connection badge");
     // Turns are untimed: with AUTO off the turn waits and the bar stays full.
     await click("#devAutoBoth"); assert.equal(await text("devAutoBoth"), "AUTO BOTH OFF");
     for (let i=0; i<200; i++) { if (/TURN$/.test(await text("phaseText"))) break; await wait(20); }
