@@ -14,7 +14,7 @@
     const clock=()=>fn.now();
     // The game's own RNG, so seeded harness runs stay reproducible.
     const random=()=>fn.random();
-    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true, balance:{...BALANCE} };
+    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true, balance:{...BALANCE}, recommendation:null, lastChoice:null };
     const save = slot => { if(slot>=0)api.turns[slot]=Object.fromEntries(fields.map(key=>[key,S[key]])); };
     function use(slot, operation) {
       const previous = api.roster.indexOf(S.player); save(previous);
@@ -64,15 +64,60 @@
       const slot=Math.min(api.view,api.roster.length-1);
       save(api.roster.indexOf(S.player));S.player=api.roster[slot];Object.assign(S,api.turns[slot]);
       fn.moves();fn.hud();
-      ui.upgrade.classList.toggle("hidden",S.phase!=="upgrade"||api.pendingOwner!==slot);
       ui.risk.classList.toggle("hidden",S.phase!=="risk"||api.pendingOwner!==slot);
-      if(S.phase==="upgrade"&&api.pendingOwner===slot)fn.renderChoices();
+      rewardView(slot);
+    }
+    // The teammate watches the reward choice read-only and may tap a card to
+    // recommend it; the chooser sees that card marked. After the choice the
+    // watcher keeps the panel a moment with the picked card lit.
+    const PICKED_MS = 900;
+    let seenChoice = 0, holdUntil = 0;
+    function rewardView(slot) {
+      const owner=api.pendingOwner,choice=api.lastChoice;
+      if(choice&&choice.id!==seenChoice){
+        seenChoice=choice.id;
+        if(choice.slot!==slot&&ui.upgradePanel.dataset.watching&&ui.choices[choice.index]){
+          // finishUpgrade already hid the panel; keep it up while the pick shows.
+          ui.upgrade.classList.remove("hidden");ui.choices[choice.index].classList.add("coop-picked");holdUntil=clock()+PICKED_MS;
+          setTimeout(()=>{if(!api.suspended)refresh();},PICKED_MS+20);return;
+        }
+      }
+      if(clock()<holdUntil)return;
+      const choosing=S.phase==="upgrade"&&owner!=null,watching=choosing&&owner!==slot&&Boolean(api.roster[owner]);
+      ui.upgrade.classList.toggle("hidden",!choosing||(owner!==slot&&!watching));
+      if(!choosing){delete ui.upgradePanel.dataset.watching;ui.coopRewardNote.hidden=true;ui.choices.forEach(b=>b.classList.remove("coop-picked"));return;}
+      if(watching){
+        // Draw the chooser's cards: reroll count and trait levels are theirs.
+        save(slot);S.player=api.roster[owner];Object.assign(S,api.turns[owner]);
+        fn.renderChoices();
+        S.player=api.roster[slot];Object.assign(S,api.turns[slot]);
+        ui.reroll.disabled=true;
+      }else fn.renderChoices();
+      if(watching)ui.upgradePanel.dataset.watching="true";else delete ui.upgradePanel.dataset.watching;
+      ui.coopRewardNote.hidden=!watching;
+      ui.coopRewardNote.textContent=watching?"P"+(owner+1)+"이 고르는 중 · 카드를 누르면 추천해요":"";
+      const rec=api.recommendation;
+      ui.choices.forEach((button,i)=>{
+        button.classList.remove("coop-picked");
+        if(rec&&rec.index===i)button.dataset.recommend=rec.slot===slot?"내 추천":"P"+(rec.slot+1)+" 추천";
+        else delete button.dataset.recommend;
+      });
     }
     api.players = () => api.roster;
     Object.defineProperty(api,"catalog",{get:()=>!api.balance.teamTraits?fn.catalog:fn.traits.catalogOf(api.balance.traitCatalog).map(t=>({id:t.id,name:t.name}))});
     api.audio = () => fn.audio();
     api.choiceReady = () => clock()>=(S.upgradeLock||0);
-    api.request = message => { if(api.interactive||message.type!=="move")api.onInput({...message,slot:api.view}); };
+    api.request = message => {
+      // A card tapped by the teammate who is only watching becomes a recommendation.
+      if(message.type==="upgrade"&&S.phase==="upgrade"&&api.pendingOwner!=null&&api.pendingOwner!==api.view)message={type:"recommend",index:message.index};
+      if(api.interactive||message.type!=="move")api.onInput({...message,slot:api.view});
+    };
+    // Tapping the recommended card again withdraws it.
+    api.recommend = (slot,index) => {
+      if(S.phase!=="upgrade"||api.pendingOwner==null||slot===api.pendingOwner||!S.upgradeOptions?.[index])return false;
+      api.recommendation=api.recommendation?.slot===slot&&api.recommendation.index===index?null:{slot,index};
+      refresh();return true;
+    };
     // Each player may bring a chosen start piece; chosen pieces never promote or swap.
     api.start = pieces => {
       api.suspended=false;api.replaying=false;
@@ -103,6 +148,9 @@
         return {pending:S.phase==="upgrade",retained:S.phase==="player"};
       });
       if(!accepted)return null;
+      // Any choice or reroll changes the cards, so a recommendation lapses.
+      api.recommendation=null;
+      if(Number.isInteger(index)&&kind!=="reroll"&&kind!=="risk")api.lastChoice={slot,index,id:(api.lastChoice?.id||0)+1};
       if(!result.pending)api.pendingOwner=null;refresh();return result;
     };
     api.auto = slot => use(slot,()=>{
@@ -203,11 +251,12 @@
     api.snapshot = () => {
       save(api.roster.indexOf(S.player));
       const world=copy(S);for(const key of ["comboStepTimer","comboHideTimer","runTicket","player","camera"])delete world[key];
-      return {world,players:copy(api.roster),turns:copy(api.turns),pendingOwner:api.pendingOwner,clock:clock(),rewardLabels:{title:ui.upgradeTitle.textContent,eyebrow:ui.upgradeEyebrow.textContent}};
+      return {world,players:copy(api.roster),turns:copy(api.turns),pendingOwner:api.pendingOwner,recommendation:api.recommendation,lastChoice:api.lastChoice,clock:clock(),rewardLabels:{title:ui.upgradeTitle.textContent,eyebrow:ui.upgradeEyebrow.textContent}};
     };
     api.apply = snapshot => {
       const camera=S.camera;Object.assign(S,copy(snapshot.world));S.camera=camera;
       api.roster=copy(snapshot.players);api.turns=copy(snapshot.turns);api.pendingOwner=snapshot.pendingOwner;
+      api.recommendation=snapshot.recommendation||null;api.lastChoice=snapshot.lastChoice||null;
       S.player=api.roster[api.view];Object.assign(S,api.turns[api.view]);
       if(snapshot.rewardLabels){ui.upgradeTitle.textContent=snapshot.rewardLabels.title;ui.upgradeEyebrow.textContent=snapshot.rewardLabels.eyebrow;}
       if(S.phase==="upgrade")S.upgradeLock=clock()+Math.max(0,(snapshot.world.upgradeLock||0)-snapshot.clock);

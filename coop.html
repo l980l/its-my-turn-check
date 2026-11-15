@@ -8,7 +8,7 @@
     <link rel="preload" as="font" href="assets/fonts/Bungee-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="font" href="assets/fonts/GowunBatang-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" type="image/webp" />
-    <link rel="stylesheet" href="coop.css?v=v0.21.7" />
+    <link rel="stylesheet" href="coop.css?v=v0.21.8" />
   </head>
   <body>
     <main id="coopApp" data-screen="lobby">
@@ -29,7 +29,7 @@
           <p id="lobbyStatus" class="status" role="status" aria-live="polite"></p>
         </div>
         <button id="devButton" class="ghost lobby-dev" type="button">DEV</button>
-        <p class="build-version">BUILD <b>v0.21.7</b> · CO-OP ALPHA</p>
+        <p class="build-version">BUILD <b>v0.21.8</b> · CO-OP ALPHA</p>
       </section>
       <dialog id="joinDialog" class="coop-dialog" aria-labelledby="joinTitle">
         <button id="joinClose" class="dialog-close" type="button" aria-label="초대 코드 입력 닫기">×</button>
@@ -103,7 +103,7 @@
             <div class="result-actions"><button id="pickReady" class="primary-button" type="button" disabled>준비</button></div>
           </div>
         </div>
-        <div class="legend"><i class="cyan"></i>내 기물 <i class="ally"></i>P1 / P2 동료 · 공격 시 추가 행동</div>
+        <div class="legend"><i class="mine"></i>내 기물 <i class="ally"></i>동료 (초록 테두리) · 공격 시 추가 행동</div>
         <aside id="devTools" class="dev-tools" aria-label="로컬 코옵 개발 도구" hidden>
           <div class="dev-heading"><strong>LOCAL DEV</strong><button id="devToolsToggle" class="ghost" type="button" aria-expanded="true" aria-controls="devControls">도구 숨기기</button></div>
           <div id="devControls" class="dev-controls">
@@ -154,7 +154,7 @@
       </section>
     </main>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="coop-session.js?v=v0.21.0"></script>
-    <script src="coop.js?v=v0.21.7"></script>
+    <script src="coop-session.js?v=v0.21.8"></script>
+    <script src="coop.js?v=v0.21.8"></script>
   </body>
 </html>

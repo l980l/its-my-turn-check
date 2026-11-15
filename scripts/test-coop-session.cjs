@@ -185,7 +185,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   step();assert.equal(s.flow().phase,"enemy","an unanswered window passes the turn");assert.deepEqual(actions,[0,0]);
   step();assert.equal(enemySteps,2);assert.deepEqual(s.flow().eligible,[1],"P2 leads the second wave");
   s.move(1,{x:1,y:0},s.flow().roundId);step();step();step();assert.deepEqual(s.flow().eligible,[0]);assert.deepEqual(actions,[0,0,1]);
-  for(const factor of [2,3,4,1]){s.speed(factor);assert.equal(s.flow().duration,1800/factor);}
+  for(const factor of [2,3,4,1]){s.speed(factor);assert.equal(s.flow().duration,3000/factor);}
   s.pause(true);const left=s.timeLeft();time+=10000;s.update();assert.equal(s.timeLeft(),left);s.pause(false);assert.equal(s.timeLeft(),left);
   // A DEV tool used while a move resolves keeps that move.
   s.move(0,{x:1,y:0},s.flow().roundId);s.update();assert.equal(s.flow().stage,"focus");

@@ -34,6 +34,7 @@
       start: $("#startScreen"),
       upgrade: $("#upgradeScreen"),
       upgradePanel: $("#upgradeScreen .panel"),
+      coopRewardNote: $("#coopRewardNote"),
       upgradeEyebrow: $("#upgradeEyebrow"),
       upgradeTitle: $("#upgradeTitle"),
       choices: [...document.querySelectorAll(".upgrade-choice")],
@@ -2721,7 +2722,8 @@
       // The color communicates remaining hits, not the enemy's original maximum.
       // A 2-health orange enemy becomes red after its first hit.
       durability = COMBO_COLORS[Math.max(0, Math.min(6, hp - 1))],
-      col = bossPiece ? (bossPhase === "vulnerable" ? "#53f0e4" : "#ff5577") : enemy ? durability : "#53f0e4",
+      // In co-op your own piece glows white; the ally is drawn by drawCoopAlly with a green rim.
+      col = bossPiece ? (bossPhase === "vulnerable" ? "#53f0e4" : "#ff5577") : enemy ? durability : coopSession ? "#f1ffff" : "#53f0e4",
       health = Math.max(0, Math.min(1, hp / maxHp));
     g.save();
     g.shadowBlur = bossPiece ? 38 : enemy ? 20 : 30;
@@ -3331,12 +3333,13 @@
       $("#devTime").textContent = "+5분 (" + minute + "분)";
     }
   }
+  const COOP_ALLY_COLOR = "#5dff9a";
   function drawCoopAlly() {
     const allyIndex=1-coopSession.view,ally = coopSession.roster[allyIndex];
     if (!ally) return;
     const q=pos(ally.x,ally.y), s=size(), onScreen=q.x>30&&q.x<W-30&&q.y>75&&q.y<H-30;
     g.save();
-    const color="#f1ffff",label="P"+(allyIndex+1);
+    const color=COOP_ALLY_COLOR,label="P"+(allyIndex+1);
     // Pin: a dashed line marks the cells whose enemies cannot move this turn.
     const me=coopSession.roster[coopSession.view],pin=me?.alive&&TraitSystem.coopRule(me.traits,me.traitLevels,"pin",me.mastered);
     const dx=ally.x-(me?.x||0),dy=ally.y-(me?.y||0),span=Math.max(Math.abs(dx),Math.abs(dy));
@@ -3357,7 +3360,9 @@
     }
     g.shadowColor=color;g.shadowBlur=30;
     if (onScreen) {
-      drawPrePiece(ally.piece,q.x,q.y,s*.54,color);
+      // A white piece over a slightly larger green one reads as a green rim.
+      drawPrePiece(ally.piece,q.x,q.y,s*.62,color);
+      g.shadowBlur=0;drawPrePiece(ally.piece,q.x,q.y,s*.54,"#f1ffff");g.shadowBlur=30;
       g.font="bold 11px 'Gowun Batang'";g.textAlign="center";g.textBaseline="bottom";g.fillStyle=color;
       g.fillText(label,q.x,q.y-s*.32);
     }

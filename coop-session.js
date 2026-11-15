@@ -8,7 +8,7 @@
   // the existing single-player runtime; this module only orders two players.
   // Players take turns: each gets its own selection window, keeps it through
   // kill chains like solo, and the lead alternates every wave.
-  const PLAN_MS = 1800;
+  const PLAN_MS = 3000;
   function create(engine, changed = () => {}, now = () => Date.now()) {
     let flow, speed = 1, paused = false, remaining = 0, round = 0, waves = 0, history=[], deaths=[null,null];
     const alive = () => engine.players().map((p, i) => p.alive ? i : -1).filter(i => i >= 0);
@@ -95,6 +95,11 @@
         else if (flow.debugPending) {flow.debugPending=false;if(flow.current!=null)planning(flow.current);else nextTurn();}
         else completed(result);
         return true;
+      },
+      // The watching teammate's tap on a reward card, shown to the chooser.
+      recommend(slot, index) {
+        if (!flow || flow.phase !== "upgrade" || flow.actor === slot || !engine.recommend?.(slot, index)) return false;
+        notify(); return true;
       },
       update,
       // A move already resolving stays: engine.act rechecks it against the new board.
