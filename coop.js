@@ -10,6 +10,11 @@
   // Host handoff: each authority change raises the epoch; a device that hears a
   // newer epoch follows it. Silence longer than PEER_TIMEOUT counts as leaving.
   const PEER_TIMEOUT=5000, BEAT_MS=1000;
+  // Ping rides on the beats both sides already send: no extra messages, only a
+  // few bytes. A beat carries its send time and echoes the partner's last one
+  // with how long it was held, so the round trip needs no shared clock.
+  const QUIET_MS=2500;
+  let peerBeat=0, peerBeatAt=0, rtt=null;
   let epoch=0, lastHeard=0, lastBeat=0, peerAway=false;
   // Co-op ranking: the authority holds a server run ticket, collects both
   // names after the run and submits the team score once.
@@ -231,12 +236,12 @@
     }else if(["upgrade","risk"].includes(flow.phase)&&(localDev?autos[flow.actor]:(auto&&slot===flow.actor)||away(flow.actor))&&apis[0].choiceReady())input({type:flow.phase,index:flow.phase==="risk"?false:0,slot:flow.actor},away(flow.actor));
   }
   function tick(){
-    requestAnimationFrame(tick);
+    requestAnimationFrame(tick);netStatus();
     if(gameScreen.classList.contains("hidden"))return;
     if(session){automation();session.update();}else if(remote)automation();
     if(channel&&!localDev&&remote){
       const time=Date.now();
-      if(time-lastBeat>=BEAT_MS){lastBeat=time;send("beat");}
+      if(time-lastBeat>=BEAT_MS){lastBeat=time;send("beat",{t:time,echo:peerBeat,held:peerBeat?time-peerBeatAt:0});}
       if(time-lastHeard>PEER_TIMEOUT){if(!host)takeOver();else if(peer)partnerGone();}
     }
     const snapshot=remote;if(!snapshot)return;
@@ -244,6 +249,15 @@
     // Untimed turns (the default) keep the bar full while someone is choosing.
     const fraction=f.phase!=="planning"?0:f.duration?Math.max(0,Math.min(1,left/f.duration)):1;
     $("#timerText").value=fraction*100;$("#timerText").setAttribute("aria-valuetext",f.phase==="planning"&&!f.duration?"시간 제한 없음":"남은 선택 시간 "+Math.round(fraction*100)+"%");
+  }
+  // Top-right connection badge for online rooms: the partner's ping, or why it is missing.
+  function netStatus(){
+    const badge=$("#netStatus"),online=Boolean(channel&&!localDev&&remote&&$("#coopApp").dataset.screen==="gameScreen");
+    badge.hidden=!online;if(!online)return;
+    const quiet=Date.now()-lastHeard>QUIET_MS,state=!peer||peerAway?"lost":quiet?"quiet":rtt==null?"wait":rtt<150?"good":rtt<400?"slow":"bad";
+    badge.dataset.state=state;
+    badge.querySelector("span").textContent={lost:"연결 끊김",quiet:"응답 없음",wait:"측정 중"}[state]||rtt+"ms";
+    badge.title=state==="lost"?"동료 연결이 끊겨 AUTO가 대신 움직입니다":"동료와의 왕복 지연 시간";
   }
   async function leaveRoom(){
     resetReviews();
@@ -255,7 +269,7 @@
   }
   async function connect(code,asHost){
     resetReviews();
-    const token=++generation;host=asHost;localDev=false;slot=asHost?0:1;peer=null;session=null;remote=null;runId=null;auto=false;paused=false;epoch=0;peerAway=false;lastHeard=Date.now();cameras.forEach(c=>c.reset());
+    const token=++generation;host=asHost;localDev=false;slot=asHost?0:1;peer=null;session=null;remote=null;runId=null;auto=false;paused=false;epoch=0;peerAway=false;lastHeard=Date.now();peerBeat=0;rtt=null;cameras.forEach(c=>c.reset());
     $("#autoButton").textContent="AUTO OFF";$("#autoButton").setAttribute("aria-pressed","false");$("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");
     client??=window.supabase?.createClient(URL,KEY);if(!client){status("연결 모듈을 불러오지 못했습니다. 다시 시도해주세요.");return;}
     await ready();if(token!==generation)return;
@@ -280,7 +294,12 @@
       picks[1-slot]={piece:validPiece(payload.piece),ready:Boolean(payload.ready&&validPiece(payload.piece))};picksChanged();
     }).on("broadcast",{event:"beat"},({payload})=>{
       if(token!==generation)return;
-      if(payload.from===peer){lastHeard=Date.now();return;}
+      if(payload.from===peer){
+        const time=Date.now();lastHeard=time;
+        if(Number.isFinite(payload.t)){peerBeat=payload.t;peerBeatAt=time;}
+        if(payload.echo>0&&Number.isFinite(payload.held)){const sample=Math.max(0,time-payload.echo-payload.held);rtt=rtt==null?sample:Math.round(rtt*.7+sample*.3);}
+        return;
+      }
       // A player of this run reappears (e.g. the old host after the takeover): seat it again.
       if(host&&!peer&&session&&payload.runId===runId)welcome(payload.from);
     }).on("broadcast",{event:"welcome"},({payload})=>{

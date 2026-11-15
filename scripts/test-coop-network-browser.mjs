@@ -54,12 +54,15 @@ try{
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");await wait(7500);
   as=await state(a);bs=await state(b);assert.ok(as.wave>=2);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
   assert.ok(as.players.every((p,i)=>p.x!==[-2,2][i]||p.y!==0),"both clients submit their own core AI moves");
+  // The connection badge shows the ping, measured from the beats already exchanged.
+  const net=p=>p.ev("(()=>{const b=document.querySelector('#netStatus');return {shown:!b.hidden,state:b.dataset.state,text:b.textContent}})()");
+  for(const p of [a,b]){const n=await net(p);assert.ok(n.shown&&["good","slow","bad"].includes(n.state)&&/^\d+ms$/.test(n.text),"online players see the partner's ping: "+JSON.stringify(n));}
   // Host handoff. The host goes silent (backgrounded app): the guest takes over and keeps playing.
   const wave=p=>p.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.snapshot().world.wave");
   // Keep both pieces alive through the handoff checks: a natural game over would end the run first.
   await a.ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.turns.forEach(t=>t.grace=1e6)");await wait(300);
   // A silent player's turn times out after the 3 s selection window, so one wave can take ~3.5 s.
-  await a.ev("window.__offline=true");await wait(6500);const w1=await wave(b);await wait(5000);
+  await a.ev("window.__offline=true");await wait(6500);const w1=await wave(b);assert.deepEqual(await net(b),{shown:true,state:"lost",text:"연결 끊김"},"the badge says the partner dropped");await wait(5000);
   assert.ok(await wave(b)>w1,"the guest continues the run as the new authority");
   // The old host comes back, follows the newer authority and keeps its own player.
   await a.ev("window.__offline=false");await wait(3000);

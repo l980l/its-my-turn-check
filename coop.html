@@ -8,13 +8,14 @@
     <link rel="preload" as="font" href="assets/fonts/Bungee-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="font" href="assets/fonts/GowunBatang-Regular.ttf" type="font/ttf" crossorigin />
     <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" type="image/webp" />
-    <link rel="stylesheet" href="coop.css?v=v0.21.8" />
+    <link rel="stylesheet" href="coop.css?v=v0.21.10" />
   </head>
   <body>
     <main id="coopApp" data-screen="lobby">
       <header>
         <a href="index.html" class="back">← 메인으로</a>
         <div class="mode-label"><strong>CO-OP ALPHA</strong></div>
+        <div id="netStatus" class="net-status" role="status" aria-label="연결 상태" hidden><i></i><span>측정 중</span></div>
         <button id="leaveButton" class="ghost" hidden>나가기</button>
       </header>
       <section id="lobby" class="screen">
@@ -29,7 +30,7 @@
           <p id="lobbyStatus" class="status" role="status" aria-live="polite"></p>
         </div>
         <button id="devButton" class="ghost lobby-dev" type="button">DEV</button>
-        <p class="build-version">BUILD <b>v0.21.9</b> · CO-OP ALPHA</p>
+        <p class="build-version">BUILD <b>v0.21.10</b> · CO-OP ALPHA</p>
       </section>
       <dialog id="joinDialog" class="coop-dialog" aria-labelledby="joinTitle">
         <button id="joinClose" class="dialog-close" type="button" aria-label="초대 코드 입력 닫기">×</button>
@@ -155,6 +156,6 @@
     </main>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="coop-session.js?v=v0.21.9"></script>
-    <script src="coop.js?v=v0.21.9"></script>
+    <script src="coop.js?v=v0.21.10"></script>
   </body>
 </html>
