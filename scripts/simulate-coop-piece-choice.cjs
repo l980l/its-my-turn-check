@@ -1,9 +1,11 @@
 "use strict";
 // Usage: node scripts/simulate-coop-piece-choice.cjs <queen+rook|pawn> <shard> <shards> <out.json>
 // Co-op AUTO with fixed start pieces: no pawn promotion, no piece swap.
+// LOOKAHEAD=1 runs the measurement-only two-move AUTO (scripts/auto-lookahead.cjs).
 const fs = require("node:fs");
 const Session = require("../coop-session.js");
 const {createGameHarness} = require("./game-harness.cjs");
+const gamePath = process.env.LOOKAHEAD === "1" ? require("./auto-lookahead.cjs").patchedGamePath() : undefined;
 const WAVE_CAP = Number(process.env.WAVE_CAP || 300), RUNS = Number(process.env.RUNS || 48), SECONDS_PER_WAVE = 3.34;
 function chooseReward(choose, phase) {
   if (phase === "risk") return choose(false, "risk");
@@ -11,7 +13,7 @@ function chooseReward(choose, phase) {
   return choose(null, "reroll");
 }
 function coop(seed, pieces) {
-  const h = createGameHarness({coop: true, withUpgradeUi: true, withHeldUi: true, seed});
+  const h = createGameHarness({coop: true, withUpgradeUi: true, withHeldUi: true, seed, gamePath});
   const e = h.context.window.CoopGame, S = h.game.S;
   const start = e.start;
   e.start = () => { start(); if (pieces) { S.startPiece = "fixed"; e.players().forEach((p, i) => { p.piece = pieces[i]; }); } };
