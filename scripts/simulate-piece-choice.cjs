@@ -1,11 +1,13 @@
 // Usage: node scripts/simulate-piece-choice.cjs [sourceRoot] <piece> [seeds]. Run from a source copy.
 // Solo AUTO run that starts as <piece> and keeps it (v0.20.0+: a start piece
-// skips the first promotion and the "말 바꾸기" fork).
+// skips the first promotion and the "말 바꾸기" fork). LOOKAHEAD=1 runs the
+// measurement-only two-move AUTO (scripts/auto-lookahead.cjs).
 const path=require("path");const root=process.argv[2]||path.resolve(__dirname,"..");const piece=process.argv[3];const N=+(process.argv[4]||48);const CAP=+(process.env.WAVE_CAP||300);const FIRST=+(process.env.SEED_START||0);
 const {createGameHarness}=require(path.join(root,"scripts/game-harness.cjs"));
+const gamePath=process.env.LOOKAHEAD==="1"?require(path.join(root,"scripts/auto-lookahead.cjs")).patchedGamePath(path.join(root,"game.js")):undefined;
 const out=[];
 for(let i=FIRST;i<FIRST+N;i++){const seed=20261026+i*7919;
-  const h=createGameHarness({withUpgradeUi:true,withHeldUi:true,seed});const g=h.game,S=g.S;
+  const h=createGameHarness({withUpgradeUi:true,withHeldUi:true,seed,gamePath});const g=h.game,S=g.S;
   g.reset();S.running=true;S.autoPlay=true;S.startPiece=piece;S.player.piece=piece;
   for(let step=0;step<CAP*60&&S.wave<CAP;step++){
     if(S.phase==="enemy"){S.elapsedPlaySeconds=S.wave*3.34;g.enemyBeat();}
