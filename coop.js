@@ -217,16 +217,18 @@
     const snapshot=remote;if(!snapshot)return;
     const flow=snapshot.flow;
     if(flow.phase==="planning"){
-      // AUTO thinks for a solo-like 0.28s so the turn and its timer stay readable.
-      const waited=flow.duration-(session?session.timeLeft():Math.max(0,flow.deadline-Date.now()));
+      // AUTO thinks for a solo-like 0.28s so the turn stays readable. The turn
+      // began at deadline - duration; an untimed turn has duration 0.
+      const waited=Date.now()-(flow.deadline-flow.duration);
       if(!immediate&&waited<280/speed)return;
       for(const i of flow.eligible){
         if(!(localDev?autos[i]:(auto&&i===slot)||away(i))||flow.actions[i])continue;
         const key=flow.roundId+":"+i;if(!host&&submittedKey===key)continue;
         const api=apis[0],move=api.auto(i);
-        if(move){submittedKey=key;input({type:"move",move,slot:i});}
+        // An away partner's AUTO move keeps its slot: input() would otherwise claim it for this player.
+        if(move){submittedKey=key;input({type:"move",move,slot:i},away(i));}
       }
-    }else if(["upgrade","risk"].includes(flow.phase)&&(localDev?autos[flow.actor]:(auto&&slot===flow.actor)||away(flow.actor))&&apis[0].choiceReady())input({type:flow.phase,index:flow.phase==="risk"?false:0,slot:flow.actor});
+    }else if(["upgrade","risk"].includes(flow.phase)&&(localDev?autos[flow.actor]:(auto&&slot===flow.actor)||away(flow.actor))&&apis[0].choiceReady())input({type:flow.phase,index:flow.phase==="risk"?false:0,slot:flow.actor},away(flow.actor));
   }
   function tick(){
     requestAnimationFrame(tick);
@@ -239,8 +241,9 @@
     }
     const snapshot=remote;if(!snapshot)return;
     const f=snapshot.flow,left=session?session.timeLeft():Math.max(0,f.deadline-Date.now());
-    const fraction=f.phase==="planning"?Math.max(0,Math.min(1,left/f.duration)):0;
-    $("#timerText").value=fraction*100;$("#timerText").setAttribute("aria-valuetext","남은 선택 시간 "+Math.round(fraction*100)+"%");
+    // Untimed turns (the default) keep the bar full while someone is choosing.
+    const fraction=f.phase!=="planning"?0:f.duration?Math.max(0,Math.min(1,left/f.duration)):1;
+    $("#timerText").value=fraction*100;$("#timerText").setAttribute("aria-valuetext",f.phase==="planning"&&!f.duration?"시간 제한 없음":"남은 선택 시간 "+Math.round(fraction*100)+"%");
   }
   async function leaveRoom(){
     resetReviews();

@@ -29,7 +29,7 @@
           <p id="lobbyStatus" class="status" role="status" aria-live="polite"></p>
         </div>
         <button id="devButton" class="ghost lobby-dev" type="button">DEV</button>
-        <p class="build-version">BUILD <b>v0.21.8</b> · CO-OP ALPHA</p>
+        <p class="build-version">BUILD <b>v0.21.9</b> · CO-OP ALPHA</p>
       </section>
       <dialog id="joinDialog" class="coop-dialog" aria-labelledby="joinTitle">
         <button id="joinClose" class="dialog-close" type="button" aria-label="초대 코드 입력 닫기">×</button>
@@ -78,7 +78,7 @@
       <section id="gameScreen" class="screen hidden">
         <div class="matchbar">
           <div><small>초대 코드</small><b id="roomCode">------</b><button id="copyButton" class="copy">COPY</button></div>
-          <div class="timer"><small id="phaseText">WAITING</small><progress id="timerText" max="100" value="0" aria-label="남은 이동 선택 시간"></progress></div>
+          <div class="timer"><small id="phaseText">WAITING</small><progress id="timerText" max="100" value="0" aria-label="이동 선택 차례"></progress></div>
           <div><small>팀 점수</small><b id="scoreText">0</b></div>
         </div>
         <div id="boardViews" class="board-views">
@@ -154,7 +154,7 @@
       </section>
     </main>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="coop-session.js?v=v0.21.8"></script>
-    <script src="coop.js?v=v0.21.8"></script>
+    <script src="coop-session.js?v=v0.21.9"></script>
+    <script src="coop.js?v=v0.21.9"></script>
   </body>
 </html>
