@@ -49,12 +49,14 @@ try {
     assert.equal(await text("roomCode"), "LOCAL DEV");
     assert.equal(await text("devAutoBoth"), "AUTO BOTH ON");
     assert.equal(await ev("document.querySelector('#timerText').tagName"), "PROGRESS");
-    // AUTO answers within 0.28s, so watch an unanswered 1.8s turn window instead.
+    // Turns are untimed: with AUTO off the turn waits and the bar stays full.
     await click("#devAutoBoth"); assert.equal(await text("devAutoBoth"), "AUTO BOTH OFF");
-    for (let i=0; i<200; i++) { if (/TURN$/.test(await text("phaseText")) && await ev("document.querySelector('#timerText').value") > 40) break; await wait(20); }
-    const initialBar = await ev("document.querySelector('#timerText').value");
-    await wait(200);
-    assert.ok(await ev("document.querySelector('#timerText').value") < initialBar, "remaining-time bar decreases during a turn");
+    for (let i=0; i<200; i++) { if (/TURN$/.test(await text("phaseText"))) break; await wait(20); }
+    const waitingTurn = await text("phaseText");
+    await wait(3500);
+    assert.equal(await text("phaseText"), waitingTurn, "an unanswered turn waits instead of passing");
+    assert.equal(await ev("document.querySelector('#timerText').value"), 100, "the bar stays full while a player chooses");
+    assert.equal(await ev("document.querySelector('#timerText').getAttribute('aria-valuetext')"), "시간 제한 없음");
     assert.equal(await text("timerText"), "", "seconds are not rendered");
     await click("#devPause");
     const frozen = await text("actionHint"), frozenBar = await ev("document.querySelector('#timerText').value"); await wait(300);

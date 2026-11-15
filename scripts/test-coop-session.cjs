@@ -168,10 +168,12 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
 }
 // Pure ordering/clock tests: one player selects at a time, kill chains keep the
 // turn, the lead alternates per wave, and monsters wait for both turns.
+// These turn-order checks run with a 3 s window so unanswered turns pass.
+const TIMED={planMs:3000};
 {
   let time=0,enemySteps=0;const actions=[],players=[{alive:true},{alive:true}];let results=[true,false,false];
   const engine={start(){},players:()=>players,enemyTurn(){enemySteps++;},pending:()=>null,moves:()=>[{x:1,y:0},{x:2,y:0}],act(i,m){actions.push(i);return {retained:results.shift(),pending:false};},choose(){return {retained:true,pending:false};},debug(){}};
-  const s=Session.create(engine,()=>{},()=>time);s.start();assert.equal(enemySteps,1);
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();assert.equal(enemySteps,1);
   const step=()=>{time=s.flow().deadline;s.update();};
   assert.deepEqual(s.flow().eligible,[0],"P1 leads the first wave");
   const id=s.flow().roundId;assert.equal(s.move(1,{x:2,y:0},id),false,"P2 cannot select during P1's turn");
@@ -193,13 +195,29 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   s.debug("piece","king",0);step();assert.deepEqual(played,{x:1,y:0},"the resolving move still plays after a DEV tool");
 }
 {
+  // Rooms run untimed by default: an unanswered turn waits, then a move resolves at once.
+  let time=0,enemySteps=0;const actions=[],players=[{alive:true},{alive:true}];
+  const engine={start(){},players:()=>players,enemyTurn(){enemySteps++;},pending:()=>null,moves:()=>[{x:1,y:0}],act(i){actions.push(i);return{retained:false,pending:false};}};
+  const s=Session.create(engine,()=>{},()=>time);s.start();
+  assert.equal(s.flow().phase,"planning");assert.equal(s.flow().duration,0,"no selection window");assert.equal(s.timeLeft(),0);
+  time+=600000;s.update();s.update();
+  assert.equal(s.flow().phase,"planning","ten minutes later P1 still has the turn");assert.deepEqual(s.flow().eligible,[0]);assert.equal(enemySteps,1);
+  assert.ok(s.move(0,{x:1,y:0},s.flow().roundId),"a late move is still accepted");
+  s.update();assert.equal(s.flow().phase,"acting");time=s.flow().deadline;s.update();time=s.flow().deadline;s.update();
+  assert.deepEqual(actions,[0]);assert.deepEqual(s.flow().eligible,[1],"then P2's turn waits the same way");
+  time+=600000;s.update();assert.deepEqual(s.flow().eligible,[1]);
+  s.step();assert.equal(s.flow().phase,"enemy","DEV step passes an unanswered untimed turn");
+  time=s.flow().deadline;s.update();assert.deepEqual(s.flow().eligible,[1]);
+  players[1].alive=false;s.update();assert.notDeepEqual(s.flow().eligible,[1],"a player who falls while it is their turn does not hold the game");
+}
+{
   // Host handoff: a second authority resumes from the published flow without
   // restarting the run, re-plans a move in flight and keeps the lead alternating.
   let time=0,enemySteps=0;const players=[{alive:true},{alive:true}];
   const engine={start(){throw Error("resume must not restart the run");},players:()=>players,enemyTurn(){enemySteps++;},pending:()=>null,moves:()=>[{x:1,y:0}],act(){return{retained:false,pending:false};}};
-  const a=Session.create({...engine,start(){}},()=>{},()=>time);a.start();
+  const a=Session.create({...engine,start(){}},()=>{},()=>time,TIMED);a.start();
   a.move(0,{x:1,y:0},a.flow().roundId);a.update(time);assert.equal(a.flow().phase,"acting");
-  const b=Session.create(engine,()=>{},()=>time);b.resume(a.flow());
+  const b=Session.create(engine,()=>{},()=>time,TIMED);b.resume(a.flow());
   assert.equal(b.flow().phase,"planning");assert.deepEqual(b.flow().eligible,[0],"the move in flight is re-planned for the same player");
   assert.ok(b.flow().roundId>a.flow().roundId,"rounds keep counting so old packets stay stale");
   const step=()=>{time=b.flow().deadline;b.update();};
@@ -208,7 +226,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
 {
   let time=0,pending=null;const actions=[],players=[{alive:true},{alive:true}];
   const engine={start(){},players:()=>players,enemyTurn(){},pending:()=>pending,moves:()=>[{x:1,y:0},{x:2,y:0}],act(i){actions.push(i);if(i===0){pending={slot:0,kind:"upgrade"};return{pending:true};}return{retained:false};},choose(){pending=null;return{retained:true,pending:false};}};
-  const s=Session.create(engine,()=>{},()=>time);s.start();
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
   const step=()=>{time=s.flow().deadline;s.update();};
   s.move(0,{x:1,y:0},s.flow().roundId);step();step();
   assert.equal(s.flow().phase,"upgrade");assert.deepEqual(actions,[0]);
@@ -219,7 +237,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
 {
   let time=0;const players=[{alive:true},{alive:true}];
   const engine={start(){},players:()=>players,enemyTurn(){},pending:()=>null,moves:i=>i===0?[]:[{x:1,y:0}],act(){return{retained:false};}};
-  const s=Session.create(engine,()=>{},()=>time);s.start();
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
   assert.deepEqual(s.flow().eligible,[1],"a player without legal moves is skipped");
 }
 {
@@ -236,7 +254,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   const engine={start(){enemyTurns=0;players.forEach(p=>{p.alive=true;delete p.deathReason;});},players:()=>players,moves:()=>[{x:1,y:0}],pending:()=>null,
     enemyTurn(){enemyTurns++;if(enemyTurns===3){players[0].alive=false;players[0].deathReason="P1 captured";}if(enemyTurns===5){players[1].alive=false;players[1].deathReason="P2 captured";}},
     snapshot:()=>({world:{wave:enemyTurns,trail:[{x1:0,y1:0,x2:1,y2:0}],enemyTrail:[{x1:1,y1:1,x2:1,y2:0}]},players:structuredClone(players)})};
-  const s=Session.create(engine,()=>{},()=>time);s.start();
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
   while(enemyTurns<3){time=s.flow().deadline;s.update();}
   assert.equal(s.flow().phase,"planning","one death does not end team game");assert.deepEqual(s.flow().eligible,[1]);
   const frozen=JSON.stringify(s.replays()[0]);assert.equal(s.move(0,{x:1,y:0},s.flow().roundId),false);
@@ -251,7 +269,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
 {
   let time=0,turn=0;const players=[{alive:true},{alive:true}];
   const engine={start(){},players:()=>players,pending:()=>null,moves:()=>[],enemyTurn(){if(++turn===15)players.forEach(p=>p.alive=false);},snapshot:()=>({world:{wave:turn,trail:[],enemyTrail:[]},players:structuredClone(players)})};
-  const s=Session.create(engine,()=>{},()=>time);s.start();
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
   while(s.flow().phase!=="over"){time=s.flow().deadline;s.update();}
   for(const record of s.replays()){assert.equal(record.frames.length,11,"ten actions plus the preceding scene");assert.equal(record.frames[0].game.world.wave,5);assert.equal(record.frames.at(-1).game.world.wave,15);}
 }
@@ -260,7 +278,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   const engine={start(){},players:()=>players,pending:()=>null,moves:()=>[],
     enemyTurn(){turn++;if(turn===2){players[1].alive=false;players[1].deathReason="first";}if(turn===3)players[1].alive=true;if(turn===5){players[1].alive=false;players[1].deathReason="second";}},
     snapshot:()=>({world:{wave:turn,trail:[],enemyTrail:[]},players:structuredClone(players)})};
-  const s=Session.create(engine,()=>{},()=>time);s.start();
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
   const until=n=>{while(turn<n){time=s.flow().deadline;s.update();}};
   until(2);assert.equal(s.replays()[1].reason,"first");
   until(3);assert.equal(s.replays()[1],null,"a revive clears the old death record");

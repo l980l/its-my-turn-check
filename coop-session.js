@@ -6,10 +6,12 @@
   "use strict";
   // Transport-independent authority. Combat, rewards and legal moves belong to
   // the existing single-player runtime; this module only orders two players.
-  // Players take turns: each gets its own selection window, keeps it through
-  // kill chains like solo, and the lead alternates every wave.
-  const PLAN_MS = 3000;
-  function create(engine, changed = () => {}, now = () => Date.now()) {
+  // Players take turns, keep the turn through kill chains like solo, and the
+  // lead alternates every wave. Rooms are played with friends, so a turn has no
+  // time limit by default (planMs 0); a player who drops is moved by AUTO.
+  // planMs > 0 restores a selection window that passes the turn when it runs out.
+  const PLAN_MS = 0;
+  function create(engine, changed = () => {}, now = () => Date.now(), { planMs = PLAN_MS } = {}) {
     let flow, speed = 1, paused = false, remaining = 0, round = 0, waves = 0, history=[], deaths=[null,null];
     const alive = () => engine.players().map((p, i) => p.alive ? i : -1).filter(i => i >= 0);
     const notify = () => { flow.revision++; changed(); };
@@ -30,7 +32,7 @@
     function planning(slot) {
       flow.phase = "planning"; flow.actor = null; flow.current = slot; flow.eligible = [slot];
       flow.roundId = ++round; delete flow.actions[slot];
-      schedule(PLAN_MS); notify();
+      schedule(planMs); notify();
     }
     function nextTurn() {
       while (flow.queue.length) {
@@ -53,7 +55,8 @@
       if (!flow || paused || time < flow.deadline) return;
       if (flow.phase === "planning") {
         const slot = flow.current, move = flow.actions[slot];
-        if (!move) nextTurn(); // timed out: the turn passes without a move
+        // Timed out, or the player fell meanwhile: the turn passes. Untimed: keep waiting.
+        if (!move) { if (flow.duration || !engine.players()[slot]?.alive) nextTurn(); return; }
         else if (!engine.moves(slot).some(m => m.x === move.x && m.y === move.y)) planning(slot);
         else { flow.actor = slot; flow.phase = "acting"; flow.stage = "focus"; schedule(220); notify(); }
       } else if (flow.phase === "acting") {
@@ -67,7 +70,7 @@
       } else if (flow.phase === "enemy") enemy();
     }
     return {
-      start(pieces) { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:PLAN_MS }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start(pieces);remember("시작");enemy(); },
+      start(pieces) { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:planMs }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start(pieces);remember("시작");enemy(); },
       // Take over authority from the last state another device published, e.g.
       // when the host left. Moves in flight are re-planned; replay frames restart.
       resume(saved, savedDeaths = [null,null]) {
@@ -81,7 +84,7 @@
       flow: () => flow,
       replays: () => deaths,
       move(slot, move, roundId) {
-        if (!flow || flow.phase !== "planning" || roundId !== flow.roundId || !flow.eligible.includes(slot) || (!paused && now() >= flow.deadline)) return false;
+        if (!flow || flow.phase !== "planning" || roundId !== flow.roundId || !flow.eligible.includes(slot) || (!paused && flow.duration && now() >= flow.deadline)) return false;
         if (!move || !engine.moves(slot).some(m => m.x === move.x && m.y === move.y)) return false;
         // A submitted move resolves at once; the rest of the window is not waited out.
         flow.actions[slot] = {x:move.x,y:move.y}; flow.deadline = now(); remaining = 0; notify(); return true;
@@ -108,7 +111,8 @@
       paused: () => paused,
       speed(value) { if(![1,2,3,4].includes(value)||!flow)return;remaining=(paused?remaining:Math.max(0,flow.deadline-now()))*speed/value;flow.duration*=speed/value;speed=value;flow.deadline=now()+remaining;notify(); },
       timeLeft: () => paused ? remaining : Math.max(0,(flow?.deadline||0)-now()),
-      step() { if(!flow)return;const was=paused;paused=false;update(flow.deadline);paused=was;remaining=flow.duration; },
+      // DEV "다음 단계": an untimed turn nobody has answered is passed on.
+      step() { if(!flow)return;if(flow.phase==="planning"&&!flow.duration&&!flow.actions[flow.current]){nextTurn();return;}const was=paused;paused=false;update(flow.deadline);paused=was;remaining=flow.duration; },
     };
   }
   // Local-only camera preference: never part of the authoritative room state.
