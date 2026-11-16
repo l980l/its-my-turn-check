@@ -154,14 +154,14 @@ header {
 #devRestartEnd { margin-bottom: 20px; }
 .matchbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; padding: 0 2px 7px; }
 .matchbar > div:last-child { text-align: right; }
-.matchbar small { display: block; color: #b6bdd5; font-size: 11px; }
+.matchbar small { display: block; color: #b6bdd5; font-size: 12px; }
 .matchbar b { color: var(--gold); font-weight: 400; font-size: clamp(16px, 3vw, 26px); }
 .timer { text-align: center; }
 .timer progress { display: block; width: clamp(90px, 20vw, 220px); height: 8px; margin: 9px auto 3px; border: 0; border-radius: 4px; overflow: hidden; appearance: none; background: #262b45; accent-color: var(--cyan); }
 .timer progress::-webkit-progress-bar { background: #262b45; border-radius: 4px; }
 .timer progress::-webkit-progress-value { background: var(--cyan); border-radius: 4px; }
 .timer progress::-moz-progress-bar { background: var(--cyan); border-radius: 4px; }
-.copy { margin-left: 7px; padding: 5px 7px; font-size: 10px; }
+.copy { margin-left: 7px; padding: 5px 8px; font-size: 12px; }
 .board-views { min-height:0; display:grid; grid-template-columns:minmax(0,1fr); gap:6px; }
 .board-views iframe { width:100%;height:100%;min-height:0;min-width:0;border:1px solid #53f0e42b;background:#0a0c21; }
 .board-views iframe:nth-child(2) { display:none; }
@@ -174,7 +174,7 @@ header {
 .match-actions .action-hint { flex: 1; min-width: 0; }
 #autoButton { flex: none; min-height: 40px; font: 12px "Bungee", sans-serif; }
 #autoButton[aria-pressed="true"] { color: var(--gold); border-color: var(--gold); }
-.legend { padding: 0 4px; color: #b6bfd4; text-align: center; font-size: 11px; line-height: 1.7; }
+.legend { padding: 0 4px; color: #b6bfd4; text-align: center; font-size: 12px; line-height: 1.6; }
 .legend i { display: inline-block; width: 7px; height: 7px; margin: 0 5px 0 10px; border-radius: 50%; }
 .legend .cyan { background: var(--cyan); }
 .legend .violet { background: #d66efd; }
@@ -213,12 +213,15 @@ header {
   .build-version { left: 12px; bottom: max(12px, env(safe-area-inset-bottom)); font-size: 9px; }
   #gameScreen { padding: 6px 8px max(10px, env(safe-area-inset-bottom)); gap: 5px; }
   .matchbar { gap: 7px; }
-  .matchbar small { font-size: 9px; }
+  .matchbar small { font-size: 12px; }
   .matchbar b { font-size: 16px; }
-  .timer small { max-width: 105px; font-size: 10px; line-height: 1.35; }
+  .timer small { max-width: 112px; font-size: 12px; line-height: 1.3; }
   .copy { display: block; margin: 3px 0 0; }
-  .legend { font-size: 10px; }
+  .legend { font-size: 12px; line-height: 1.5; }
   .action-hint { font-size: 12px; }
+  /* The hint gets its own row so a long notice wraps across the width, not beside the buttons. */
+  #coopApp:not([data-dev="true"]) .match-actions { row-gap: 4px; }
+  #coopApp:not([data-dev="true"]) .match-actions .action-hint { flex: 1 1 100%; min-height: 0; padding: 0 4px; line-height: 1.45; }
 }
 @media (max-height: 650px) {
   .lobby-content, .end-content { padding-top: 22px; }
@@ -230,6 +233,34 @@ header {
   .dev-heading { flex: none; gap: 8px; margin-bottom: 0; }
   .dev-controls { flex-wrap: nowrap; }
   .dev-controls > * { flex: none; white-space: nowrap; }
+}
+/* Landscape phones in a match: the board takes the full height on the left and
+   the room code, score, turn, hint, buttons and legend stack in a side column. */
+@media (max-height: 450px) and (min-width: 621px) {
+  #coopApp[data-screen="gameScreen"]:not([data-dev="true"]) { grid-template-rows: 46px minmax(0, 1fr); }
+  #coopApp[data-screen="gameScreen"]:not([data-dev="true"]) header { padding-top: 4px; padding-bottom: 4px; }
+  #coopApp:not([data-dev="true"]) #gameScreen {
+    grid-template-columns: minmax(0, 1fr) clamp(180px, 27vw, 240px);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    column-gap: 12px; row-gap: 8px;
+    padding: 6px max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  }
+  #coopApp:not([data-dev="true"]) #gameScreen > .board-views { grid-column: 1; grid-row: 1 / -1; }
+  #coopApp:not([data-dev="true"]) #gameScreen > .matchbar {
+    grid-column: 2; grid-row: 1;
+    grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "code score" "timer timer";
+    row-gap: 8px; padding: 0;
+  }
+  #coopApp:not([data-dev="true"]) .matchbar > div:first-child { grid-area: code; }
+  #coopApp:not([data-dev="true"]) .matchbar > .timer { grid-area: timer; }
+  #coopApp:not([data-dev="true"]) .matchbar > div:last-child { grid-area: score; }
+  #coopApp:not([data-dev="true"]) .matchbar b { font-size: 18px; }
+  #coopApp:not([data-dev="true"]) .copy { display: block; margin: 3px 0 0; }
+  #coopApp:not([data-dev="true"]) .timer progress { width: 100%; margin: 5px 0 0; }
+  #coopApp:not([data-dev="true"]) #gameScreen > .match-actions { grid-column: 2; grid-row: 3; flex-direction: column; align-items: stretch; gap: 6px; }
+  #coopApp:not([data-dev="true"]) .match-actions .action-hint { flex: none; font-size: 12px; line-height: 1.45; }
+  #coopApp:not([data-dev="true"]) .match-actions button { min-height: 38px; }
+  #coopApp:not([data-dev="true"]) #gameScreen > .legend { grid-column: 2; grid-row: 4; line-height: 1.5; }
 }
 @media (prefers-reduced-motion: reduce) {
   .menu-action, .menu-action::after { transition: none; }
