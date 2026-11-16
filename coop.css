@@ -66,7 +66,7 @@ header {
   margin-right: max(38px, env(safe-area-inset-right));
   padding: 30px 0 65px;
 }
-.eyebrow { margin: 0 0 13px; color: #d1daec; font-size: 11px; letter-spacing: .17em; }
+.eyebrow { margin: 0 0 13px; color: #d1daec; font-size: 12px; letter-spacing: .17em; }
 .game-title, .end-content h2 {
   margin: 0 0 22px;
   color: #f3fbff;
@@ -137,7 +137,7 @@ header {
 .help-steps li + li { margin-top: 12px; }
 .help-note { margin: 20px 0 0; color: var(--gold); font-size: 12px; line-height: 1.7; word-break: keep-all; }
 .status, .end-content p, .action-hint, .legend { word-break: keep-all; overflow-wrap: anywhere; }
-.build-version { position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); margin: 0; padding: 7px 10px; border-left: 3px solid var(--cyan); background: #080a19b8; color: #c9fdf8; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
+.build-version { position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); margin: 0; padding: 7px 10px; border-left: 3px solid var(--cyan); background: #080a19b8; color: #c9fdf8; font-size: 12px; letter-spacing: .1em; pointer-events: none; }
 .build-version b { color: var(--gold); }
 #coopApp[data-screen="gameScreen"] { background: #08091a; }
 #coopApp[data-screen="gameScreen"] header { border-bottom: 1px solid #ffffff19; }
@@ -205,12 +205,12 @@ header {
   .mode-label strong { font-size: 12px; }
   .lobby-content, .end-content { justify-content: flex-start; width: min(68vw, 350px); margin-right: max(12px, env(safe-area-inset-right)); padding-top: 70px; padding-bottom: 85px; }
   .game-title, .end-content h2 { margin-bottom: 18px; font-size: clamp(21px, 6.4vw, 34px); }
-  .eyebrow { font-size: 9px; letter-spacing: .13em; }
+  .eyebrow { font-size: 12px; letter-spacing: .1em; }
   .lobby-actions { gap: 22px; margin-top: 21px; }
   .menu-action { font-size: clamp(18px, 5.3vw, 26px); }
-  .menu-action span { font-size: 11px; }
-  .status { font-size: 11px; }
-  .build-version { left: 12px; bottom: max(12px, env(safe-area-inset-bottom)); font-size: 9px; }
+  .menu-action span { font-size: 12px; }
+  .status { font-size: 12px; }
+  .build-version { left: 12px; bottom: max(12px, env(safe-area-inset-bottom)); font-size: 12px; letter-spacing: .06em; }
   #gameScreen { padding: 6px 8px max(10px, env(safe-area-inset-bottom)); gap: 5px; }
   .matchbar { gap: 7px; }
   .matchbar small { font-size: 12px; }
@@ -282,12 +282,15 @@ header {
 .solo-panel .secondary-button {border-color:#ffffff44;background:#171a32;color:#dce3ff;box-shadow:none;}
 .solo-panel button:disabled {opacity:.35;cursor:default;}
 @media(max-width:560px){.solo-panel {padding:27px 17px;}.solo-panel button,.solo-panel a {padding:10px 12px;font-size:13px;}.replay-actions {gap:5px;}.replay-actions button {padding:9px 8px;font-size:11px;}}
+/* Short phones: the result panel fits without scrolling so 메인 화면 / 새 방 stay on screen. */
+@media(max-width:560px) and (max-height:700px){#endScreen {padding:12px;}#endScreen .solo-panel {max-height:calc(100dvh - 24px);padding:14px;}#endScreen .solo-panel h2 {margin:2px 0 8px;font-size:26px;}#endScreen .solo-panel p {margin:6px 0;font-size:14px;line-height:1.5;}#endScreen .end-reviews {display:grid;grid-template-columns:1fr 1fr;margin-top:10px;}#endScreen .end-reviews button {padding:6px 8px;font-size:12px;white-space:normal;line-height:1.3;}#endScreen .rank-form,#endScreen .result-actions {margin-top:10px;}#endScreen .rank-form label {font-size:14px;}}
 @media(max-height:450px){.solo-panel {padding:12px 22px;}.solo-panel h2 {font-size:28px;margin:4px 0 8px;}.solo-panel p {font-size:13px;line-height:1.45;margin:4px 0;}.solo-panel .eyebrow {font-size:12px;}.solo-panel .end-reviews,.solo-panel .result-actions {margin:8px 0 0;}}
 .solo-panel .rank-form {display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:16px;}
 .solo-panel .rank-form[hidden] {display:none;}
 .solo-panel .rank-form input {height:44px;min-width:0;flex:1 1 140px;max-width:220px;padding:0 12px;}
 .solo-panel .rank-form button {height:44px;margin:0;white-space:nowrap;}
 .solo-panel .rank-form p {flex-basis:100%;margin:0;text-align:center;}
+@media(max-height:450px){.solo-panel .rank-form {margin-top:8px;}}
 .pick-screen {position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:16px;background:#060716b8;backdrop-filter:blur(5px);overflow:auto;}
 .pick-screen[hidden] {display:none;}
 .pick-panel h2 {margin:6px 0 10px;}
