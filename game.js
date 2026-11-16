@@ -26,6 +26,7 @@
       beat: $("#beatText"),
       hint: $("#hint"),
       meter: $("#meterFill"),
+      app: $("#app"),
       rewindControls: $("#rewindControls"),
       rewindPrev: $("#rewindPrev"),
       rewindNext: $("#rewindNext"),
@@ -1019,6 +1020,7 @@
     S.rewind = null;
     S.deathReason = "";
     ui.rewindControls.classList.add("hidden");
+    ui.app.classList.remove("rewinding");
     S.upgradeOptions = [];
     // beginRun/restart set the chosen piece, and co-op sets "coop" when both players
     // chose; a pawn start (tests, old co-op) keeps the promotion path.
@@ -2532,6 +2534,7 @@
     ui.beat.textContent = "REWIND";
     ui.hint.textContent = "체크메이트까지의 전개를 되돌립니다.";
     ui.rewindControls.classList.remove("hidden");
+    ui.app.classList.add("rewinding");
     updateRewindControls();
   }
   function updateRewindControls() {
@@ -2550,6 +2553,7 @@
   function over() {
     S.running = false;
     ui.rewindControls.classList.add("hidden");
+    ui.app.classList.remove("rewinding");
     let multiplier = scoreMultiplier();
     S.finalScore = Math.round(S.score * multiplier);
     ui.result.textContent =
@@ -2865,6 +2869,67 @@
       return { ...target, x: Math.max(margin, Math.min(W - margin, x)), y: Math.max(margin, Math.min(H - margin, y)), angle };
     });
   }
+  // Header for the replay: which beat, how the run ended, and a legend whose
+  // line samples match the trails drawn on the board.
+  function drawRewindHeader(replay, snapshot) {
+    let top = 12,
+      height = 96,
+      inner = Math.max(120, W - 56),
+      fit = (text, font, px) => {
+        g.font = font.replace("{px}", px);
+        let width = g.measureText(text).width;
+        if (width > inner) g.font = font.replace("{px}", Math.max(12, Math.floor((px * inner) / width)));
+      };
+    g.save();
+    g.fillStyle = "#07091bea";
+    g.fillRect(0, 0, W, top + height + 6);
+    g.strokeStyle = "#ff5577";
+    g.globalAlpha = 0.72;
+    g.strokeRect(16, top, W - 32, height);
+    g.globalAlpha = 1;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.font = "700 13px monospace";
+    g.fillStyle = "#ff8da5";
+    g.fillText("REWIND " + (replay.index + 1) + " / " + S.rewindHistory.length, W / 2, top + 19);
+    fit(snapshot.label, "700 {px}px 'Gowun Batang', serif", 17);
+    g.fillStyle = "#eff4ff";
+    g.fillText(snapshot.label, W / 2, top + 45);
+    // Legend: "━ 내 이동   ┄ 적 이동", each with its own line sample.
+    g.font = "700 12px 'Gowun Batang', serif";
+    let sample = 22,
+      gapIn = 6,
+      gapOut = 22,
+      mine = "내 이동",
+      theirs = "적 이동",
+      total = sample * 2 + gapIn * 2 + gapOut + g.measureText(mine).width + g.measureText(theirs).width,
+      x = W / 2 - total / 2,
+      y = top + 74;
+    g.textAlign = "left";
+    g.lineCap = "round";
+    g.strokeStyle = "#53f0e4";
+    g.lineWidth = 3;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + sample, y);
+    g.stroke();
+    x += sample + gapIn;
+    g.fillStyle = "#9beee9";
+    g.fillText(mine, x, y);
+    x += g.measureText(mine).width + gapOut;
+    g.strokeStyle = "#ff5577";
+    g.lineWidth = 2.5;
+    g.setLineDash([5, 4]);
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + sample, y);
+    g.stroke();
+    g.setLineDash([]);
+    x += sample + gapIn;
+    g.fillStyle = "#ffb4c5";
+    g.fillText(theirs, x, y);
+    g.restore();
+  }
   function drawRewind() {
     let replay = S.rewind,
       snapshot = replay && S.rewindHistory[replay.index];
@@ -2932,25 +2997,7 @@
     const protectedReplay = EnemyTraits.protectedEnemies(snapshot.enemies);
     snapshot.enemies.forEach((enemy) => enemyBadge(enemy, protectedReplay));
     piece(snapshot.player.x, snapshot.player.y, snapshot.player.piece);
-    g.save();
-    g.fillStyle = "#07091be0";
-    g.fillRect(0, 0, W, 74);
-    g.strokeStyle = "#ff5577";
-    g.globalAlpha = 0.72;
-    g.strokeRect(16, 13, W - 32, 62);
-    g.globalAlpha = 1;
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    g.font = "700 12px monospace";
-    g.fillStyle = "#ff8da5";
-    g.fillText("REWIND " + (replay.index + 1) + " / " + S.rewindHistory.length, W / 2, 29);
-    g.font = "700 14px 'Gowun Batang', serif";
-    g.fillStyle = "#eff4ff";
-    g.fillText(snapshot.label, W / 2, 48);
-    g.font = "700 9px monospace";
-    g.fillStyle = "#9beee9";
-    g.fillText("청록 실선: 내 이동 · 붉은 점선: 적 이동", W / 2, 67);
-    g.restore();
+    drawRewindHeader(replay, snapshot);
     S.camera = savedCamera;
   }
   function draw() {

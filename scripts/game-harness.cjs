@@ -48,7 +48,23 @@ class Element {
     return animation;
   }
   getBoundingClientRect() { return { width: 1280, height: 720, left: 0, top: 0 }; }
-  getContext() { return new Proxy({}, { get: () => () => {} }); }
+  // A no-op 2D context that remembers drawn text and measures it roughly
+  // (font size × 0.6 per character), enough for layout code and assertions.
+  getContext() {
+    if (this.context) return this.context;
+    const texts = [];
+    const state = { font: "10px sans-serif", texts };
+    this.context = new Proxy(state, {
+      get: (target, key) => {
+        if (key in target) return target[key];
+        if (key === "measureText") return (text) => ({ width: String(text).length * (parseFloat(/(\d+(?:\.\d+)?)px/.exec(target.font)?.[1]) || 10) * 0.6 });
+        if (key === "fillText") return (text, x, y) => texts.push({ text: String(text), x, y, font: target.font });
+        return () => {};
+      },
+      set: (target, key, value) => { target[key] = value; return true; },
+    });
+    return this.context;
+  }
 }
 
 function seededRandom(seed) {
@@ -119,7 +135,7 @@ function createGameHarness(options = {}) {
   const boot = "  reset();\n  requestAnimationFrame(tick);";
   const hook = [
     "  reset();",
-    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick, resolveRisk, offerRisk, draw, drawRewind, rememberRewind, inspectEnemy, tap, advanceDifficultyClock, projectedEnemyCapture, startVerifiedRun, pos, size, updateEnemyTraitTip, toward, ui, loadLeaderboard, submitScore, openPieceSelect, over, leaderboardRank, leaderboardCutoff, offerScoreSubmission, devBeat };",
+    "  globalThis.__gameHarness = { S, ui, reset, damageEnemies, playerMove, moves, dirs, enemyBeat, beginPlayerTurn, tick, spawn, spawnBoss, openUpgrade, chooseUpgrade, gainXp, boss, terrainAt, wormholeExit, autoMove, rerollTraits, renderChoices, hud, renderTraitCodex, spawnFieldItem, updateHiddenGrowth, advanceGrowthNotice, hiddenTraitFx, openDevPick, resolveRisk, offerRisk, draw, drawRewind, rememberRewind, beginDeathRewind, inspectEnemy, tap, advanceDifficultyClock, projectedEnemyCapture, startVerifiedRun, pos, size, updateEnemyTraitTip, toward, ui, loadLeaderboard, submitScore, openPieceSelect, over, leaderboardRank, leaderboardCutoff, offerScoreSubmission, devBeat };",
     "  requestAnimationFrame(tick);",
   ].join("\n");
   if (!source.includes(boot)) throw new Error(`game bootstrap marker changed in ${gamePath}`);
