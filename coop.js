@@ -116,8 +116,10 @@
     const multiplier=teamMultiplier(snapshot.game);
     $("#scoreText").textContent=snapshot.game.world.score.toLocaleString()+(multiplier!==1?" ×"+multiplier.toFixed(2).replace(/0$/,""):"");
     const me=localDev?controlled:slot,myTurn=flow.phase==="planning"&&flow.eligible.includes(me);
-    $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?"P"+(flow.actor+1)+" MOVE":flow.phase==="upgrade"?"P"+(flow.actor+1)+" LEVEL UP":flow.phase==="risk"?"RISK":"ENEMY TURN";
-    $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?"P"+(flow.actor+1)+" 보상 선택 중":flow.phase==="acting"?"P"+(flow.actor+1)+"의 행동을 보고 있습니다.":"몬스터 이동";
+    // The status line names the partner by P1/P2, and the local player as "내".
+    const mine=flow.actor===me,actor="P"+(flow.actor+1);
+    $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?(mine?"YOUR MOVE":actor+" MOVE"):flow.phase==="upgrade"?(mine?"YOUR LEVEL UP":actor+" LEVEL UP"):flow.phase==="risk"?"RISK":"ENEMY TURN";
+    $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?(mine?"내 보상 선택 중":actor+" 보상 선택 중"):flow.phase==="acting"?(mine?"내 기물이 움직이는 중입니다.":actor+"의 행동을 보고 있습니다."):"몬스터 이동";
     if(host&&peerAway&&!localDev&&flow.phase!=="over")$("#actionHint").textContent="동료 연결이 끊겨 AUTO가 대신 움직입니다 · "+$("#actionHint").textContent;
     if(flow.phase==="over"){
       $("#rankForm").hidden=localDev;$("#rankStatus").textContent=snapshot.rankText||"";

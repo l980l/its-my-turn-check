@@ -51,7 +51,17 @@ try{
   const state=p=>p.ev("(()=>{const e=document.querySelector('#coopFrame0').contentWindow.CoopGame;return{view:e.view,players:e.players(),wave:e.snapshot().world.wave}})()");
   let as=await state(a),bs=await state(b);assert.equal(as.view,0);assert.equal(bs.view,1);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,1);
   assert.deepEqual(as.players.map(p=>p.piece),["rook","king"],"each player starts as the chosen piece");
+  // Record every status line: each player's own move reads as "내 기물", never as watching P1/P2.
+  const watchHints=p=>p.ev("(()=>{window.__hints=new Set();new MutationObserver(()=>window.__hints.add(document.querySelector('#actionHint').textContent+' | '+document.querySelector('#phaseText').textContent)).observe(document.querySelector('#gameScreen'),{subtree:true,childList:true,characterData:true})})()");
+  await watchHints(a);await watchHints(b);
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");await wait(7500);
+  const hints=async p=>p.ev("[...window.__hints]");
+  for(const [p,me,other] of [[a,"P1","P2"],[b,"P2","P1"]]){
+    const seen=await hints(p);
+    assert.ok(!seen.some(h=>h.includes(me+"의 행동")||h.includes(me+" MOVE")||h.includes(me+" 보상")),me+" never watches itself: "+JSON.stringify(seen));
+    assert.ok(seen.some(h=>h.includes("내 기물이 움직이는 중")&&h.includes("YOUR MOVE")),me+" sees its own move as 내 기물: "+JSON.stringify(seen));
+    assert.ok(seen.some(h=>h.includes(other+"의 행동")),me+" watches "+other+": "+JSON.stringify(seen));
+  }
   as=await state(a);bs=await state(b);assert.ok(as.wave>=2);assert.deepEqual(as.players,bs.players);assert.equal(as.wave,bs.wave);
   assert.ok(as.players.every((p,i)=>p.x!==[-2,2][i]||p.y!==0),"both clients submit their own core AI moves");
   // The connection badge shows the ping, measured from the beats already exchanged.
