@@ -352,7 +352,7 @@
   for(let i=0;i<2;i++)$("#devAuto"+i).addEventListener("click",()=>{autos[i]=!autos[i];updateTools();});
   $("#devPause").addEventListener("click",()=>{if(session){paused=!paused;session.pause(paused);updateTools();}});
   $("#devStep").addEventListener("click",()=>{if(!session)return;paused=false;automation(true);paused=true;session.pause(true);session.step();publish();});
-  $("#devSpeed").addEventListener("click",()=>{if(!session)return;speed=speed===4?1:speed+1;session.speed(speed);updateTools();});
+  $("#devSpeed").addEventListener("click",()=>{if(!session)return;speed=[1,2,4,8,16][([1,2,4,8,16].indexOf(speed)+1)%5]||1;session.speed(speed);updateTools();});
   $("#devPlayer").addEventListener("click",()=>{controlled=1-controlled;if(remote)render(remote);else updateTools();});
   const debug=(action,value)=>{if(localDev&&session){session.debug(action,value,controlled);publish();}};
   $("#devPiece").addEventListener("click",()=>{const pieces=["pawn","knight","bishop","rook","queen","king"],current=apis[0].players()[controlled].piece;debug("piece",pieces[(pieces.indexOf(current)+1)%pieces.length]);});

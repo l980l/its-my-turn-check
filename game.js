@@ -80,6 +80,7 @@
       sfxVolumeRange: $("#sfxVolumeRange"),
       sfxVolumeValue: $("#sfxVolumeValue"),
       offscreenIndicatorToggle: $("#offscreenIndicatorToggle"),
+      enemyTrailToggle: $("#enemyTrailToggle"),
       combo: $("#comboToast"),
       ranking: $("#rankingScreen"),
       rankingButton: $("#rankingButton"),
@@ -190,6 +191,7 @@
       upgradeMode: "",
       riskBeats: 0,
       showOffscreenIndicators: true,
+      showEnemyTrail: true,
     };
   let coopSession = null, coopExecuting = false;
   let W = 0,
@@ -851,6 +853,12 @@
     localStorage.setItem("its-my-turn-offscreen-indicators-v1", enabled ? "1" : "0");
     ui.offscreenIndicatorToggle.checked = enabled;
   }
+  // Red dashed lines for the routes enemies just took. The death rewind always shows them.
+  function setEnemyTrail(enabled) {
+    S.showEnemyTrail = enabled;
+    localStorage.setItem("its-my-turn-enemy-trail-v1", enabled ? "1" : "0");
+    ui.enemyTrailToggle.checked = enabled;
+  }
   function audioReady() {
     if (!window.AudioContext && !window.webkitAudioContext) return null;
     if (!audio.ctx) {
@@ -1174,39 +1182,60 @@
     if (!S.growthNoticeActive) advanceGrowthNotice();
     return {masteries, synergies: synergies.map((synergy) => synergy.id)};
   }
+  // Trait slots flash in the chain colour when their trait fires. CHAIN 1–2 keep the
+  // small pulse; from CHAIN 3 the bounce, glow and sparks grow until CHAIN 10, CHAIN 5+
+  // adds a shock ring, and CHAIN 8+ turns the sparks into every chain colour with a second ring.
   function flashHeldTraits(ids, chain = S.chain) {
-    const color = COMBO_COLORS[(Math.max(1, chain) - 1) % COMBO_COLORS.length];
+    const color = COMBO_COLORS[(Math.max(1, chain) - 1) % COMBO_COLORS.length],
+      heat = Math.max(0, Math.min(1, (chain - 2) / 8)),
+      rings = chain >= 8 ? 2 : chain >= 5 ? 1 : 0,
+      sparks = Math.min(18, 6 + 2 * Math.max(0, chain - 2)),
+      duration = Math.round(320 + 280 * heat);
     ui.heldSlots.forEach((button, index) => {
       if (!ids.has(S.player.traits[index])) return;
       if (!button.animate) return;
       clearHeldTraitFx(button);
-      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches,
+        lift = +(3 + 5 * heat).toFixed(1), grow = +(1.08 + 0.17 * heat).toFixed(2),
+        ring = +(2 + 6 * heat).toFixed(1), glow = +(3 + 9 * heat).toFixed(1);
       button.traitAnimation = button.animate([
         { color, borderColor: color, boxShadow: "0 0 0 0 " + color + "88", filter: "drop-shadow(0 0 2px " + color + ")", transform: "translateY(0) scale(1)" },
-        { color, borderColor: color, boxShadow: "0 0 0 2px " + color + "44", filter: "drop-shadow(0 0 3px " + color + ")", transform: reduced ? "none" : "translateY(-3px) scale(1.08)", offset: 0.3 },
-        { color: "var(--trait-color)", borderColor: "var(--trait-color)", boxShadow: "0 0 0 4px " + color + "00", filter: "none", transform: "translateY(0) scale(1)" },
-      ], { duration: 320, easing: "ease-out" });
-      if (!reduced) {
-        for (let i = 0; i < 6; i++) {
-          const angle = i * Math.PI / 3 + Math.PI / 6;
-          const dx = Math.cos(angle), dy = Math.sin(angle);
-          const node = document.createElement("span");
-          node.className = "trait-slot-spark";
-          node.setAttribute("aria-hidden", "true");
-          node.style.background = color;
-          node.style.left = (50 + dx * 44) + "%";
-          node.style.top = (50 + dy * 44) + "%";
-          button.appendChild(node);
-          const animation = node.animate([
-            {opacity: 0.9, transform: "translate(-50%, -50%) rotate(" + (i * 60) + "deg) scale(1)"},
-            {opacity: 0, transform: "translate(calc(-50% + " + dx * 10 + "px), calc(-50% + " + dy * 10 + "px)) rotate(" + (i * 60 + 25) + "deg) scale(0.3)"},
-          ], {duration: 300 + i * 12, easing: "ease-out"});
-          button.traitParticles.push({node, animation});
-          animation.onfinish = () => {
-            node.remove();
-            button.traitParticles = button.traitParticles.filter((particle) => particle.node !== node);
-          };
-        }
+        { color, borderColor: color, boxShadow: "0 0 0 " + ring + "px " + color + "44", filter: "drop-shadow(0 0 " + glow + "px " + color + ")" + (heat > 0.6 ? " brightness(1.4)" : ""), transform: reduced ? "none" : "translateY(-" + lift + "px) scale(" + grow + ")" + (heat > 0.3 ? " rotate(" + (index % 2 ? -1 : 1) * Math.round(6 * heat) + "deg)" : ""), offset: 0.3 },
+        { color: "var(--trait-color)", borderColor: "var(--trait-color)", boxShadow: "0 0 0 " + +(4 + 8 * heat).toFixed(1) + "px " + color + "00", filter: "none", transform: "translateY(0) scale(1)" },
+      ], { duration, easing: "ease-out" });
+      if (reduced) return;
+      const track = (node, animation) => {
+        button.appendChild(node);
+        button.traitParticles.push({node, animation});
+        animation.onfinish = () => {
+          node.remove();
+          button.traitParticles = button.traitParticles.filter((particle) => particle.node !== node);
+        };
+      };
+      for (let i = 0; i < sparks; i++) {
+        const angle = i * 2 * Math.PI / sparks + Math.PI / 6;
+        const dx = Math.cos(angle), dy = Math.sin(angle), reach = 10 + 16 * heat, spin = i * 360 / sparks;
+        const node = document.createElement("span");
+        node.className = "trait-slot-spark";
+        node.setAttribute("aria-hidden", "true");
+        node.style.background = chain >= 8 ? COMBO_COLORS[i % COMBO_COLORS.length] : color;
+        node.style.left = (50 + dx * 44) + "%";
+        node.style.top = (50 + dy * 44) + "%";
+        if (heat > 0) { node.style.width = (2 + heat).toFixed(1) + "px"; node.style.height = (4 + 3 * heat).toFixed(1) + "px"; }
+        track(node, node.animate([
+          {opacity: 0.9, transform: "translate(-50%, -50%) rotate(" + spin + "deg) scale(" + (1 + 0.5 * heat).toFixed(2) + ")"},
+          {opacity: 0, transform: "translate(calc(-50% + " + (dx * reach).toFixed(1) + "px), calc(-50% + " + (dy * reach).toFixed(1) + "px)) rotate(" + (spin + 25 + 90 * heat) + "deg) scale(0.3)"},
+        ], {duration: Math.round(300 + 200 * heat) + i * 12, easing: "ease-out"}));
+      }
+      for (let r = 0; r < rings; r++) {
+        const node = document.createElement("span");
+        node.className = "trait-slot-ring";
+        node.setAttribute("aria-hidden", "true");
+        node.style.borderColor = r ? COMBO_COLORS[(chain + 2) % COMBO_COLORS.length] : color;
+        track(node, node.animate([
+          {opacity: 0.95, transform: "scale(1)"},
+          {opacity: 0, transform: "scale(" + (1.7 + 0.5 * heat + 0.4 * r).toFixed(2) + ")"},
+        ], {duration: 420 + 160 * r, delay: 90 * r, easing: "ease-out"}));
       }
     });
   }
@@ -3053,7 +3082,7 @@
       });
       g.restore();
     }
-    if (S.enemyTrail.length) {
+    if (S.showEnemyTrail && S.enemyTrail.length) {
       g.save();
       g.globalAlpha = 0.52;
       g.strokeStyle = "#ff5577";
@@ -3551,16 +3580,74 @@
     }
     return null;
   }
-  // Mouse hover over an enemy trait badge shows that trait's description. It is
-  // re-checked every frame because enemies and the camera move under the cursor.
+  const ENEMY_MOVES = { pawn: "8방향으로 1칸", king: "8방향으로 1칸", knight: "L자로 뛰어 이동", bishop: "대각선으로 최대 3칸", rook: "상하좌우 직선으로 최대 3칸", queen: "8방향 직선으로 최대 3칸" },
+    // Each boss's pattern in plain words, for the hover tooltip.
+    BOSS_PATTERNS = {
+      rook: "가로 또는 세로 한 줄을 붉은 선으로 예고합니다. 다음 적 턴에 그 줄 위에 있으면 관통 공격을 받습니다. 피하면 한 턴 동안 청록색으로 빛나며 공격할 수 있고, 그 뒤 자리를 옮겨 다시 예고합니다.",
+      bishop: "대각선 한 줄을 붉은 선으로 예고합니다. 다음 적 턴에 그 줄 위에 있으면 관통 공격을 받습니다. 피하면 한 턴 동안 청록색으로 빛나며 공격할 수 있고, 그 뒤 자리를 옮겨 다시 예고합니다.",
+      queen: "가로·세로·대각선 중 한 줄을 붉은 선으로 예고합니다. 다음 적 턴에 그 줄 위에 있으면 관통 공격을 받습니다. 피하면 한 턴 동안 청록색으로 빛나며 공격할 수 있고, 그 뒤 자리를 옮겨 다시 예고합니다.",
+      bloodQueen: "봉인된 채로 나타나 공격할 수 없습니다. 일반 적 4기를 처치하면 봉인이 풀리고, 그 뒤로는 8방향 중 한 줄을 예고해 관통 공격합니다. 피하면 한 턴 동안 공격할 수 있습니다.",
+      checkmateBishop: "심판을 예고하며 청록 이중 사각형 SAFE 구역을 정합니다. 다음 적 턴에 SAFE 칸에 서 있지 않으면 공격받습니다. SAFE 칸에 도착하면 한 턴 동안 청록색으로 빛나며 공격할 수 있습니다.",
+    },
+    BOSS_PHASES = { sealed: "지금: 봉인 중", telegraph: "지금: 예고 중", sanctuary: "지금: 심판 예고 중", vulnerable: "지금: 공격 가능", recover: "지금: 회복 중" };
+  // What one enemy is: piece, HP, how it moves, its traits, and whether a guardian shields it.
+  function enemyInfo(enemy, offscreen) {
+    const traits = EnemyTraits.traitsOf(enemy),
+      piece = PIECE_NAMES[enemy.type] || enemy.type,
+      lines = [];
+    if (offscreen) lines.push("화면 밖에 있는 적입니다. 거리 " + dist(enemy, S.player) + "칸");
+    if (enemy.boss) {
+      lines.push("보스 · " + piece + " · 내구도 " + enemy.hp + "/" + enemy.maxHp);
+      lines.push(BOSS_PATTERNS[enemy.bossType] || BOSS_PATTERNS[enemy.type] || "");
+      if (enemy.gimmick !== "sanctuary") lines.push("내구도가 절반 이하가 되면 RAGE 상태로 두 줄을 함께 예고합니다." + (enemy.enraged ? " (지금 RAGE)" : ""));
+      lines.push("청록색으로 빛날 때만 공격할 수 있고, 한 번에 내구도가 1 줄어듭니다.");
+      if (BOSS_PHASES[enemy.bossPhase]) lines.push(BOSS_PHASES[enemy.bossPhase] + (enemy.seals ? " · 남은 봉인 " + enemy.seals + "/4" : ""));
+    } else {
+      lines.push("내구도 " + (enemy.hp || 1) + "/" + (enemy.maxHp || enemy.hp || 1) + " · 이동: " + (ENEMY_MOVES[enemy.type] || "1칸"));
+      if (traits.length) lines.push("특성: " + traits.map((id) => EnemyTraits.definitions[id].name).join(", "));
+      if (traits.includes("split")) lines.push("남은 분열: " + enemy.splitsLeft + "회");
+      if (EnemyTraits.isProtected(enemy, S.enemies)) lines.push("수호받는 중 — 옆의 수호 적이 특성 공격을 막습니다. 직접 공격은 가능합니다.");
+    }
+    return { name: (offscreen ? "화면 밖 · " : "") + (enemy.boss ? enemy.bossName : "적 " + piece), copy: lines.join("\n"), color: enemy.boss ? "#ffd166" : "#ff8fa3" };
+  }
+  // Everything the mouse can point at on the board, most specific first:
+  // a trait badge, an off-screen enemy marker, then the enemy, item, ember or terrain in that cell.
+  function hoverInfoAt(tx, ty) {
+    const badge = traitBadgeAt(tx, ty);
+    if (badge) {
+      const data = EnemyTraits.definitions[badge.id];
+      let copy = data.desc + (badge.id === "split" ? "\n남은 분열: " + badge.enemy.splitsLeft + "회" : "");
+      if (EnemyTraits.isProtected(badge.enemy, S.enemies)) copy += "\n이 적은 지금 수호받는 중입니다.";
+      return { name: data.name + " · 적 특성", copy, color: data.color };
+    }
+    const edge = edgeEnemyTargets().find((target) => Math.hypot(target.x - tx, target.y - ty) <= 22);
+    if (edge) return enemyInfo(edge.e, true);
+    const s = size(),
+      x = Math.round((tx - W / 2) / s + S.camera.x),
+      y = Math.round((ty - H / 2) / s + S.camera.y),
+      enemy = S.enemies.find((e) => e.x === x && e.y === y);
+    if (enemy) return enemyInfo(enemy, false);
+    const item = S.items.find((i) => i.x === x && i.y === y);
+    if (item) {
+      const data = FIELD_ITEMS[item.type], desc = TUTORIAL_ITEMS.find(([type]) => type === item.type)?.[1] || "";
+      return { name: data.icon + " " + data.name + " · 아이템", copy: desc + "\n밟으면 적용됩니다. " + item.life + "턴 뒤 사라집니다.", color: data.color };
+    }
+    const ember = S.emberHazards.find((h) => h.x === x && h.y === y);
+    if (ember) return { name: "잔불", copy: "이 칸에서 턴을 끝내면 다음 적 턴에 폭발합니다.", color: EnemyTraits.definitions.ember?.color || "#ff9f43" };
+    const tile = terrainAt(x, y), terrain = tile && TUTORIAL_TERRAIN.find(([, label]) => label.toLowerCase() === tile.type);
+    if (terrain) return { name: terrain[0] + " · 지형", copy: terrain[3], color: terrain[2] };
+    return null;
+  }
+  // Mouse hover shows what is under the cursor. It is re-checked every frame
+  // because enemies and the camera move under the cursor.
   function updateEnemyTraitTip() {
-    const hit = hoverPoint && S.running ? traitBadgeAt(hoverPoint.x, hoverPoint.y) : null;
+    const hit = hoverPoint && S.running ? hoverInfoAt(hoverPoint.x, hoverPoint.y) : null;
     c.style.cursor = hit ? "help" : "";
     if (!hit) { ui.enemyTraitTip.classList.add("hidden"); return; }
-    const data = EnemyTraits.definitions[hit.id], tip = ui.enemyTraitTip;
-    ui.enemyTraitTipName.textContent = data.name + " · 적 특성";
-    ui.enemyTraitTipCopy.textContent = data.desc + (hit.id === "split" ? "\n남은 분열: " + hit.enemy.splitsLeft + "회" : "");
-    tip.style.setProperty("--trait-color", data.color);
+    const tip = ui.enemyTraitTip;
+    ui.enemyTraitTipName.textContent = hit.name;
+    ui.enemyTraitTipCopy.textContent = hit.copy;
+    tip.style.setProperty("--trait-color", hit.color);
     tip.classList.remove("hidden");
     tip.style.left = Math.max(8, Math.min(W - tip.offsetWidth - 8, hoverPoint.x + 16)) + "px";
     tip.style.top = Math.max(8, Math.min(H - tip.offsetHeight - 8, hoverPoint.y + 16)) + "px";
@@ -3603,10 +3690,12 @@
     S.phase = "enemy";
     enemyBeat();
   }
+  const DEV_SPEEDS = [1, 2, 4, 8, 16];
   function devSpeed() {
     if (S.phase === "devpick") return;
-    S.devSpeed = S.devSpeed === 1 ? 2 : 1;
-    ui.devSpeed.textContent = "[4] ×" + S.devSpeed + " SPEED";
+    // DEV speeds cycle ×1 → ×2 → ×4 → ×8 → ×16 → ×1.
+    S.devSpeed = DEV_SPEEDS[(DEV_SPEEDS.indexOf(S.devSpeed) + 1) % DEV_SPEEDS.length] || 1;
+    ui.devSpeed.textContent = "[4] SPEED ×" + S.devSpeed;
     ui.hint.textContent = "DEV: 게임 속도 ×" + S.devSpeed;
   }
   function devBoss(kind = "rook") {
@@ -3858,7 +3947,7 @@
     reset();
     applyStartPiece();
     startVerifiedRun();
-    ui.devSpeed.textContent = "[4] ×2 SPEED";
+    ui.devSpeed.textContent = "[4] SPEED ×1";
     ui.devBar.classList.toggle("hidden", !S.dev);
     ui.devVisibilityToggle.classList.toggle("hidden", !S.dev);
     ui.devVisibilityToggle.textContent = "HIDE DEV TOOLS";
@@ -3968,10 +4057,12 @@
   setBusVolume("bgm", Math.round(audio.bgmVolume / 0.05));
   setBusVolume("sfx", Math.round(audio.sfxVolume / 0.05));
   setOffscreenIndicators(localStorage.getItem("its-my-turn-offscreen-indicators-v1") !== "0");
+  setEnemyTrail(localStorage.getItem("its-my-turn-enemy-trail-v1") !== "0");
   ui.soundToggle.addEventListener("click", () => ui.soundPanel.classList.toggle("hidden"));
   ui.bgmVolumeRange.addEventListener("input", (e) => setBusVolume("bgm", Number(e.target.value)));
   ui.sfxVolumeRange.addEventListener("input", (e) => setBusVolume("sfx", Number(e.target.value)));
   ui.offscreenIndicatorToggle.addEventListener("change", (e) => setOffscreenIndicators(e.target.checked));
+  ui.enemyTrailToggle.addEventListener("change", (e) => setEnemyTrail(e.target.checked));
   if (window.CoopRuntime && window.location?.search.includes("coop=1")) {
     document.documentElement.classList.add("coop-embedded");
     coopSession = window.CoopRuntime.create({S,ui,executing:value=>{coopExecuting=value;},fn:{
