@@ -12,7 +12,7 @@ const canvas = elements.get("#game");
 h.reset();
 S.enemies = [{ x: 2, y: 0, type: "rook", hp: 2, maxHp: 2, enemyTraits: ["healer", "split"], splitsLeft: 2 }];
 const q = game.pos(2, 0), badges = Icons.layout(q.x, q.y, game.size(), ["healer", "split"]);
-Object.assign(ui.enemyTraitTip, { offsetWidth: 200, offsetHeight: 60 });
+ui.enemyTraitTip.getBoundingClientRect = () => ({ width: 200, height: 60, left: 0, top: 0 });
 const hover = (x, y, pointerType = "mouse") => { canvas.handlers.pointermove({ pointerType, clientX: x, clientY: y }); game.updateEnemyTraitTip(); };
 
 hover(badges[1].x, badges[1].y);
@@ -20,6 +20,11 @@ assert.equal(ui.enemyTraitTipName.textContent, "분열 · 적 특성", "the hove
 assert.match(ui.enemyTraitTipCopy.textContent, /남은 분열: 2회/, "split shows the remaining splits");
 assert.equal(canvas.style.cursor, "help");
 assert.ok(Number.parseFloat(ui.enemyTraitTip.style.left) > badges[1].x, "the tip sits beside the cursor");
+// On a large screen the tip's layer is zoomed, so its CSS position is the screen position divided by the scale.
+h.context.window.UiScale = { value: () => 1.5 };
+hover(badges[1].x, badges[1].y);
+assert.ok(Math.abs(Number.parseFloat(ui.enemyTraitTip.style.left) - (badges[1].x + 16) / 1.5) < 0.01, "a zoomed tip still lands beside the cursor");
+delete h.context.window.UiScale;
 
 hover(badges[0].x, badges[0].y);
 assert.equal(ui.enemyTraitTipName.textContent, "치유 · 적 특성");
