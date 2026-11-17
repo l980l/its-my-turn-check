@@ -1,4 +1,4 @@
-// UI scale: auto grows with the window from a 1440×900 layout (900×860 inside a
+// UI scale: auto grows with the window from a 1440×900 layout (900×640 inside a
 // co-op board frame), manual choices never shrink the zoomed layout below a
 // usable size, and the choice is saved and published as --ui-scale.
 const assert = require("node:assert/strict");
@@ -37,7 +37,10 @@ assert.equal(qhd.props.get("--ui-scale"), "1.45", "the scale is published as a C
 
 // Co-op board frames are about half a window wide, so they use a smaller base.
 assert.equal(load({ width: 1270, height: 1200, search: "?coop=1" }).UiScale.value(), 1.4, "a QHD co-op frame grows too");
-assert.equal(load({ width: 940, height: 860, search: "?coop=1" }).UiScale.value(), 1, "a full-HD co-op frame stays near 1:1");
+assert.equal(load({ width: 1243, height: 850, search: "?coop=1" }).UiScale.value(), 1.35, "a QHD co-op frame under the DEV tools grows too");
+assert.equal(load({ width: 940, height: 700, search: "?coop=1" }).UiScale.value(), 1.05, "a full-HD co-op frame stays near 1:1");
+assert.equal(load({ width: 302, height: 96, search: "?coop=1" }).UiScale.value(), 1, "phone split halves stay 1:1");
+assert.equal(load({ width: 940, height: 700, search: "?coop=1", saved: "1.5" }).UiScale.value(), 1.2, "a manual choice in a frame keeps 800×560");
 
 // Manual choices.
 assert.equal(load({ width: 2560, height: 1300, saved: "1" }).UiScale.value(), 1, "100% turns growth off");

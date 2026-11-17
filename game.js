@@ -539,7 +539,7 @@
     {
       eyebrow: "CHOOSE YOUR PIECE",
       title: "시작 기물",
-      copy: "PLAY를 누르면 기물을 고르고, 그 기물로 끝까지 싸웁니다. 다루기 어려운 기물일수록 최종 점수 배율이 큽니다.\n\n2인 모드는 폰으로 시작합니다.",
+      copy: "PLAY를 누르면 기물을 고르고, 그 기물로 끝까지 싸웁니다. 다루기 어려운 기물일수록 최종 점수 배율이 큽니다.\n\n2인 모드도 방에서 각자 기물을 고르며, 팀 점수에는 두 기물 배율의 평균이 붙습니다.",
       visual: '<div class="tutorial-pieces">' + START_PIECES.map((option) =>
         '<div class="tutorial-piece"><span>' + glyph[option.piece] + '\uFE0E</span><b>' + option.name + '</b><small>×' + option.multiplier.toFixed(1) + '</small></div>'
       ).join("") + '</div>',

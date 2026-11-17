@@ -107,6 +107,10 @@ try {
     const cards = await ev(`(()=>{const f=document.querySelectorAll('#boardViews iframe')[${await ev(openPanel)}],d=f.contentDocument;return [...d.querySelectorAll('.upgrade-choice')].filter(b=>b.offsetParent).map(b=>{const r=b.getBoundingClientRect(),hit=d.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{top:r.top,bottom:r.bottom,height:f.clientHeight,hit:b.contains(hit)}})})()`);
     assert.ok(cards.length > 0, "reward panel opens in split view");
     for (const c of cards) assert.ok(c.top >= 0 && c.bottom <= c.height + 1 && c.hit, "reward card fully visible in split view: " + JSON.stringify(c));
+    // Both halves (the picker and the watching teammate) show the whole panel: no hidden overflow, every card inside the panel's box.
+    const panels = await ev(`[...document.querySelectorAll('#boardViews iframe')].map(f=>{const d=f.contentDocument,p=d.querySelector('#upgradeScreen .panel');if(d.querySelector('#upgradeScreen').classList.contains('hidden'))return null;const b=p.getBoundingClientRect();return{over:p.scrollHeight-p.clientHeight,cards:[...p.querySelectorAll('.upgrade-choice')].filter(c=>c.offsetParent).map(c=>{const r=c.getBoundingClientRect();return r.top>=b.top-0.5&&r.bottom<=b.bottom+0.5})}}).filter(Boolean)`);
+    assert.ok(panels.length > 0);
+    for (const p of panels) assert.ok(p.over <= 1 && p.cards.every(Boolean), width + "x" + height + " reward panel fits its split half: " + JSON.stringify(p));
     await click("#leaveButton");
     assert.equal(await ev("document.querySelector('#coopApp').dataset.screen"), "lobby");
     assert.equal(await ev("window.channelCalls"), 0);

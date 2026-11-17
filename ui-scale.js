@@ -6,7 +6,7 @@
   const MODES = ["auto", "1", "1.25", "1.5"];
   // Layout the UI was designed for. Embedded co-op views are about half a window wide.
   const embedded = /[?&]coop=1\b/.test(root.location ? root.location.search : "");
-  const BASE = embedded ? { w: 900, h: 860 } : { w: 1440, h: 900 };
+  const BASE = embedded ? { w: 900, h: 640 } : { w: 1440, h: 900 };
   const MAX = 1.5;
   let current = 1;
 
@@ -19,13 +19,13 @@
     }
   }
   // Auto: grow with the window so a 1440×900 layout keeps its proportions.
-  // Manual: never so large that the zoomed layout is smaller than 1280×760 (900×700 embedded).
+  // Manual: never so large that the zoomed layout is smaller than 1280×760 (800×560 embedded).
   function compute(mode, w, h) {
     const fit = Math.min(w / BASE.w, h / BASE.h);
     let scale;
     if (mode === "auto") scale = Math.max(1, Math.min(MAX, fit));
     else {
-      const room = Math.min(w / (embedded ? 900 : 1280), h / (embedded ? 700 : 760));
+      const room = Math.min(w / (embedded ? 800 : 1280), h / (embedded ? 560 : 760));
       scale = Math.min(Number(mode), Math.max(1, room));
     }
     return Math.round(scale * 20) / 20;
