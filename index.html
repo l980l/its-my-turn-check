@@ -21,6 +21,18 @@
       /* Large screens: every HTML layer grows by --ui-scale (set by ui-scale.js).
          The canvas stays 1:1; viewport units below are divided back because zoom multiplies them. */
       #app > :not(canvas) { zoom: var(--ui-scale, 1); }
+      /* Scrollbars in the game's colours: a thin cyan thumb on a dark track. Mouse devices only:
+         touch screens keep their overlay scrollbars, which take no layout width. */
+      @media (hover: hover) and (pointer: fine) {
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #0b0f26; border-left: 1px solid #53f0e41f; }
+        ::-webkit-scrollbar-thumb { border: 2px solid #0b0f26; border-radius: 6px; background: linear-gradient(#53f0e4, #2fb8c9); box-shadow: inset 0 0 4px #ffffff44; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(#8ffaf1, #53f0e4); }
+        ::-webkit-scrollbar-thumb:active { background: #f45cf4; }
+        ::-webkit-scrollbar-corner { background: #0b0f26; }
+      }
+      /* Firefox has no ::-webkit-scrollbar; give it the same colours. */
+      @supports (-moz-appearance: none) { * { scrollbar-width: thin; scrollbar-color: #53f0e4 #0b0f26; } }
       #app {
         position: fixed;
         inset: 0;
@@ -408,6 +420,8 @@
        stay in the same spot on every page. */
     .tutorial-actions { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding: 12px 0 clamp(25px, calc(5vw / var(--ui-scale, 1)), 52px); }
     .tutorial-panel.scrolls .tutorial-actions { background: linear-gradient(#0d0e2000, #0e0f22 14px); }
+    /* Reserve the scrollbar lane on every page so a scrolling page does not shift the buttons. */
+    .tutorial-panel { scrollbar-gutter: stable; }
     .tutorial-actions button { min-width: 92px; margin: 0; }
     .tutorial-actions button:disabled { cursor: default; opacity: .3; filter: none; transform: none; }
     .tutorial-skip { border-color: #ffffff44; background: transparent; color: #aeb7d3; box-shadow: none; }
