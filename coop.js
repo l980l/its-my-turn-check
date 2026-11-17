@@ -7,6 +7,10 @@
   let channel=null, client, host=false, localDev=false, slot=0, roomCode="", peer=null;
   let session=null, remote=null, generation=0, runId=null, joinTimer, submittedKey="";
   let auto=false, autos=[true,true], speed=1, paused=false, controlled=0;
+  // Online AUTO is a developer tool: only after the DEV password (same tab, see game.js),
+  // and even then hidden until CO-OP ALPHA (or the connection badge) is tapped 5 times within a second.
+  const devUnlocked=()=>{try{return sessionStorage.getItem("its-my-turn-dev-unlocked")==="1";}catch(_){return false;}};
+  let devShown=false,devTaps=[];
   // Host handoff: each authority change raises the epoch; a device that hears a
   // newer epoch follows it. Silence longer than PEER_TIMEOUT counts as leaving.
   const PEER_TIMEOUT=5000, BEAT_MS=1000;
@@ -213,7 +217,7 @@
     $("#cameraButton").disabled=!state?.canToggle;
     $("#cameraButton").textContent=state?.focus===view?"동료 보기":"내 말 보기";
     $("#cameraButton").setAttribute("aria-label",(localDev?"P"+(view+1)+" 시점 · ":"")+$("#cameraButton").textContent);
-    $("#devTools").hidden=!localDev;$("#autoButton").hidden=localDev;$("#copyButton").hidden=localDev;
+    $("#devTools").hidden=!localDev;$("#autoButton").hidden=localDev||!devUnlocked()||!devShown;$("#copyButton").hidden=localDev;
     $("#devAutoBoth").textContent="AUTO BOTH "+(autos.every(Boolean)?"ON":"OFF");$("#devAutoBoth").setAttribute("aria-pressed",String(autos.every(Boolean)));
     for(let i=0;i<2;i++){$("#devAuto"+i).textContent="P"+(i+1)+" AUTO "+(autos[i]?"ON":"OFF");$("#devAuto"+i).setAttribute("aria-pressed",String(autos[i]));}
     $("#devPause").textContent=paused?"재개":"일시정지";$("#devPause").setAttribute("aria-pressed",String(paused));
@@ -269,13 +273,13 @@
     resetReviews();
     generation++;clearTimeout(joinTimer);
     if(channel)send(host?"host-left":"guest-left");channel?.unsubscribe();channel=null;
-    session=null;remote=null;runId=null;paused=false;localDev=false;auto=false;cameras.forEach(c=>c.reset());$("#pickScreen").hidden=true;
+    session=null;remote=null;runId=null;paused=false;localDev=false;auto=false;devShown=false;cameras.forEach(c=>c.reset());$("#pickScreen").hidden=true;
     for(const api of apis)if(api)api.suspended=true;
     $("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");updateTools();show(lobby);status("방에서 나왔습니다.");
   }
   async function connect(code,asHost){
     resetReviews();
-    const token=++generation;host=asHost;localDev=false;slot=asHost?0:1;peer=null;session=null;remote=null;runId=null;auto=false;paused=false;epoch=0;peerAway=false;lastHeard=Date.now();peerBeat=0;rtt=null;cameras.forEach(c=>c.reset());
+    const token=++generation;host=asHost;localDev=false;slot=asHost?0:1;peer=null;session=null;remote=null;runId=null;auto=false;devShown=false;paused=false;epoch=0;peerAway=false;lastHeard=Date.now();peerBeat=0;rtt=null;cameras.forEach(c=>c.reset());
     $("#autoButton").textContent="AUTO OFF";$("#autoButton").setAttribute("aria-pressed","false");$("#coopApp").dataset.dev="false";$("#boardViews").classList.remove("split");
     client??=window.supabase?.createClient(URL,KEY);if(!client){status("연결 모듈을 불러오지 못했습니다. 다시 시도해주세요.");return;}
     await ready();if(token!==generation)return;
@@ -363,6 +367,14 @@
   for(const type of ["pawn","rook"])$("#devSpawn"+type).addEventListener("click",()=>debug("spawn",{type,hp:Number($("#devEnemyHp").value)}));
   $("#devClear").addEventListener("click",()=>debug("clear"));
   $("#devToolsToggle").addEventListener("click",()=>{const node=$("#devControls");node.hidden=!node.hidden;$("#devToolsToggle").textContent=node.hidden?"도구 보기":"도구 숨기기";$("#devToolsToggle").setAttribute("aria-expanded",String(!node.hidden));});
+  // On narrow phones the connection badge stands in for the hidden mode label.
+  const devTap=()=>{
+    if(!devUnlocked())return;
+    const now=Date.now();devTaps=devTaps.filter(t=>now-t<1000);devTaps.push(now);
+    if(devTaps.length<5)return;
+    devTaps=[];devShown=!devShown;updateTools();
+  };
+  $(".mode-label").addEventListener("click",devTap);$("#netStatus").addEventListener("click",devTap);
   $("#autoButton").addEventListener("click",()=>{auto=!auto;$("#autoButton").textContent="AUTO "+(auto?"ON":"OFF");$("#autoButton").setAttribute("aria-pressed",String(auto));});
   for(const i of [0,1])$("#endReview"+i).addEventListener("click",()=>openReview(i));
   $("#deathReview").addEventListener("click",()=>openReview(localDev?controlled:slot));

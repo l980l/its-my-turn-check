@@ -33,4 +33,23 @@ assert.equal(S.wave, wave + 1, "DEV BEAT still runs an enemy beat during play");
 const speeds = [];
 for (let i = 0; i < 5; i++) { run.game.ui.devSpeed.handlers.click(); speeds.push(S.devSpeed + ":" + run.game.ui.devSpeed.textContent); }
 assert.deepEqual(speeds, ["2:[4] SPEED ×2", "4:[4] SPEED ×4", "8:[4] SPEED ×8", "16:[4] SPEED ×16", "1:[4] SPEED ×1"]);
-console.log("dev tool tests passed: switches hidden by default, five quick taps, stale taps ignored, no DEV BEAT after death, SPEED ×1–×16 cycle");
+// In a DEV run the tool bar starts hidden; five quick ⚙ taps show it, five more hide it.
+const gear = createGameHarness();
+const G = gear.reset({ phase: "player" });
+const gui = gear.game.ui, settings = () => gui.soundToggle.handlers.click();
+G.dev = true; G.running = true; gui.devBar.classList.add("hidden");
+for (let i = 0; i < 4; i++) { settings(); gear.advance(150); }
+assert.equal(gui.devBar.classList.contains("hidden"), true, "four ⚙ taps only open and close settings");
+gear.advance(1200);
+settings();
+assert.equal(gui.devBar.classList.contains("hidden"), true, "taps older than a second do not count");
+for (let i = 0; i < 4; i++) { gear.advance(150); settings(); }
+assert.equal(gui.devBar.classList.contains("hidden"), false, "five quick ⚙ taps show the DEV tools");
+assert.equal(gui.soundPanel.classList.contains("hidden"), true, "the settings panel closes after the fifth tap");
+for (let i = 0; i < 5; i++) { gear.advance(150); settings(); }
+assert.equal(gui.devBar.classList.contains("hidden"), true, "five more taps hide them again");
+G.dev = false;
+for (let i = 0; i < 5; i++) { gear.advance(150); settings(); }
+assert.equal(gui.devBar.classList.contains("hidden"), true, "outside DEV mode ⚙ never reveals the tools");
+
+console.log("dev tool tests passed: switches hidden by default, five quick taps, stale taps ignored, no DEV BEAT after death, SPEED ×1–×16 cycle, ⚙ ×5 shows and hides DEV tools");
