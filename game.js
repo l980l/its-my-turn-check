@@ -52,7 +52,6 @@
       result: $("#resultText"),
       resultRank: $("#resultRank"),
       devBar: $("#devBar"),
-      devVisibilityToggle: $("#devVisibilityToggle"),
       devToggle: $("#devToggle"),
       buildVersion: $("#buildVersion"),
       modeToggles: $("#modeToggles"),
@@ -505,7 +504,6 @@
     closeRanking();
     ui.over.classList.add("hidden");
     ui.devBar.classList.add("hidden");
-    ui.devVisibilityToggle.classList.add("hidden");
     ui.start.classList.remove("hidden");
   }
   // Solo runs start as a chosen piece. Weaker pieces earn a score multiplier.
@@ -696,10 +694,8 @@
     S.pre = preMode === "legacy";
     S.optimized = preMode === "optimized";
     S.lastDraw = 0;
-    ui.devBar.classList.toggle("hidden", !S.dev);
-    ui.devVisibilityToggle.classList.toggle("hidden", !S.dev);
-    ui.devVisibilityToggle.textContent = "HIDE DEV TOOLS";
-    ui.devVisibilityToggle.setAttribute("aria-expanded", "true");
+    // DEV tools start hidden even in DEV mode; ⚙ ×5 (or D) shows them.
+    ui.devBar.classList.add("hidden");
     S.running = true;
     startVerifiedRun();
     startBgm();
@@ -3816,9 +3812,21 @@
   }
   function toggleDevTools() {
     if (!S.dev) return;
-    let hidden = ui.devBar.classList.toggle("hidden");
-    ui.devVisibilityToggle.textContent = hidden ? "SHOW DEV TOOLS" : "HIDE DEV TOOLS";
-    ui.devVisibilityToggle.setAttribute("aria-expanded", String(!hidden));
+    ui.devBar.classList.toggle("hidden");
+  }
+  // In a DEV run, tapping ⚙ five times within a second shows or hides the DEV tools
+  // and closes the settings panel those taps opened and closed.
+  let settingsTaps = [];
+  function settingsTapped() {
+    ui.soundPanel.classList.toggle("hidden");
+    if (!S.dev || !S.running) return;
+    const now = performance.now();
+    settingsTaps = settingsTaps.filter((t) => now - t < 1000);
+    settingsTaps.push(now);
+    if (settingsTaps.length < 5) return;
+    settingsTaps = [];
+    ui.soundPanel.classList.add("hidden");
+    toggleDevTools();
   }
   function closeDevPick() {
     ui.devPick.classList.add("hidden");
@@ -4001,10 +4009,8 @@
     applyStartPiece();
     startVerifiedRun();
     ui.devSpeed.textContent = "[4] SPEED ×1";
-    ui.devBar.classList.toggle("hidden", !S.dev);
-    ui.devVisibilityToggle.classList.toggle("hidden", !S.dev);
-    ui.devVisibilityToggle.textContent = "HIDE DEV TOOLS";
-    ui.devVisibilityToggle.setAttribute("aria-expanded", "true");
+    // DEV tools start hidden even in DEV mode; ⚙ ×5 (or D) shows them.
+    ui.devBar.classList.add("hidden");
     S.running = true;
     startBgm();
     ui.over.classList.add("hidden");
@@ -4070,7 +4076,6 @@
     S.elapsedPlaySeconds += 300;
     $("#devTime").textContent = "+5분 (" + Math.floor(S.elapsedPlaySeconds / 60) + "분)";
   });
-  ui.devVisibilityToggle.addEventListener("click", toggleDevTools);
   $("#devPickClose").addEventListener("click", closeDevPick);
   document.addEventListener("keydown", (e) => {
     if (!S.dev) return;
@@ -4111,7 +4116,7 @@
   setBusVolume("sfx", Math.round(audio.sfxVolume / 0.05));
   setOffscreenIndicators(localStorage.getItem("its-my-turn-offscreen-indicators-v1") !== "0");
   setEnemyTrail(localStorage.getItem("its-my-turn-enemy-trail-v1") !== "0");
-  ui.soundToggle.addEventListener("click", () => ui.soundPanel.classList.toggle("hidden"));
+  ui.soundToggle.addEventListener("click", settingsTapped);
   ui.bgmVolumeRange.addEventListener("input", (e) => setBusVolume("bgm", Number(e.target.value)));
   ui.sfxVolumeRange.addEventListener("input", (e) => setBusVolume("sfx", Number(e.target.value)));
   ui.offscreenIndicatorToggle.addEventListener("change", (e) => setOffscreenIndicators(e.target.checked));

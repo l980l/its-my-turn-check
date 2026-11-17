@@ -54,6 +54,14 @@ try{
   // Record every status line: each player's own move reads as "내 기물", never as watching P1/P2.
   const watchHints=p=>p.ev("(()=>{window.__hints=new Set();new MutationObserver(()=>window.__hints.add(document.querySelector('#actionHint').textContent+' | '+document.querySelector('#phaseText').textContent)).observe(document.querySelector('#gameScreen'),{subtree:true,childList:true,characterData:true})})()");
   await watchHints(a);await watchHints(b);
+  // Online AUTO is a DEV tool: hidden for players, shown only after the DEV password and five quick taps on CO-OP ALPHA.
+  const autoShown=p=>p.ev("!document.querySelector('#autoButton').hidden");
+  const tapLabel=p=>p.ev("(()=>{for(let i=0;i<5;i++)document.querySelector('.mode-label').click()})()");
+  assert.equal(await autoShown(a),false,"players do not see AUTO");assert.equal(await autoShown(b),false);
+  await tapLabel(b);assert.equal(await autoShown(b),false,"taps without the DEV password do nothing");
+  await a.ev("sessionStorage.setItem('its-my-turn-dev-unlocked','1')");assert.equal(await autoShown(a),false,"unlocked DEV still starts hidden");
+  await tapLabel(a);assert.equal(await autoShown(a),true,"five quick taps show AUTO to a DEV session");
+  await tapLabel(a);assert.equal(await autoShown(a),false,"five more taps hide it");await tapLabel(a);
   await a.ev("document.querySelector('#autoButton').click()");await b.ev("document.querySelector('#autoButton').click()");await wait(7500);
   const hints=async p=>p.ev("[...window.__hints]");
   for(const [p,me,other] of [[a,"P1","P2"],[b,"P2","P1"]]){

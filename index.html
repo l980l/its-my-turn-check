@@ -189,21 +189,6 @@
           500 10px "DM Mono",
           monospace;
       }
-      .dev-visibility {
-        position: absolute;
-        z-index: 6;
-        right: 18px;
-        bottom: 70px;
-        margin: 0;
-        padding: 7px 10px;
-        border-color: #ffd166;
-        background: #191b34;
-        color: #ffd166;
-        box-shadow: none;
-        font: 500 10px "DM Mono", monospace;
-        letter-spacing: .1em;
-      }
-      .dev-visibility.hidden { display: none; }
       .dev-toggle {
         display: flex;
         align-items: center;
@@ -313,7 +298,6 @@
           padding: 7px 8px;
           font-size: 9px;
         }
-        .dev-visibility { right: 10px; bottom: 62px; }
       .dev-options {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -770,7 +754,7 @@
     #rewindLabel { min-width: 82px; color: #ffb4c5; font: 700 13px monospace; letter-spacing: .08em; text-align: center; }
     /* The replay draws its own header where the HUD sits; the HUD shows the
        live run, not the replayed beat, so it steps aside with the beat meter. */
-    #app.rewinding .hud, #app.rewinding .meter, #app.rewinding .dev-visibility { visibility: hidden; }
+    #app.rewinding .hud, #app.rewinding .meter { visibility: hidden; }
     /* Phones: two rows (이전 · n/5 · 이후, then 결과 보기) narrow enough to
        clear the ⚙ button in the bottom-right corner. */
     @media (max-width: 560px) {
@@ -1070,7 +1054,6 @@
         ><button id="devBoss">[7] BOSS</button>
         <button id="devAuto">[8] AUTO OFF</button><button id="devMaster">[9] MASTER</button><button id="devEnemy">특성 적</button><button id="devTime">+5분 (0분)</button>
       </div>
-      <button class="dev-visibility hidden" id="devVisibilityToggle" type="button" aria-expanded="true">HIDE DEV TOOLS</button>
       <div class="sound-control">
         <button id="soundToggle" aria-label="게임 설정">⚙</button
         ><label id="soundPanel" class="hidden"
@@ -1083,7 +1066,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version" id="buildVersion">BUILD <b>v0.21.19</b> · 2026.11.17</p>
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.20</b> · 2026.11.17</p>
         <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1246,12 +1229,12 @@
     <script src="enemy-traits.js?v=v0.15.2"></script>
     <script src="enemy-trait-icons.js?v=v0.15.2"></script>
     <style>
-      .coop-embedded #startScreen, .coop-embedded #devBar, .coop-embedded #devVisibilityToggle,
+      .coop-embedded #startScreen, .coop-embedded #devBar,
       .coop-embedded #soundToggle, .coop-embedded .meter { display:none !important; }
       .coop-embedded .overlay { background:rgba(7,9,24,.6); }
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.8"></script>
-    <script src="game.js?v=v0.21.19"></script>
+    <script src="game.js?v=v0.21.20"></script>
   </body>
 </html>
