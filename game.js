@@ -471,7 +471,7 @@
   }
   function renderTraitCodex() {
     ui.traitCodexList.textContent = "";
-    const level = Number($("#traitLevelFilter").value) || 1;
+    const level = Number($("#traitLevelFilter [aria-checked='true']")?.dataset.level) || 1;
     TRAITS.map((trait) => TraitSystem.atLevel(trait.id, level)).forEach((trait) => {
       let entry = document.createElement("article");
       entry.className = "trait-codex-entry";
@@ -3962,7 +3962,27 @@
   ui.tutorialButton.addEventListener("click", () => openTutorial(false));
   ui.traitCodexButton.addEventListener("click", openTraitCodex);
   ui.traitCodexClose.addEventListener("click", closeTraitCodex);
-  $("#traitLevelFilter").addEventListener("change", renderTraitCodex);
+  // Level tabs behave as one radio group: click picks, arrow keys move and pick.
+  const traitLevelTabs = [...document.querySelectorAll("#traitLevelFilter [data-level]")];
+  function pickTraitLevel(tab) {
+    traitLevelTabs.forEach((other) => {
+      other.setAttribute("aria-checked", String(other === tab));
+      other.tabIndex = other === tab ? 0 : -1;
+    });
+    renderTraitCodex();
+  }
+  traitLevelTabs.forEach((tab, index) => {
+    tab.tabIndex = index ? -1 : 0;
+    tab.addEventListener("click", () => pickTraitLevel(tab));
+    tab.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      const next = traitLevelTabs[(index + step + traitLevelTabs.length) % traitLevelTabs.length];
+      pickTraitLevel(next);
+      next.focus();
+    });
+  });
   ui.reroll.addEventListener("click", rerollTraits);
   ui.tutorialPrev.addEventListener("click", () => {
     if (tutorialPage === 0) return;

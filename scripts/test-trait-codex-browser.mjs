@@ -20,7 +20,9 @@ try {
     await ev("document.fonts.ready");
     await ev("document.querySelector('#traitCodexButton').click()"); await wait(200);
     for (const level of [1, 2, 3, 4, 5]) {
-      await ev(`(()=>{const s=document.querySelector('#traitLevelFilter');s.value='${level}';s.dispatchEvent(new Event('change'))})()`); await wait(80);
+      const tab = await ev(`(()=>{const t=document.querySelector('#traitLevelFilter [data-level="${level}"]');t.click();const b=t.getBoundingClientRect(),g=t.parentElement.getBoundingClientRect();return{checked:[...t.parentElement.children].filter(x=>x.getAttribute('aria-checked')==='true').map(x=>x.dataset.level),fits:b.left>=g.left-0.5&&b.right<=g.right+0.5&&t.scrollWidth<=t.clientWidth+1,width:b.width}})()`); await wait(80);
+      assert.deepEqual(tab.checked, [String(level)], "exactly the clicked level tab is selected");
+      assert.ok(tab.fits && tab.width >= 44, `${w}x${h} Lv.${level} tab fits its row and stays tappable`);
       const r = await ev(`(()=>{const entries=[...document.querySelectorAll('.trait-codex-entry')];return{count:entries.length,level:entries[0]?.dataset.level,spill:entries.flatMap(e=>{const b=e.getBoundingClientRect();return [...e.querySelectorAll('h3,p')].filter(n=>{const q=n.getBoundingClientRect();return q.right>b.right+0.5||q.bottom>b.bottom+0.5||n.scrollWidth>n.clientWidth+1}).map(n=>e.querySelector('h3').textContent+': '+n.textContent.slice(0,20))})}})()`);
       assert.equal(r.count, 13, "13 traits listed"); assert.equal(r.level, String(level));
       assert.deepEqual(r.spill, [], `${w}x${h} Lv.${level} codex text stays inside its entry`);
