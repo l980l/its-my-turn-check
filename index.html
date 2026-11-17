@@ -11,7 +11,7 @@
     <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" media="(min-width: 561px)" type="image/webp" />
     <link rel="preload" as="image" href="assets/its-my-turn-check-desktop-art.webp" media="(max-width: 560px)" type="image/webp" />
     <link rel="stylesheet" href="style.css?v=v0.21.17" />
-    <script src="ui-scale.js?v=v0.21.17"></script>
+    <script src="ui-scale.js?v=v0.21.19"></script>
     <!-- Kept local so the Android build is fully playable without a network connection. -->
     <style>
       @font-face { font-family: "Bungee"; src: url("assets/fonts/Bungee-Regular.ttf") format("truetype"); font-display: swap; }
@@ -107,6 +107,9 @@
         .panel.upgrade[data-mode] { top: calc(50dvh / var(--ui-scale, 1)); transform: translate(-50%, -50%); max-height: calc(calc(100dvh / var(--ui-scale, 1)) - 8px); padding: 10px 12px; }
         .panel.upgrade[data-mode] .eyebrow { display: none; }
         .panel.upgrade[data-mode] h2 { font-size: 18px; margin: 0 0 8px; }
+        /* A watching teammate's note replaces the title, so both halves are the same height. */
+        .panel.upgrade[data-mode]:has(.coop-reward-note:not([hidden])) h2 { display: none; }
+        .panel.upgrade[data-mode] .coop-reward-note { margin: 0 0 6px; font-size: 12px; line-height: 1.3; }
         .panel.upgrade[data-mode] .upgrade-choice { height: auto; min-height: 0; padding: 8px 4px; }
         .panel.upgrade[data-mode] .choices b { font-size: 24px; }
         .panel.upgrade[data-mode] .upgrade-choice strong { margin: 4px 0 0; font-size: 12px; }
@@ -123,6 +126,18 @@
         .panel.upgrade[data-mode] .upgrade-choice .trait-svg-icon { width: 22px; height: 22px; }
         .panel.upgrade[data-mode] .upgrade-choice { padding: 6px 4px; }
         .panel.upgrade[data-mode] .upgrade-choice span { display: none; }
+      }
+      /* Co-op DEV split halves on phones are about 95–125px tall: one header line, slim cards, slim reroll. */
+      @media (max-height: 140px) {
+        .panel.upgrade[data-mode] { padding: 4px 8px; }
+        .panel.upgrade[data-mode] h2 { font-size: 12px; margin: 0 0 3px; }
+        /* Icon and name side by side. */
+        .panel.upgrade[data-mode] .upgrade-choice { display: flex; align-items: center; justify-content: center; gap: 3px; padding: 3px; }
+        .panel.upgrade[data-mode] .upgrade-choice .trait-svg-icon { width: 18px; height: 18px; }
+        .panel.upgrade[data-mode] .upgrade-choice strong { margin: 0; white-space: nowrap; letter-spacing: -.02em; }
+        .panel.upgrade[data-mode] #traitReroll { margin: 3px auto 0; padding: 2px 10px; }
+        /* No room for the ⓘ details row; the card name is enough to pick. */
+        .panel.upgrade[data-mode] .choices .upgrade-info { display: none; }
       }
       @media (max-width: 560px) {
         body {
@@ -1068,7 +1083,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version" id="buildVersion">BUILD <b>v0.21.18</b> · 2026.11.17</p>
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.19</b> · 2026.11.17</p>
         <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1237,6 +1252,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.8"></script>
-    <script src="game.js?v=v0.21.18"></script>
+    <script src="game.js?v=v0.21.19"></script>
   </body>
 </html>
