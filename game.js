@@ -81,6 +81,7 @@
       sfxVolumeValue: $("#sfxVolumeValue"),
       offscreenIndicatorToggle: $("#offscreenIndicatorToggle"),
       enemyTrailToggle: $("#enemyTrailToggle"),
+      uiScaleSelect: $("#uiScaleSelect"),
       combo: $("#comboToast"),
       ranking: $("#rankingScreen"),
       rankingButton: $("#rankingButton"),
@@ -647,8 +648,10 @@
       tallest = Math.max(tallest, panel.scrollHeight + panel.offsetHeight - panel.clientHeight);
     }
     tutorialPage = current;
-    panel.style.minHeight = Math.min(tallest, innerHeight * 0.9) + "px";
-    panel.classList.toggle("scrolls", tallest > innerHeight * 0.9);
+    // The panel lives in a zoomed layer, so the window height is measured in its units.
+    let room = (innerHeight / uiScale()) * 0.9;
+    panel.style.minHeight = Math.min(tallest, room) + "px";
+    panel.classList.toggle("scrolls", tallest > room);
     renderTutorial();
   }
   function openTutorial(startAfter = false) {
@@ -852,6 +855,16 @@
     S.showOffscreenIndicators = enabled;
     localStorage.setItem("its-my-turn-offscreen-indicators-v1", enabled ? "1" : "0");
     ui.offscreenIndicatorToggle.checked = enabled;
+  }
+  // Text and panels grow on large screens (ui-scale.js). Canvas overlays drawn
+  // at fixed pixel sizes multiply by this too.
+  function uiScale() {
+    return window.UiScale ? window.UiScale.value() : 1;
+  }
+  function syncUiScaleSelect() {
+    if (!ui.uiScaleSelect || !window.UiScale) return;
+    ui.uiScaleSelect.value = window.UiScale.mode();
+    ui.uiScaleSelect.options[0].textContent = "AUTO (" + Math.round(window.UiScale.compute("auto", innerWidth, innerHeight) * 100) + "%)";
   }
   // Red dashed lines for the routes enemies just took. The death rewind always shows them.
   function setEnemyTrail(enabled) {
@@ -2873,7 +2886,8 @@
   }
   function edgeEnemyTargets() {
     if (!S.showOffscreenIndicators) return [];
-    let margin = 42,
+    let unit = uiScale(),
+      margin = 42 * unit,
       candidates = S.enemies
         .map((e) => {
           let q = pos(e.x, e.y),
@@ -2892,7 +2906,7 @@
         dy = target.q.y - H / 2,
         scale = Math.min((W / 2 - margin) / Math.max(1, Math.abs(dx)), (H / 2 - margin) / Math.max(1, Math.abs(dy))),
         angle = Math.atan2(dy, dx),
-        offset = (index - (candidates.length - 1) / 2) * 42,
+        offset = (index - (candidates.length - 1) / 2) * 42 * unit,
         x = W / 2 + dx * scale - Math.sin(angle) * offset,
         y = H / 2 + dy * scale + Math.cos(angle) * offset;
       return { ...target, x: Math.max(margin, Math.min(W - margin, x)), y: Math.max(margin, Math.min(H - margin, y)), angle };
@@ -2901,6 +2915,14 @@
   // Header for the replay: which beat, how the run ended, and a legend whose
   // line samples match the trails drawn on the board.
   function drawRewindHeader(replay, snapshot) {
+    let unit = uiScale();
+    g.save();
+    g.scale(unit, unit);
+    drawRewindHeaderAt(replay, snapshot, W / unit);
+    g.restore();
+  }
+  // W here is the header's own width, already divided by the UI scale.
+  function drawRewindHeaderAt(replay, snapshot, W) {
     let top = 12,
       height = 96,
       inner = Math.max(120, W - 56),
@@ -3296,6 +3318,12 @@
       g.restore();
     });
     edgeEnemyTargets().forEach((target) => {
+      // Marker art is drawn at 1x around its point, then grown with the UI scale.
+      let unit = uiScale();
+      g.save();
+      g.translate(target.x, target.y);
+      g.scale(unit, unit);
+      g.translate(-target.x, -target.y);
       let e = target.e,
         pulse = target.danger ? 0.62 + Math.sin(performance.now() / 95) * 0.38 : 1,
         color = target.danger ? "#ff315d" : e.boss ? "#ffd166" : COMBO_COLORS[Math.max(0, Math.min(6, (e.hp || 1) - 1))],
@@ -3338,6 +3366,8 @@
         g.fillText(target.danger ? "CHECK!" : "BOSS", target.x, target.y - (e.boss ? 20 : 16));
       }
       g.restore();
+      g.restore();
+      // Badges follow the board's cell size, so they stay outside the UI scale.
       EnemyTraitIcons.layout(target.x, target.y, size(), EnemyTraits.traitsOf(e), {edge: true}).forEach((badge) =>
         EnemyTraitIcons.draw(g, badge.x, badge.y, badge.size, badge.id, e.splitsLeft));
     });
@@ -3620,7 +3650,7 @@
       if (EnemyTraits.isProtected(badge.enemy, S.enemies)) copy += "\n이 적은 지금 수호받는 중입니다.";
       return { name: data.name + " · 적 특성", copy, color: data.color };
     }
-    const edge = edgeEnemyTargets().find((target) => Math.hypot(target.x - tx, target.y - ty) <= 22);
+    const edge = edgeEnemyTargets().find((target) => Math.hypot(target.x - tx, target.y - ty) <= 22 * uiScale());
     if (edge) return enemyInfo(edge.e, true);
     const s = size(),
       x = Math.round((tx - W / 2) / s + S.camera.x),
@@ -3649,8 +3679,11 @@
     ui.enemyTraitTipCopy.textContent = hit.copy;
     tip.style.setProperty("--trait-color", hit.color);
     tip.classList.remove("hidden");
-    tip.style.left = Math.max(8, Math.min(W - tip.offsetWidth - 8, hoverPoint.x + 16)) + "px";
-    tip.style.top = Math.max(8, Math.min(H - tip.offsetHeight - 8, hoverPoint.y + 16)) + "px";
+    // The tip is zoomed by the UI scale, so screen pixels are divided back into its own units.
+    const scale = uiScale(),
+      box = tip.getBoundingClientRect();
+    tip.style.left = Math.max(8, Math.min(W - box.width - 8, hoverPoint.x + 16)) / scale + "px";
+    tip.style.top = Math.max(8, Math.min(H - box.height - 8, hoverPoint.y + 16)) / scale + "px";
   }
   function tap(e) {
     if (coopSession && !coopSession.interactive) return;
@@ -4063,6 +4096,11 @@
   ui.sfxVolumeRange.addEventListener("input", (e) => setBusVolume("sfx", Number(e.target.value)));
   ui.offscreenIndicatorToggle.addEventListener("change", (e) => setOffscreenIndicators(e.target.checked));
   ui.enemyTrailToggle.addEventListener("change", (e) => setEnemyTrail(e.target.checked));
+  if (ui.uiScaleSelect) {
+    syncUiScaleSelect();
+    ui.uiScaleSelect.addEventListener("change", (e) => window.UiScale?.set(e.target.value));
+    addEventListener("resize", syncUiScaleSelect);
+  }
   if (window.CoopRuntime && window.location?.search.includes("coop=1")) {
     document.documentElement.classList.add("coop-embedded");
     coopSession = window.CoopRuntime.create({S,ui,executing:value=>{coopExecuting=value;},fn:{
