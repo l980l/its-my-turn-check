@@ -21,6 +21,18 @@
       /* Large screens: every HTML layer grows by --ui-scale (set by ui-scale.js).
          The canvas stays 1:1; viewport units below are divided back because zoom multiplies them. */
       #app > :not(canvas) { zoom: var(--ui-scale, 1); }
+      /* Scrollbars in the game's colours: a thin cyan thumb on a dark track. Mouse devices only:
+         touch screens keep their overlay scrollbars, which take no layout width. */
+      @media (hover: hover) and (pointer: fine) {
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #0b0f26; border-left: 1px solid #53f0e41f; }
+        ::-webkit-scrollbar-thumb { border: 2px solid #0b0f26; border-radius: 6px; background: linear-gradient(#53f0e4, #2fb8c9); box-shadow: inset 0 0 4px #ffffff44; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(#8ffaf1, #53f0e4); }
+        ::-webkit-scrollbar-thumb:active { background: #f45cf4; }
+        ::-webkit-scrollbar-corner { background: #0b0f26; }
+      }
+      /* Firefox has no ::-webkit-scrollbar; give it the same colours. */
+      @supports (-moz-appearance: none) { * { scrollbar-width: thin; scrollbar-color: #53f0e4 #0b0f26; } }
       #app {
         position: fixed;
         inset: 0;
@@ -408,6 +420,8 @@
        stay in the same spot on every page. */
     .tutorial-actions { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding: 12px 0 clamp(25px, calc(5vw / var(--ui-scale, 1)), 52px); }
     .tutorial-panel.scrolls .tutorial-actions { background: linear-gradient(#0d0e2000, #0e0f22 14px); }
+    /* Reserve the scrollbar lane on every page so a scrolling page does not shift the buttons. */
+    .tutorial-panel { scrollbar-gutter: stable; }
     .tutorial-actions button { min-width: 92px; margin: 0; }
     .tutorial-actions button:disabled { cursor: default; opacity: .3; filter: none; transform: none; }
     .tutorial-skip { border-color: #ffffff44; background: transparent; color: #aeb7d3; box-shadow: none; }
@@ -895,7 +909,13 @@
     .trait-codex-entry .trait-svg-icon { width: 42px; height: 42px; color: #53f0e4; }
     #traitCodexScreen .panel { touch-action: pan-y; overscroll-behavior: contain; }
     .trait-codex-kind { color: #f45cf4 !important; font: 700 13px "DM Mono", monospace !important; letter-spacing: .1em; }
-    #traitLevelFilter { display: block; margin: 0 auto 16px; padding: 9px 14px; color: #eef3ff; border: 1px solid #53f0e477; background: #101735; font: inherit; }
+    /* Level tabs: one row of five, the chosen level filled cyan like the main buttons. The app font (Gowun Batang) is forced on #app. */
+    .trait-level-tabs { display: flex; width: min(100%, 420px); margin: 0 auto 16px; border: 1px solid #53f0e466; background: #0d1330; }
+    #traitLevelFilter button { flex: 1 1 0; min-width: 0; height: 38px; margin: 0; padding: 0; border: 0; border-left: 1px solid #53f0e433; background: transparent; box-shadow: none; color: #9fa8cc; font-size: 15px; font-weight: 700; letter-spacing: .06em; transition: color .15s, background .15s, box-shadow .15s; }
+    #traitLevelFilter button:first-child { border-left: 0; }
+    #traitLevelFilter button:hover { transform: none; filter: none; color: #eef3ff; background: #53f0e41a; }
+    #traitLevelFilter button[aria-checked="true"] { color: #07111a; background: #53f0e4; box-shadow: 0 0 18px #53f0e466; }
+    #traitLevelFilter button:focus-visible { outline: 2px solid #ffd166; outline-offset: -3px; }
     @media (max-width: 560px) {
       #startScreen {
         /* Use the same key art as desktop: this portrait crop keeps the queen and enemy line in frame. */
@@ -1048,7 +1068,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version" id="buildVersion">BUILD <b>v0.21.17</b> · 2026.11.17</p>
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.18</b> · 2026.11.17</p>
         <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1107,7 +1127,9 @@
           </div>
           <h2>나만의 기물을 만드세요</h2>
           <p class="trait-codex-note">특성은 6개까지 획득하며, 모두 채우면 레벨업마다 보유 특성을 강화합니다. 최대 Lv. 5 · 리롤은 게임당 2회. 공격 효과는 직접 처치 후 일반 적에게만 적용됩니다.</p>
-          <select id="traitLevelFilter" aria-label="특성 레벨별 효과"><option value="1">Lv. 1 효과</option><option value="2">Lv. 2 효과</option><option value="3">Lv. 3 효과</option><option value="4">Lv. 4 효과</option><option value="5">Lv. 5 효과</option></select>
+          <div id="traitLevelFilter" class="trait-level-tabs" role="radiogroup" aria-label="특성 레벨별 효과">
+            <button type="button" role="radio" data-level="1" aria-checked="true">LV.1</button><button type="button" role="radio" data-level="2" aria-checked="false">LV.2</button><button type="button" role="radio" data-level="3" aria-checked="false">LV.3</button><button type="button" role="radio" data-level="4" aria-checked="false">LV.4</button><button type="button" role="radio" data-level="5" aria-checked="false">LV.5</button>
+          </div>
           <div class="trait-codex-list" id="traitCodexList"></div>
         </div>
       </section>
@@ -1215,6 +1237,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.8"></script>
-    <script src="game.js?v=v0.21.17"></script>
+    <script src="game.js?v=v0.21.18"></script>
   </body>
 </html>
