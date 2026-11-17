@@ -61,7 +61,7 @@ npm run test:coop-session
 npm run balance:coop
 ```
 
-화면 동작은 `scripts/test-*-browser.mjs`로 확인합니다. 정적 서버와 CDP 포트 9225의 headless Chrome을 띄운 뒤 `node scripts/test-coop-dev-browser.mjs http://localhost:8000`처럼 실행합니다.
+화면 동작은 `scripts/test-*-browser.mjs`로 확인합니다. `npm run serve:test`(포트 8010)와 CDP 포트 9225의 headless Chrome을 띄운 뒤 `node scripts/test-coop-dev-browser.mjs http://127.0.0.1:8010`처럼 실행합니다. 브라우저 테스트에는 python `http.server` 대신 이 서버를 씁니다. python 서버는 동시 연결이 몰리면 가끔 연결을 끊는데, `game.js`가 끊긴 판은 게임 코드 없이 열려 테스트가 무작위로 실패했습니다.
 
 ## 난이도 흐름
 
