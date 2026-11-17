@@ -297,13 +297,13 @@ header {
 .pick-room {display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px;}
 .pick-room small {color:#b9c5df;font-size:12px;letter-spacing:.08em;}
 .pick-room b {color:var(--gold);font:700 22px/1 monospace;letter-spacing:.18em;}
-.solo-panel .pick-room .copy {min-height:0;margin:0;padding:5px 9px;border:1px solid #53f0e455;background:#0c1024cc;color:var(--cyan);box-shadow:none;font-size:11px;letter-spacing:.06em;}
+.solo-panel .pick-room .copy {min-height:0;margin:0;padding:5px 9px;border:1px solid #53f0e455;background:#0c1024cc;color:var(--cyan);box-shadow:none;font-size:12px;letter-spacing:.06em;}
 .pick-list {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:18px 0 14px;}
 .solo-panel .pick-choice {display:flex;flex-direction:column;align-items:center;gap:5px;min-height:0;padding:12px 4px;border-color:#ffffff33;background:#121a38;color:#efffff;box-shadow:none;letter-spacing:0;}
 .solo-panel .pick-choice[aria-pressed="true"] {border-color:var(--gold);box-shadow:0 0 16px #ffd16655;}
 .pick-glyph {color:var(--gold);font:400 36px/1 "Apple Symbols","Segoe UI Symbol",serif;}
 .pick-choice strong {font-size:15px;}
-.pick-choice small {color:#b9c5df;font-size:11px;font-weight:400;line-height:1.35;}
+.pick-choice small {color:#b9c5df;font-size:13px;font-weight:400;line-height:1.35;}
 .pick-choice em {color:var(--cyan);font:700 12px monospace;font-style:normal;}
 .pick-players {display:grid;gap:4px;margin:0;padding:0;list-style:none;color:#c6c9dc;}
 .pick-players .ready {color:var(--cyan);}

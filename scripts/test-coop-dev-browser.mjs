@@ -84,7 +84,7 @@ try {
     await click("#cameraButton");
     assert.equal(await ev("document.querySelector('#coopFrame0').contentWindow.CoopGame.focus"),1-oldFocus,"camera button switches local spectator view");
     assert.equal(await ev("document.querySelector('#coopFrame1').contentWindow.CoopGame.focus"),otherFocus,"switching does not affect the other player's camera");
-    for (const factor of [2,3,4,1]) { await click("#devSpeed"); assert.equal(await text("devSpeed"), "SPEED ×"+factor); }
+    for (const factor of [2,4,8,16,1]) { await click("#devSpeed"); assert.equal(await text("devSpeed"), "SPEED ×"+factor); }
     await click("#devPlayer"); assert.equal(await text("devPlayer"), "조작 P2");
     await click("#devPiece"); assert.equal(await text("devPiece"), "기물 KING");
     await click("#devSpawnrook"); await click("#devClear");

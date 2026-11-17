@@ -29,4 +29,8 @@ const S = run.reset({ phase: "player" });
 const wave = S.wave;
 run.game.devBeat();
 assert.equal(S.wave, wave + 1, "DEV BEAT still runs an enemy beat during play");
-console.log("dev tool tests passed: switches hidden by default, five quick taps, stale taps ignored, no DEV BEAT after death");
+// [4] SPEED cycles ×1 → ×2 → ×4 → ×8 → ×16 → ×1 and the label names the current speed.
+const speeds = [];
+for (let i = 0; i < 5; i++) { run.game.ui.devSpeed.handlers.click(); speeds.push(S.devSpeed + ":" + run.game.ui.devSpeed.textContent); }
+assert.deepEqual(speeds, ["2:[4] SPEED ×2", "4:[4] SPEED ×4", "8:[4] SPEED ×8", "16:[4] SPEED ×16", "1:[4] SPEED ×1"]);
+console.log("dev tool tests passed: switches hidden by default, five quick taps, stale taps ignored, no DEV BEAT after death, SPEED ×1–×16 cycle");

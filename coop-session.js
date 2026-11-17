@@ -109,7 +109,7 @@
       debug(action,value,slot) { engine.debug(action,value,slot); if(engine.pending()){flow.phase="upgrade";flow.actor=slot;flow.debugPending=true;}if(flow.phase!=="acting")delete flow.actions[slot];notify(); },
       pause(value) { if (!flow || paused===value) return; if(value) remaining=Math.max(0,flow.deadline-now()); else flow.deadline=now()+remaining; paused=value;notify(); },
       paused: () => paused,
-      speed(value) { if(![1,2,3,4].includes(value)||!flow)return;remaining=(paused?remaining:Math.max(0,flow.deadline-now()))*speed/value;flow.duration*=speed/value;speed=value;flow.deadline=now()+remaining;notify(); },
+      speed(value) { if(![1,2,4,8,16].includes(value)||!flow)return;remaining=(paused?remaining:Math.max(0,flow.deadline-now()))*speed/value;flow.duration*=speed/value;speed=value;flow.deadline=now()+remaining;notify(); },
       timeLeft: () => paused ? remaining : Math.max(0,(flow?.deadline||0)-now()),
       // DEV "다음 단계": an untimed turn nobody has answered is passed on.
       step() { if(!flow)return;if(flow.phase==="planning"&&!flow.duration&&!flow.actions[flow.current]){nextTurn();return;}const was=paused;paused=false;update(flow.deadline);paused=was;remaining=flow.duration; },
