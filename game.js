@@ -32,6 +32,7 @@
       rewindNext: $("#rewindNext"),
       rewindDone: $("#rewindDone"),
       rewindLabel: $("#rewindLabel"),
+      rewindDots: $("#rewindDots"),
       start: $("#startScreen"),
       upgrade: $("#upgradeScreen"),
       upgradePanel: $("#upgradeScreen .panel"),
@@ -2575,13 +2576,26 @@
     ui.app.classList.add("rewinding");
     updateRewindControls();
   }
+  // One diamond per remembered beat; the last one is the checkmate.
   function updateRewindControls() {
     if (!S.rewind) return;
     let { index } = S.rewind,
       total = S.rewindHistory.length;
-    ui.rewindLabel.textContent = index + 1 + " / " + total;
+    ui.rewindLabel.textContent = "장면 " + (index + 1) + " / " + total;
     ui.rewindPrev.disabled = index <= 0;
     ui.rewindNext.disabled = index >= total - 1;
+    ui.rewindDots.replaceChildren(
+      ...S.rewindHistory.map((snapshot, i) => {
+        let dot = document.createElement("button");
+        dot.className = "rewind-dot" + (i === total - 1 ? " fatal" : "");
+        dot.setAttribute("role", "radio");
+        dot.setAttribute("aria-checked", String(i === index));
+        dot.setAttribute("aria-label", "장면 " + (i + 1) + " · " + snapshot.label);
+        dot.title = snapshot.label;
+        dot.addEventListener("click", () => moveRewind(i - S.rewind.index));
+        return dot;
+      }),
+    );
   }
   function moveRewind(delta) {
     if (S.phase !== "rewind" || !S.rewind) return;
@@ -2919,27 +2933,53 @@
   }
   // W here is the header's own width, already divided by the UI scale.
   function drawRewindHeaderAt(replay, snapshot, W) {
-    let top = 12,
-      height = 96,
-      inner = Math.max(120, W - 56),
+    let top = 14,
+      height = 92,
+      cardW = Math.min(W - 32, 460),
+      left = (W - cardW) / 2,
+      inner = Math.max(120, cardW - 40),
       fit = (text, font, px) => {
         g.font = font.replace("{px}", px);
         let width = g.measureText(text).width;
         if (width > inner) g.font = font.replace("{px}", Math.max(12, Math.floor((px * inner) / width)));
       };
     g.save();
-    g.fillStyle = "#07091bea";
-    g.fillRect(0, 0, W, top + height + 6);
-    g.strokeStyle = "#ff5577";
-    g.globalAlpha = 0.72;
-    g.strokeRect(16, top, W - 32, height);
-    g.globalAlpha = 1;
+    // Card with a glow, a pink top edge and corner ticks.
+    g.shadowColor = "#ff557755";
+    g.shadowBlur = 24;
+    g.fillStyle = "#0b0a1ef0";
+    g.fillRect(left, top, cardW, height);
+    g.shadowBlur = 0;
+    g.strokeStyle = "#ff8da555";
+    g.lineWidth = 1;
+    g.strokeRect(left + 0.5, top + 0.5, cardW - 1, height - 1);
+    g.fillStyle = "#ff5577";
+    g.fillRect(left, top, cardW, 2);
+    g.strokeStyle = "#ffb4c5";
+    g.lineWidth = 2;
+    [[left, top + height, 1, -1], [left + cardW, top + height, -1, -1]].forEach(([x, y, sx, sy]) => {
+      g.beginPath();
+      g.moveTo(x + sx * 12, y);
+      g.lineTo(x, y);
+      g.lineTo(x, y + sy * 12);
+      g.stroke();
+    });
     g.textAlign = "center";
     g.textBaseline = "middle";
-    g.font = "700 13px monospace";
+    // "◆ REWIND" tag, the diamond drawn so it matches the dock's beat markers.
+    g.font = "700 12px monospace";
+    let tag = "REWIND",
+      tagW = g.measureText(tag).width,
+      tagX = W / 2 + 7;
     g.fillStyle = "#ff8da5";
-    g.fillText("REWIND " + (replay.index + 1) + " / " + S.rewindHistory.length, W / 2, top + 19);
-    fit(snapshot.label, "700 {px}px 'Gowun Batang', serif", 17);
+    g.fillText(tag, tagX, top + 19);
+    g.save();
+    g.translate(tagX - tagW / 2 - 10, top + 19);
+    g.rotate(Math.PI / 4);
+    g.fillStyle = "#ff5577";
+    g.fillRect(-3.5, -3.5, 7, 7);
+    g.restore();
+    fit(snapshot.label, "700 {px}px 'Gowun Batang', serif", 18);
     g.fillStyle = "#eff4ff";
     g.fillText(snapshot.label, W / 2, top + 45);
     // Legend: "━ 내 이동   ┄ 적 이동", each with its own line sample.
@@ -2951,7 +2991,7 @@
       theirs = "적 이동",
       total = sample * 2 + gapIn * 2 + gapOut + g.measureText(mine).width + g.measureText(theirs).width,
       x = W / 2 - total / 2,
-      y = top + 74;
+      y = top + 72;
     g.textAlign = "left";
     g.lineCap = "round";
     g.strokeStyle = "#53f0e4";
@@ -3956,6 +3996,11 @@
   );
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && ["+", "=", "-", "0"].includes(e.key)) e.preventDefault();
+    // The death replay steps with ← / →.
+    if (S.running && S.phase === "rewind" && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+      e.preventDefault();
+      moveRewind(e.key === "ArrowLeft" ? -1 : 1);
+    }
   });
   ["gesturestart", "gesturechange", "gestureend"].forEach((type) =>
     document.addEventListener(type, (e) => e.preventDefault(), { passive: false }),
