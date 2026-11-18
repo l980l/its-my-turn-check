@@ -727,48 +727,113 @@
     .pre-mode-choice span { color: #b9c5df; font-size: 13px; line-height: 1.55; }
     .pre-mode-choice.legacy strong { color: #ffd166; }
     @media (max-width: 560px) { .pre-mode-options { grid-template-columns: 1fr; } .pre-mode-choice { min-height: 0; padding: 17px 15px; } }
+    /* Death replay dock: ◀ · one diamond per beat · ▶ | 결과 보기, with a caption below. */
     #rewindControls {
       position: absolute;
       z-index: 4;
       left: 50%;
-      bottom: max(42px, calc(env(safe-area-inset-bottom) + 22px));
+      bottom: max(30px, calc(env(safe-area-inset-bottom) + 18px));
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 8px;
-      width: min(calc(92vw / var(--ui-scale, 1)), 540px);
       transform: translateX(-50%);
     }
     #rewindControls.hidden { display: none; }
-    #rewindControls button {
-      min-height: 42px;
-      margin: 0;
-      padding: 10px 13px;
-      border-color: #ff8da5;
-      background: #171127e8;
-      color: #ffe9ef;
-      box-shadow: 0 0 18px #ff557744;
-      font-size: 13px;
+    .rewind-dock {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid #ff8da55c;
+      background: linear-gradient(180deg, #1a1230f2, #0c0a1ef2);
+      box-shadow: 0 0 28px #ff557733, inset 0 1px 0 #ffffff0d;
     }
-    #rewindControls button:disabled { opacity: .35; cursor: default; transform: none; filter: none; }
-    #rewindLabel { min-width: 82px; color: #ffb4c5; font: 700 13px monospace; letter-spacing: .08em; text-align: center; }
+    #rewindControls .rewind-step {
+      width: 44px;
+      min-height: 44px;
+      margin: 0;
+      padding: 0;
+      border: 1px solid #ff8da54d;
+      background: #ff557714;
+      color: #ffd9e2;
+      box-shadow: none;
+      font-size: 15px;
+      line-height: 1;
+    }
+    #rewindControls .rewind-step:hover:not(:disabled) { border-color: #ff8da5; background: #ff557733; }
+    #rewindControls .rewind-step:disabled { opacity: .28; cursor: default; transform: none; filter: none; }
+    .rewind-dots { display: flex; align-items: center; gap: 2px; padding: 0 4px; }
+    #rewindControls .rewind-dot {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      min-height: 44px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    #rewindControls .rewind-dot:hover { transform: none; }
+    .rewind-dot::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid #ff8da5aa;
+      transform: rotate(45deg);
+      transition: transform .15s, background .15s, box-shadow .15s;
+    }
+    .rewind-dot:hover::before { border-color: #ffd9e2; }
+    .rewind-dot.fatal::before { border-color: #ff5577; }
+    .rewind-dot[aria-checked="true"]::before {
+      border-color: #ffe9ef;
+      background: #ff5577;
+      box-shadow: 0 0 12px #ff5577, 0 0 3px #ffe9ef;
+      transform: rotate(45deg) scale(1.3);
+    }
+    .rewind-divider { width: 1px; align-self: stretch; margin: 4px 4px; background: #ff8da53d; }
+    #rewindControls #rewindDone {
+      min-height: 44px;
+      margin: 0;
+      padding: 0 18px;
+      border: 1px solid #ffb4c5;
+      background: linear-gradient(180deg, #ff6f8c, #e63d62);
+      color: #1a0610;
+      box-shadow: 0 0 20px #ff557766;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .rewind-caption {
+      margin: 0;
+      padding: 3px 10px;
+      background: #07091bcc;
+      color: #ffb4c5;
+      font-size: 12px;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .rewind-keys { color: #b9a3b9; }
+    @media (hover: none), (pointer: coarse) { .rewind-keys { display: none; } }
     /* The replay draws its own header where the HUD sits; the HUD shows the
        live run, not the replayed beat, so it steps aside with the beat meter. */
     #app.rewinding .hud, #app.rewinding .meter { visibility: hidden; }
-    /* Phones: two rows (이전 · n/5 · 이후, then 결과 보기) narrow enough to
-       clear the ⚙ button in the bottom-right corner. */
+    /* Phones: steps on one row and 결과 보기 below, narrow enough to clear the ⚙
+       button in the bottom-right corner. */
     @media (max-width: 560px) {
-      #rewindControls {
+      #rewindControls { bottom: max(14px, calc(env(safe-area-inset-bottom) + 8px)); gap: 6px; }
+      .rewind-dock {
         display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        gap: 6px;
+        grid-template-columns: auto 1fr auto;
         width: min(calc(calc(100vw / var(--ui-scale, 1)) - 128px), 300px);
-        bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+        gap: 6px 2px;
       }
-      #rewindControls.hidden { display: none; }
-      #rewindControls button { min-height: 40px; padding: 8px 6px; font-size: 13px; }
-      #rewindDone { grid-column: 1 / -1; }
-      #rewindLabel { min-width: 44px; }
+      .rewind-dots { justify-content: center; padding: 0; gap: 0; }
+      #rewindControls .rewind-dot { width: 26px; }
+      .rewind-divider { display: none; }
+      #rewindControls #rewindDone { grid-column: 1 / -1; }
     }
     #riskScreen .panel { width: min(calc(90vw / var(--ui-scale, 1)), 400px); padding: 24px; box-shadow: none; }
     #riskScreen h2 { margin: 0 0 16px; font-size: 26px; }
@@ -1038,11 +1103,15 @@
       </div>
       <div class="meter"><i id="meterFill"></i></div>
       <aside id="growthNotice" class="hidden" role="status" aria-live="polite"><small id="growthKind"></small><strong id="growthName"></strong><p id="growthCopy"></p></aside>
-      <div id="rewindControls" class="hidden" aria-label="사망 직전 장면 보기">
-        <button id="rewindPrev">◀ 이전</button>
-        <span id="rewindLabel">1 / 5</span>
-        <button id="rewindNext">이후 ▶</button>
-        <button id="rewindDone">결과 보기</button>
+      <div id="rewindControls" class="hidden" role="group" aria-label="사망 직전 장면 보기">
+        <div class="rewind-dock">
+          <button id="rewindPrev" class="rewind-step" aria-label="이전 장면">◀&#xFE0E;</button>
+          <div id="rewindDots" class="rewind-dots" role="radiogroup" aria-label="장면 선택"></div>
+          <button id="rewindNext" class="rewind-step" aria-label="다음 장면">▶&#xFE0E;</button>
+          <span class="rewind-divider" aria-hidden="true"></span>
+          <button id="rewindDone">결과 보기 →</button>
+        </div>
+        <p class="rewind-caption"><span id="rewindLabel" aria-live="polite">장면 5 / 5</span><span class="rewind-keys"> · ← → 키로 이동</span></p>
       </div>
       <div class="devbar hidden" id="devBar">
         <button id="devXp">[1] +XP</button
@@ -1066,7 +1135,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version" id="buildVersion">BUILD <b>v0.21.20</b> · 2026.11.17</p>
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.21</b> · 2026.11.18</p>
         <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1235,6 +1304,6 @@
       .coop-replay .hud { display:none !important; }
     </style>
     <script src="coop-runtime.js?v=v0.21.8"></script>
-    <script src="game.js?v=v0.21.20"></script>
+    <script src="game.js?v=v0.21.21"></script>
   </body>
 </html>
