@@ -118,7 +118,7 @@ function createGameHarness(options = {}) {
       handlers: {},
       addEventListener(type, handler) { (this.handlers[type] ||= []).push(handler); },
     },
-    localStorage: { getItem: () => null, setItem() {} },
+    localStorage: options.localStorage || { getItem: () => null, setItem() {} },
     sessionStorage: { getItem: () => null, setItem() {} },
     window: options.coop ? {CoopRuntime:require("../coop-runtime.js"),location:{search:"?coop=1"}} : {},
     devicePixelRatio: 1,

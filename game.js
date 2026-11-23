@@ -826,8 +826,10 @@
   }
   const legacyVolumeRaw = localStorage.getItem("checkbeat-volume-v5"),
     legacyVolume = legacyVolumeRaw === null ? NaN : Number(legacyVolumeRaw),
-    savedBgmVolume = Number(localStorage.getItem("checkbeat-bgm-volume-v1")),
-    savedSfxVolume = Number(localStorage.getItem("checkbeat-sfx-volume-v1"));
+    // A missing key must fall back to the default; Number(null) would read as 0% (muted).
+    storedVolume = (key) => { const raw = localStorage.getItem(key); return raw === null ? NaN : Number(raw); },
+    savedBgmVolume = storedVolume("checkbeat-bgm-volume-v1"),
+    savedSfxVolume = storedVolume("checkbeat-sfx-volume-v1");
   const initialVolume = Number.isFinite(legacyVolume) ? legacyVolume : 100;
   const audio = {
     ctx: null,
