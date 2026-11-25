@@ -167,7 +167,7 @@ const pawn=(x,y,hp=1)=>({x,y,type:"pawn",face:{x:0,y:1},hp,maxHp:hp,enemyTraits:
   assert.equal(other.e.players()[0].x,e.players()[0].x);assert.equal(other.h.game.S.player,other.e.players()[1]);
 }
 // Pure ordering/clock tests: one player selects at a time, kill chains keep the
-// turn, the lead alternates per wave, and monsters wait for both turns.
+// turn, P1 leads every wave, and monsters wait for both turns.
 // These turn-order checks run with a 3 s window so unanswered turns pass.
 const TIMED={planMs:3000};
 {
@@ -185,14 +185,14 @@ const TIMED={planMs:3000};
   s.move(0,{x:2,y:0},s.flow().roundId);step();step();step();
   assert.deepEqual(actions,[0,0]);assert.deepEqual(s.flow().eligible,[1],"P2's turn starts after P1's chain ends");
   step();assert.equal(s.flow().phase,"enemy","an unanswered window passes the turn");assert.deepEqual(actions,[0,0]);
-  step();assert.equal(enemySteps,2);assert.deepEqual(s.flow().eligible,[1],"P2 leads the second wave");
-  s.move(1,{x:1,y:0},s.flow().roundId);step();step();step();assert.deepEqual(s.flow().eligible,[0]);assert.deepEqual(actions,[0,0,1]);
+  step();assert.equal(enemySteps,2);assert.deepEqual(s.flow().eligible,[0],"P1 leads the second wave too");
+  s.move(0,{x:1,y:0},s.flow().roundId);step();step();step();assert.deepEqual(s.flow().eligible,[1]);assert.deepEqual(actions,[0,0,0]);
   for(const factor of [2,4,8,16,1]){s.speed(factor);assert.equal(s.flow().duration,3000/factor);}
   s.pause(true);const left=s.timeLeft();time+=10000;s.update();assert.equal(s.timeLeft(),left);s.pause(false);assert.equal(s.timeLeft(),left);
   // A DEV tool used while a move resolves keeps that move.
-  s.move(0,{x:1,y:0},s.flow().roundId);s.update();assert.equal(s.flow().stage,"focus");
+  s.move(1,{x:1,y:0},s.flow().roundId);s.update();assert.equal(s.flow().stage,"focus");
   const act=engine.act;let played=null;engine.act=(i,m)=>{played=m;return act(i,m);};
-  s.debug("piece","king",0);step();assert.deepEqual(played,{x:1,y:0},"the resolving move still plays after a DEV tool");
+  s.debug("piece","king",1);step();assert.deepEqual(played,{x:1,y:0},"the resolving move still plays after a DEV tool");
 }
 {
   // Rooms run untimed by default: an unanswered turn waits, then a move resolves at once.
@@ -207,12 +207,12 @@ const TIMED={planMs:3000};
   assert.deepEqual(actions,[0]);assert.deepEqual(s.flow().eligible,[1],"then P2's turn waits the same way");
   time+=600000;s.update();assert.deepEqual(s.flow().eligible,[1]);
   s.step();assert.equal(s.flow().phase,"enemy","DEV step passes an unanswered untimed turn");
-  time=s.flow().deadline;s.update();assert.deepEqual(s.flow().eligible,[1]);
-  players[1].alive=false;s.update();assert.notDeepEqual(s.flow().eligible,[1],"a player who falls while it is their turn does not hold the game");
+  time=s.flow().deadline;s.update();assert.deepEqual(s.flow().eligible,[0],"the next wave starts with P1 again");
+  players[0].alive=false;s.update();assert.notDeepEqual(s.flow().eligible,[0],"a player who falls while it is their turn does not hold the game");
 }
 {
   // Host handoff: a second authority resumes from the published flow without
-  // restarting the run, re-plans a move in flight and keeps the lead alternating.
+  // restarting the run, re-plans a move in flight and keeps P1 leading.
   let time=0,enemySteps=0;const players=[{alive:true},{alive:true}];
   const engine={start(){throw Error("resume must not restart the run");},players:()=>players,enemyTurn(){enemySteps++;},pending:()=>null,moves:()=>[{x:1,y:0}],act(){return{retained:false,pending:false};}};
   const a=Session.create({...engine,start(){}},()=>{},()=>time,TIMED);a.start();
@@ -221,7 +221,65 @@ const TIMED={planMs:3000};
   assert.equal(b.flow().phase,"planning");assert.deepEqual(b.flow().eligible,[0],"the move in flight is re-planned for the same player");
   assert.ok(b.flow().roundId>a.flow().roundId,"rounds keep counting so old packets stay stale");
   const step=()=>{time=b.flow().deadline;b.update();};
-  step();step();assert.equal(enemySteps,1);step();assert.deepEqual(b.flow().eligible,[1],"the next wave is led by the other player");
+  step();step();assert.equal(enemySteps,1);step();assert.deepEqual(b.flow().eligible,[0],"the next wave is led by P1 again");
+}
+{
+  // The risk contract is a team vote: both survivors answer, and it holds only if both accept.
+  let time=0,pending=null;const chosen=[],players=[{alive:true},{alive:true}];
+  const engine={start(){},players:()=>players,enemyTurn(){pending={slot:0,kind:"risk"};},pending:()=>pending,moves:()=>[{x:1,y:0}],act(){return{retained:false};},choose(slot,index,kind){chosen.push([slot,index,kind]);pending=null;return{retained:false,pending:false};}};
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
+  assert.equal(s.flow().phase,"risk");assert.deepEqual(s.flow().voters,[0,1],"both survivors vote");
+  assert.equal(s.choose(1,true,"risk"),true,"P2 votes too, not only the offer's owner");
+  assert.deepEqual(s.flow().votes,{1:true});assert.equal(s.flow().phase,"risk","one vote does not decide");assert.deepEqual(chosen,[]);
+  assert.equal(s.choose(1,false,"risk"),true,"a vote can change before both are in");assert.deepEqual(s.flow().votes,{1:false});
+  s.choose(1,true,"risk");s.choose(0,true,"risk");
+  assert.deepEqual(chosen,[[0,true,"risk"]],"two accepts sign the contract");assert.equal(s.flow().phase,"planning");
+  // One decline wins: P1 accepts, P2 declines.
+  time=s.flow().deadline;s.update();time=s.flow().deadline;s.update();time=s.flow().deadline;s.update();
+  assert.equal(s.flow().phase,"risk");s.choose(0,true,"risk");s.choose(1,false,"risk");
+  assert.deepEqual(chosen.at(-1),[0,false,"risk"],"one decline turns the contract down");
+  // A fallen player has no vote.
+  players[1].alive=false;time=s.flow().deadline;s.update();time=s.flow().deadline;s.update();
+  assert.deepEqual(s.flow().voters,[0]);assert.equal(s.choose(1,true,"risk"),false,"the fallen player cannot vote");
+  s.choose(0,true,"risk");assert.deepEqual(chosen.at(-1),[0,true,"risk"],"the survivor decides alone");
+}
+{
+  // Runtime: the risk panel opens for every voter, shows both votes, and the watcher
+  // sees the planner's moves to suggest instead of its own.
+  const {h,e,S}=setup();
+  e.pendingOwner=0;S.phase="risk";
+  e.present({view:1,vote:{voters:[0,1],votes:{0:true}}});
+  assert.equal(h.game.ui.risk.classList.contains("hidden"),false,"P2 gets the risk panel too");
+  assert.equal(h.game.ui.riskVotes.textContent,"P1 수락 · 나 고르는 중\n둘 다 수락해야 계약이 걸립니다.");
+  e.present({view:1,vote:{voters:[0,1],votes:{0:true,1:false}}});
+  assert.equal(h.game.ui.riskDecline.attributes["aria-pressed"],"true","this player's own vote is marked");
+  e.present({view:1,vote:{voters:[1],votes:{}}});
+  assert.equal(h.game.ui.riskVotes.hidden,true,"a lone survivor sees no vote count");
+  S.phase="player";e.pendingOwner=null;
+  e.present({view:1,planner:0});
+  const own=JSON.stringify(h.game.S.moves);
+  assert.equal(JSON.stringify(e.hintMoves),JSON.stringify(e.moves(0)),"the watcher sees P1's moves");assert.ok(e.hintMoves.length);
+  e.present({view:1,planner:0});assert.equal(JSON.stringify(h.game.S.moves),JSON.stringify(e.moves(1)),"the watcher's own moves stay its own");assert.notEqual(JSON.stringify(e.moves(0)),JSON.stringify(e.moves(1)));
+  const sent=[];e.onInput=m=>sent.push(m);
+  const q=h.game.pos(e.hintMoves[0].x,e.hintMoves[0].y);
+  h.elements.get("#game").handlers.pointerdown({clientX:q.x,clientY:q.y});
+  assert.equal(JSON.stringify(sent),JSON.stringify([{type:"hint",move:{x:e.hintMoves[0].x,y:e.hintMoves[0].y},slot:1}]),"a tap on P1's move sends a suggestion");
+  e.present({view:0,planner:null,interactive:true});assert.equal(e.hintMoves.length,0,"the planner has nothing to suggest");
+}
+{
+  // The watching teammate may suggest one of the planner's legal moves; a second tap withdraws it.
+  let time=0;const players=[{alive:true},{alive:true}];
+  const engine={start(){},players:()=>players,enemyTurn(){},pending:()=>null,moves:i=>i===0?[{x:1,y:0},{x:2,y:0}]:[{x:5,y:5}],act(){return{retained:false};}};
+  const s=Session.create(engine,()=>{},()=>time,TIMED);s.start();
+  const id=s.flow().roundId;
+  assert.equal(s.hint(0,{x:1,y:0},id),false,"the planner does not suggest to itself");
+  assert.equal(s.hint(1,{x:5,y:5},id),false,"a suggestion must be one of the planner's moves");
+  assert.equal(s.hint(1,{x:2,y:0},id-1),false,"an old round's suggestion is ignored");
+  assert.equal(s.hint(1,{x:2,y:0},id),true);assert.deepEqual(s.flow().hint,{slot:1,x:2,y:0});
+  s.hint(1,{x:1,y:0},id);assert.deepEqual(s.flow().hint,{slot:1,x:1,y:0},"a new cell replaces the suggestion");
+  s.hint(1,{x:1,y:0},id);assert.equal(s.flow().hint,null,"the same cell again withdraws it");
+  s.hint(1,{x:1,y:0},id);s.move(0,{x:2,y:0},id);time=s.flow().deadline;s.update();time=s.flow().deadline;s.update();time=s.flow().deadline;s.update();
+  assert.deepEqual(s.flow().eligible,[1]);assert.equal(s.flow().hint,null,"the suggestion ends with the planner's turn");
 }
 {
   let time=0,pending=null;const actions=[],players=[{alive:true},{alive:true}];

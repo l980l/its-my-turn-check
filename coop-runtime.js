@@ -14,7 +14,7 @@
     const clock=()=>fn.now();
     // The game's own RNG, so seeded harness runs stay reproducible.
     const random=()=>fn.random();
-    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true, balance:{...BALANCE}, recommendation:null, lastChoice:null };
+    const api = { roster:[], turns:[], view:0, focus:0, interactive:false, onInput:()=>{}, pendingOwner:null, suspended:true, balance:{...BALANCE}, recommendation:null, lastChoice:null, planner:null, hint:null, hintMoves:[], vote:null };
     const save = slot => { if(slot>=0)api.turns[slot]=Object.fromEntries(fields.map(key=>[key,S[key]])); };
     function use(slot, operation) {
       const previous = api.roster.indexOf(S.player); save(previous);
@@ -63,9 +63,22 @@
       if(!api.roster.length)return;
       const slot=Math.min(api.view,api.roster.length-1);
       save(api.roster.indexOf(S.player));S.player=api.roster[slot];Object.assign(S,api.turns[slot]);
+      // The partner's legal moves, which this watching player may suggest. Computed
+      // first: api.moves leaves S.moves holding the partner's moves.
+      api.hintMoves=api.planner!=null&&api.planner!==slot?api.moves(api.planner):[];
       fn.moves();fn.hud();
-      ui.risk.classList.toggle("hidden",S.phase!=="risk"||api.pendingOwner!==slot);
+      riskView(slot);
       rewardView(slot);
+    }
+    // Every survivor votes on the risk contract; each sees the other's answer.
+    function riskView(slot) {
+      const vote=api.vote,voting=S.phase==="risk"&&(vote?vote.voters.includes(slot):api.pendingOwner===slot);
+      ui.risk.classList.toggle("hidden",!voting);
+      const votes=vote?.votes||{},team=vote&&vote.voters.length>1;
+      ui.riskVotes.hidden=!team;
+      ui.riskVotes.textContent=team?vote.voters.map(i=>(i===slot?"나":"P"+(i+1))+" "+(i in votes?(votes[i]?"수락":"넘기기"):"고르는 중")).join(" · ")+"\n둘 다 수락해야 계약이 걸립니다.":"";
+      ui.riskAccept.setAttribute("aria-pressed",String(votes[slot]===true));
+      ui.riskDecline.setAttribute("aria-pressed",String(votes[slot]===false));
     }
     // The teammate watches the reward choice read-only and may tap a card to
     // recommend it; the chooser sees that card marked. After the choice the
@@ -262,7 +275,7 @@
       if(S.phase==="upgrade")S.upgradeLock=clock()+Math.max(0,(snapshot.world.upgradeLock||0)-snapshot.clock);
       refresh();
     };
-    api.present = ({view=0,focus=view,interactive=false,paused=false}={}) => {api.suspended=false;api.paused=paused;api.view=view;api.focus=focus;api.interactive=interactive;refresh();};
+    api.present = ({view=0,focus=view,interactive=false,paused=false,planner=null,hint=null,vote=null}={}) => {api.suspended=false;api.paused=paused;api.view=view;api.focus=focus;api.interactive=interactive;api.planner=planner;api.hint=hint;api.vote=vote;refresh();};
     api.replay = (snapshot,view) => {
       fn.replayUi?.();
       api.view=view;api.apply(snapshot);S.phase="coopreplay";S.autoPlay=false;

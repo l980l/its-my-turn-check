@@ -6,7 +6,7 @@
   const frames=[$("#coopFrame0"),$("#coopFrame1")], apis=[];
   let channel=null, client, host=false, localDev=false, slot=0, roomCode="", peer=null;
   let session=null, remote=null, generation=0, runId=null, joinTimer, submittedKey="";
-  let auto=false, autos=[true,true], speed=1, paused=false, controlled=0;
+  let auto=false, autos=[true,true], speed=1, paused=false, controlled=0, votedKey="";
   // Online AUTO is a developer tool: only after the DEV password (same tab, see game.js),
   // and even then hidden until CO-OP ALPHA (or the connection badge) is tapped 5 times within a second.
   const devUnlocked=()=>{try{return sessionStorage.getItem("its-my-turn-dev-unlocked")==="1";}catch(_){return false;}};
@@ -108,7 +108,11 @@
   }
   function present(api,view,flow){
     const state=cameraStates[view]=cameras[view].update(flow,api.players()),focus=state.focus;
-    api.present({view,focus,paused,interactive:flow.phase==="planning"&&flow.eligible.includes(view)&&api.players()[view]?.alive});
+    const planning=flow.phase==="planning";
+    api.present({view,focus,paused,interactive:planning&&flow.eligible.includes(view)&&api.players()[view]?.alive,
+      // While the partner plans, this player may suggest one of the partner's moves.
+      planner:planning&&flow.current!==view?flow.current:null,hint:planning?flow.hint||null:null,
+      vote:flow.phase==="risk"?{voters:flow.voters||[],votes:flow.votes||{}}:null});
   }
   function render(snapshot){
     if(!snapshot)return;
@@ -123,7 +127,7 @@
     // The status line names the partner by P1/P2, and the local player as "내".
     const mine=flow.actor===me,actor="P"+(flow.actor+1);
     $("#phaseText").textContent=paused?"PAUSED":flow.phase==="planning"?(myTurn?"YOUR TURN":"P"+(flow.current+1)+" TURN"):flow.phase==="acting"?(mine?"YOUR MOVE":actor+" MOVE"):flow.phase==="upgrade"?(mine?"YOUR LEVEL UP":actor+" LEVEL UP"):flow.phase==="risk"?"RISK":"ENEMY TURN";
-    $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 이동을 고르는 중"):flow.phase==="upgrade"?(mine?"내 보상 선택 중":actor+" 보상 선택 중"):flow.phase==="acting"?(mine?"내 기물이 움직이는 중입니다.":actor+"의 행동을 보고 있습니다."):"몬스터 이동";
+    $("#actionHint").textContent=flow.phase==="planning"?(myTurn?"내 차례 · 이동할 칸을 고르세요":"P"+(flow.current+1)+" 차례 · 칸을 누르면 이동을 추천해요"):flow.phase==="upgrade"?(mine?"내 보상 선택 중":actor+" 보상 선택 중"):flow.phase==="acting"?(mine?"내 기물이 움직이는 중입니다.":actor+"의 행동을 보고 있습니다."):flow.phase==="risk"?"위험 계약 투표 · 둘 다 수락해야 계약이 걸립니다":"몬스터 이동";
     if(host&&peerAway&&!localDev&&flow.phase!=="over")$("#actionHint").textContent="동료 연결이 끊겨 AUTO가 대신 움직입니다 · "+$("#actionHint").textContent;
     if(flow.phase==="over"){
       $("#rankForm").hidden=localDev;$("#rankStatus").textContent=snapshot.rankText||"";
@@ -208,6 +212,7 @@
     if(host){
       if(!session)return;
       if(event.type==="move")session.move(event.slot,event.move,session.flow().roundId);
+      else if(event.type==="hint")session.hint(event.slot,event.move,session.flow().roundId);
       else if(event.type==="recommend")session.recommend(event.slot,event.index);
       else session.choose(event.slot,event.index,event.type);
     }else send("intent",{event,roundId:snapshot.flow.roundId});
@@ -241,7 +246,14 @@
         // An away partner's AUTO move keeps its slot: input() would otherwise claim it for this player.
         if(move){submittedKey=key;input({type:"move",move,slot:i},away(i));}
       }
-    }else if(["upgrade","risk"].includes(flow.phase)&&(localDev?autos[flow.actor]:(auto&&slot===flow.actor)||away(flow.actor))&&apis[0].choiceReady())input({type:flow.phase,index:flow.phase==="risk"?false:0,slot:flow.actor},away(flow.actor));
+    }else if(flow.phase==="risk"){
+      // AUTO and an away partner each cast a decline vote once.
+      for(const i of flow.voters||[]){
+        const key="risk"+flow.roundId+":"+i;
+        if(i in (flow.votes||{})||votedKey===key||!(localDev?autos[i]:(auto&&i===slot)||away(i)))continue;
+        votedKey=key;input({type:"risk",index:false,slot:i},away(i));
+      }
+    }else if(flow.phase==="upgrade"&&(localDev?autos[flow.actor]:(auto&&slot===flow.actor)||away(flow.actor))&&apis[0].choiceReady())input({type:flow.phase,index:0,slot:flow.actor},away(flow.actor));
   }
   function tick(){
     requestAnimationFrame(tick);netStatus();

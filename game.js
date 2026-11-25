@@ -49,6 +49,7 @@
       risk: $("#riskScreen"),
       riskAccept: $("#riskAccept"),
       riskDecline: $("#riskDecline"),
+      riskVotes: $("#riskVotes"),
       over: $("#gameOverScreen"),
       result: $("#resultText"),
       resultRank: $("#resultRank"),
@@ -3301,7 +3302,8 @@
       }
       g.restore();
     });
-    S.moves.forEach((m) => {
+    // While the partner plans, show their moves (to suggest) instead of this player's own.
+    (coopSession?.hintMoves?.length ? [] : S.moves).forEach((m) => {
       let q = pos(m.x, m.y),
         bossTarget = S.enemies.some(
           (e) => e.boss && e.bossPhase === "vulnerable" && e.x === m.x && e.y === m.y,
@@ -3416,6 +3418,7 @@
     S.enemies.forEach((enemy) => enemyBadge(enemy, protectedLive));
     if (!["dead", "captured"].includes(S.phase) && (!coopSession || S.player.alive)) piece(S.player.x, S.player.y, S.player.piece);
     if (coopSession) {
+      drawCoopHint();
       drawCoopAlly();
       if(coopSession.replaying)for(const [i,p] of coopSession.roster.entries())if(!p.alive){
         const q=pos(p.x,p.y),r=size()*.2;g.save();g.strokeStyle="#ff5577";g.lineWidth=3;
@@ -3478,6 +3481,38 @@
     }
   }
   const COOP_ALLY_COLOR = "#5dff9a";
+  // The partner's moves while they plan, and the cell one player suggested to the other.
+  function drawCoopHint() {
+    const s = size(), hint = coopSession.hint;
+    g.save();
+    coopSession.hintMoves.forEach((m) => {
+      const q = pos(m.x, m.y);
+      g.strokeStyle = COOP_ALLY_COLOR;
+      g.globalAlpha = 0.45;
+      g.lineWidth = 1.5;
+      g.setLineDash([5, 4]);
+      g.strokeRect(q.x - s * 0.4, q.y - s * 0.4, s * 0.8, s * 0.8);
+    });
+    g.setLineDash([]);
+    if (hint) {
+      const q = pos(hint.x, hint.y), mine = hint.slot === coopSession.view, pulse = 0.5 + 0.5 * Math.sin(performance.now() / 160);
+      g.globalAlpha = 1;
+      g.fillStyle = "rgba(255,209,102," + (0.16 + 0.14 * pulse) + ")";
+      g.fillRect(q.x - s * 0.42, q.y - s * 0.42, s * 0.84, s * 0.84);
+      g.strokeStyle = "#ffd166";
+      g.shadowColor = "#ffd166";
+      g.shadowBlur = 10 + 8 * pulse;
+      g.lineWidth = 3;
+      g.strokeRect(q.x - s * 0.42, q.y - s * 0.42, s * 0.84, s * 0.84);
+      g.shadowBlur = 0;
+      g.fillStyle = "#ffd166";
+      g.font = "700 " + Math.max(11, s * 0.17) + "px 'Gowun Batang', serif";
+      g.textAlign = "center";
+      g.textBaseline = "bottom";
+      g.fillText(mine ? "내 추천" : "P" + (hint.slot + 1) + " 추천", q.x, q.y - s * 0.44);
+    }
+    g.restore();
+  }
   function drawCoopAlly() {
     const allyIndex=1-coopSession.view,ally = coopSession.roster[allyIndex];
     if (!ally) return;
@@ -3632,7 +3667,11 @@
     updateEnemyTraitTip();
     requestAnimationFrame(tick);
   }
-  let hoverPoint = null;
+  let hoverPoint = null,
+    // Tooltips wait for the mouse to rest on the same target.
+    hoverKey = "",
+    hoverSince = 0;
+  const HOVER_TIP_MS = 2000;
   // The enemy trait badge under a canvas point, on the board or on an edge marker.
   function traitBadgeAt(tx, ty) {
     for (const enemy of S.enemies) {
@@ -3711,7 +3750,9 @@
   function updateEnemyTraitTip() {
     const hit = hoverPoint && S.running ? hoverInfoAt(hoverPoint.x, hoverPoint.y) : null;
     c.style.cursor = hit ? "help" : "";
-    if (!hit) { ui.enemyTraitTip.classList.add("hidden"); return; }
+    const key = hit ? hit.name + "\n" + hit.copy : "";
+    if (key !== hoverKey) { hoverKey = key; hoverSince = performance.now(); }
+    if (!hit || performance.now() - hoverSince < HOVER_TIP_MS) { ui.enemyTraitTip.classList.add("hidden"); return; }
     const tip = ui.enemyTraitTip;
     ui.enemyTraitTipName.textContent = hit.name;
     ui.enemyTraitTipCopy.textContent = hit.copy;
@@ -3724,7 +3765,7 @@
     tip.style.top = Math.max(8, Math.min(H - box.height - 8, hoverPoint.y + 16)) / scale + "px";
   }
   function tap(e) {
-    if (coopSession && !coopSession.interactive) return;
+    if (coopSession && !coopSession.interactive) { coopHintTap(e); return; }
     if (!S.running || (coopSession ? !coopSession.interactive : S.phase !== "player")) return;
     const bounds = c.getBoundingClientRect(),
       inspected = traitBadgeAt(e.clientX - bounds.left, e.clientY - bounds.top)?.enemy;
@@ -3741,6 +3782,16 @@
       m = edge?.m;
     }
     if (m) playerMove(m);
+  }
+  // Watching the partner plan: a tap on one of their moves suggests it.
+  function coopHintTap(e) {
+    if (!S.running || !coopSession.hintMoves?.length) return;
+    const r = c.getBoundingClientRect(),
+      s = size(),
+      x = Math.round((e.clientX - r.left - W / 2) / s + S.camera.x),
+      y = Math.round((e.clientY - r.top - H / 2) / s + S.camera.y),
+      m = coopSession.hintMoves.find((m) => m.x === x && m.y === y);
+    if (m) coopSession.request({ type: "hint", move: { x: m.x, y: m.y } });
   }
   function devXp() {
     if (!S.running || ["upgrade", "devpick"].includes(S.phase)) return;
