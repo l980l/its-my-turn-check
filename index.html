@@ -839,6 +839,8 @@
     #riskScreen h2 { margin: 0 0 16px; font-size: 26px; }
     #riskScreen .risk-cost { margin: 0; color: #efb7c9; font-size: 13px; }
     #riskScreen .risk-reward { margin: 6px 0 0; color: #ffd166; font-size: 13px; }
+    #riskScreen .risk-votes { margin: 12px 0 0; color: #dce3ff; font-size: 13px; white-space: pre-line; }
+    #riskScreen .risk-options button[aria-pressed="true"] { outline: 2px solid #ffd166; outline-offset: 2px; }
     #riskScreen .risk-options { display: flex; gap: 10px; margin-top: 22px; }
     #riskScreen .risk-options button { flex: 1; min-height: 42px; margin: 0; padding: 10px; background: transparent; color: #b6bfd5; border-color: #ffffff33; box-shadow: none; font-size: 14px; }
     #riskScreen #riskAccept { border-color: #f45cf488; color: #f9b8eb; background: #f45cf40c; }
@@ -1135,7 +1137,7 @@
         >
       </div>
       <section class="overlay" id="startScreen">
-        <p class="build-version" id="buildVersion">BUILD <b>v0.21.22</b> · 2026.11.23</p>
+        <p class="build-version" id="buildVersion">BUILD <b>v0.21.23</b> · 2026.11.25</p>
         <div class="mode-toggles" id="modeToggles" hidden>
           <label class="dev-toggle start-dev"
             ><input id="devToggle" type="checkbox" />DEV</label
@@ -1228,6 +1230,7 @@
           <h2 id="riskTitle">위험한 계약</h2>
           <p class="risk-cost" id="riskCost">10턴간 특성 보유 적 등장 확률 ×2</p>
           <p class="risk-reward" id="riskReward">해당 기간 등장한 적 처치 시 XP ×2 · 점수 ×1.5</p>
+          <p class="risk-votes" id="riskVotes" hidden></p>
           <div class="risk-options">
             <button id="riskAccept">수락</button>
             <button id="riskDecline">넘기기</button>
@@ -1303,7 +1306,7 @@
       .coop-embedded .overlay { background:rgba(7,9,24,.6); }
       .coop-replay .hud { display:none !important; }
     </style>
-    <script src="coop-runtime.js?v=v0.21.8"></script>
-    <script src="game.js?v=v0.21.22"></script>
+    <script src="coop-runtime.js?v=v0.21.23"></script>
+    <script src="game.js?v=v0.21.23"></script>
   </body>
 </html>

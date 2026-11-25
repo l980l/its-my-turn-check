@@ -15,6 +15,9 @@ const at = (x, y) => game.pos(x, y);
 const hover = ({ x, y }) => {
   canvas.handlers.pointermove({ pointerType: "mouse", clientX: x, clientY: y });
   game.updateEnemyTraitTip();
+  // Tips show after the mouse rests 2 s on the same target.
+  h.advance(2000);
+  game.updateEnemyTraitTip();
   return { hidden: ui.enemyTraitTip.classList.contains("hidden"), name: ui.enemyTraitTipName.textContent, copy: ui.enemyTraitTipCopy.textContent };
 };
 

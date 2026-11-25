@@ -13,9 +13,19 @@ h.reset();
 S.enemies = [{ x: 2, y: 0, type: "rook", hp: 2, maxHp: 2, enemyTraits: ["healer", "split"], splitsLeft: 2 }];
 const q = game.pos(2, 0), badges = Icons.layout(q.x, q.y, game.size(), ["healer", "split"]);
 ui.enemyTraitTip.getBoundingClientRect = () => ({ width: 200, height: 60, left: 0, top: 0 });
-const hover = (x, y, pointerType = "mouse") => { canvas.handlers.pointermove({ pointerType, clientX: x, clientY: y }); game.updateEnemyTraitTip(); };
+// The tip waits until the mouse has rested on the same target for 2 s.
+const point = (x, y, pointerType = "mouse") => { canvas.handlers.pointermove({ pointerType, clientX: x, clientY: y }); game.updateEnemyTraitTip(); };
+const hover = (x, y, pointerType = "mouse") => { point(x, y, pointerType); h.advance(2000); game.updateEnemyTraitTip(); };
 
+point(badges[1].x, badges[1].y);
+assert.equal(ui.enemyTraitTip.classList.contains("hidden"), true, "the tip does not show at once");
+h.advance(1900);game.updateEnemyTraitTip();
+assert.equal(ui.enemyTraitTip.classList.contains("hidden"), true, "1.9 s is not long enough");
+point(badges[0].x, badges[0].y);h.advance(1900);game.updateEnemyTraitTip();
+assert.equal(ui.enemyTraitTip.classList.contains("hidden"), true, "moving to another target restarts the wait");
+point(badges[1].x, badges[1].y);
 hover(badges[1].x, badges[1].y);
+assert.equal(ui.enemyTraitTip.classList.contains("hidden"), false, "2 s on the same badge shows the tip");
 assert.equal(ui.enemyTraitTipName.textContent, "분열 · 적 특성", "the hovered badge names its own trait");
 assert.match(ui.enemyTraitTipCopy.textContent, /남은 분열: 2회/, "split shows the remaining splits");
 assert.equal(canvas.style.cursor, "help");

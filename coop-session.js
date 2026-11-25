@@ -6,13 +6,13 @@
   "use strict";
   // Transport-independent authority. Combat, rewards and legal moves belong to
   // the existing single-player runtime; this module only orders two players.
-  // Players take turns, keep the turn through kill chains like solo, and the
-  // lead alternates every wave. Rooms are played with friends, so a turn has no
+  // Players take turns, P1 then P2 every wave, and keep the turn through kill
+  // chains like solo. Rooms are played with friends, so a turn has no
   // time limit by default (planMs 0); a player who drops is moved by AUTO.
   // planMs > 0 restores a selection window that passes the turn when it runs out.
   const PLAN_MS = 0;
   function create(engine, changed = () => {}, now = () => Date.now(), { planMs = PLAN_MS } = {}) {
-    let flow, speed = 1, paused = false, remaining = 0, round = 0, waves = 0, history=[], deaths=[null,null];
+    let flow, speed = 1, paused = false, remaining = 0, round = 0, history=[], deaths=[null,null];
     const alive = () => engine.players().map((p, i) => p.alive ? i : -1).filter(i => i >= 0);
     const notify = () => { flow.revision++; changed(); };
     const schedule = (duration) => { flow.duration = duration / speed; flow.deadline = now() + flow.duration; remaining = flow.duration; };
@@ -31,7 +31,7 @@
     }
     function planning(slot) {
       flow.phase = "planning"; flow.actor = null; flow.current = slot; flow.eligible = [slot];
-      flow.roundId = ++round; delete flow.actions[slot];
+      flow.roundId = ++round; delete flow.actions[slot]; flow.hint = null;
       schedule(planMs); notify();
     }
     function nextTurn() {
@@ -43,10 +43,21 @@
     }
     function afterEnemy() {
       if (!alive().length) { flow.phase = "over"; notify(); return; }
-      if (engine.pending()?.kind === "risk") { flow.phase = "risk"; flow.actor = engine.pending().slot; notify(); return; }
-      flow.queue = [flow.lead, 1 - flow.lead]; nextTurn();
+      // The risk contract is a team vote: every survivor answers, and it is
+      // accepted only when all of them accept.
+      if (engine.pending()?.kind === "risk") { flow.phase = "risk"; flow.actor = engine.pending().slot; flow.voters = alive(); flow.votes = {}; notify(); return; }
+      flow.queue = [0, 1]; nextTurn();
     }
-    function enemy() { flow.actions = {}; flow.lead = waves++ % 2; engine.enemyTurn();remember("적 이동");afterEnemy(); }
+    function enemy() { flow.actions = {}; flow.lead = 0; engine.enemyTurn();remember("적 이동");afterEnemy(); }
+    function vote(slot, accept) {
+      if (!flow.voters.includes(slot)) return false;
+      flow.votes[slot] = Boolean(accept);
+      if (!flow.voters.every(i => i in flow.votes)) { notify(); return true; }
+      const accepted = flow.voters.every(i => flow.votes[i]);
+      flow.voters = []; flow.votes = {};
+      if (!engine.choose(flow.actor, accepted, "risk")) return false;
+      afterEnemy(); return true;
+    }
     function completed(result) {
       flow.retained = Boolean(result.retained);
       flow.phase = "acting"; flow.stage = "follow"; schedule(340); notify();
@@ -70,11 +81,11 @@
       } else if (flow.phase === "enemy") enemy();
     }
     return {
-      start(pieces) { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:planMs }; speed=1;paused=false;round=0;waves=0;history=[];deaths=[null,null];engine.start(pieces);remember("시작");enemy(); },
+      start(pieces) { flow = { phase:"waiting", revision:0, actor:null, current:null, lead:0, eligible:[], actions:{}, queue:[], roundId:0, deadline:0, duration:planMs, voters:[], votes:{}, hint:null }; speed=1;paused=false;round=0;history=[];deaths=[null,null];engine.start(pieces);remember("시작");enemy(); },
       // Take over authority from the last state another device published, e.g.
       // when the host left. Moves in flight are re-planned; replay frames restart.
       resume(saved, savedDeaths = [null,null]) {
-        flow = structuredClone(saved); flow.actions ||= {}; speed=1;paused=false;round=flow.roundId;waves=1-flow.lead;history=[];deaths=structuredClone(savedDeaths);
+        flow = structuredClone(saved); flow.actions ||= {}; flow.voters ||= []; flow.votes ||= {}; speed=1;paused=false;round=flow.roundId;history=[];deaths=structuredClone(savedDeaths);
         remember("이어받음");
         if (flow.phase === "planning") planning(flow.current);
         else if (flow.phase === "acting") { if (flow.stage === "follow" && !flow.retained) nextTurn(); else planning(flow.actor); }
@@ -90,11 +101,11 @@
         flow.actions[slot] = {x:move.x,y:move.y}; flow.deadline = now(); remaining = 0; notify(); return true;
       },
       choose(slot, index, kind = "upgrade") {
-        if (!flow || flow.actor !== slot || !["upgrade","risk"].includes(flow.phase)) return false;
+        if (flow?.phase === "risk") return kind === "risk" && vote(slot, index);
+        if (!flow || flow.actor !== slot || flow.phase !== "upgrade") return false;
         const result = engine.choose(slot, index, kind);
         if (!result) return false;
-        if (flow.phase === "risk") afterEnemy();
-        else if (result.pending) notify();
+        if (result.pending) notify();
         else if (flow.debugPending) {flow.debugPending=false;if(flow.current!=null)planning(flow.current);else nextTurn();}
         else completed(result);
         return true;
@@ -102,6 +113,14 @@
       // The watching teammate's tap on a reward card, shown to the chooser.
       recommend(slot, index) {
         if (!flow || flow.phase !== "upgrade" || flow.actor === slot || !engine.recommend?.(slot, index)) return false;
+        notify(); return true;
+      },
+      // The watching teammate taps one of the planner's moves as a suggestion; the
+      // same cell again withdraws it. It lapses when the planner's turn ends.
+      hint(slot, move, roundId) {
+        if (!flow || flow.phase !== "planning" || roundId !== flow.roundId || flow.current === slot || !move) return false;
+        if (!engine.moves(flow.current).some(m => m.x === move.x && m.y === move.y)) return false;
+        flow.hint = flow.hint?.slot === slot && flow.hint.x === move.x && flow.hint.y === move.y ? null : {slot, x:move.x, y:move.y};
         notify(); return true;
       },
       update,
