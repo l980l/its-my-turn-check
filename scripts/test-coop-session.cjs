@@ -244,6 +244,14 @@ const TIMED={planMs:3000};
   s.choose(0,true,"risk");assert.deepEqual(chosen.at(-1),[0,true,"risk"],"the survivor decides alone");
 }
 {
+  // A trait gained on one view shows in the other view's slots too, after a snapshot.
+  const a=setup(),b=setup();
+  a.e.debug("trait","tether",0);a.h.game.hud();
+  b.e.apply(a.e.snapshot());b.e.present({view:1});
+  assert.equal(b.h.game.ui.heldSlots[0].disabled,false,"P2's view draws the shared trait");
+  assert.match(b.h.game.ui.heldSlots[0].attributes["aria-label"],/설명$/);
+}
+{
   // Runtime: the risk panel opens for every voter, shows both votes, and the watcher
   // sees the planner's moves to suggest instead of its own.
   const {h,e,S}=setup();
