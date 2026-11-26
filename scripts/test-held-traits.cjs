@@ -13,7 +13,31 @@ S.player.traitLevels = { shockwave: 1, longStride: 2, astralCrown: 3, echoMonarc
 h.game.playerMove({ x: 1, y: 0 });
 assert.equal(ui.heldSlots.filter((button) => !button.disabled).length, 4, "only equipped traits appear in the fixed six slots");
 assert.deepEqual(Array.from(ui.heldSlots.slice(0, 4), (button) => button.dataset.level), ["1", "2", "3", "5"]);
-assert.equal(ui.heldSlots[1].title, "큰 걸음 · Lv. 2");
+assert.equal(ui.heldSlots[1].attributes["aria-label"], "큰 걸음 · Lv. 2 설명");
+assert.equal(ui.heldSlots[1].title, undefined, "no native title doubles the hover tip");
+
+// Mouse hover on a held slot shows the same description as the tap panel, after 0.6 s.
+const tip = () => ({ hidden: ui.enemyTraitTip.classList.contains("hidden"), name: ui.enemyTraitTipName.textContent, copy: ui.enemyTraitTipCopy.textContent });
+ui.enemyTraitTip.getBoundingClientRect = () => ({ width: 200, height: 60, left: 0, top: 0 });
+ui.heldSlots[1].handlers.pointerenter({ pointerType: "touch" });
+h.game.updateEnemyTraitTip(); h.advance(1000); h.game.updateEnemyTraitTip();
+assert.equal(tip().hidden, true, "touch keeps tapping for the panel, not hover");
+ui.heldSlots[1].handlers.pointerenter({ pointerType: "mouse" });
+h.game.updateEnemyTraitTip();
+assert.equal(tip().hidden, true, "the slot tip waits a moment");
+h.advance(600); h.game.updateEnemyTraitTip();
+assert.deepEqual(tip(), { hidden: false, name: "큰 걸음 · Lv. 2", copy: TraitSystem.atLevel("longStride", 2).desc.replaceAll(" / ", "\n") }, "0.6 s on a slot shows its trait");
+assert.equal(ui.enemyTraitTip.style["--trait-color"], "#6ee7b7", "the tip takes the level colour");
+ui.heldSlots[3].handlers.pointerenter({ pointerType: "mouse" }); h.game.updateEnemyTraitTip();
+assert.equal(tip().hidden, true, "moving to another slot restarts the wait");
+h.advance(600); h.game.updateEnemyTraitTip();
+assert.equal(tip().name, "메아리 군주 · Lv. 5".replace("메아리 군주", TraitSystem.atLevel("echoMonarch", 5).name));
+ui.heldSlots[3].handlers.click(); h.game.updateEnemyTraitTip();
+assert.equal(tip().hidden, true, "the open panel replaces the tip");
+ui.heldClose.handlers.click(); h.game.updateEnemyTraitTip(); h.advance(600); h.game.updateEnemyTraitTip();
+assert.equal(tip().hidden, false, "closing the panel brings the tip back");
+ui.heldSlots[3].handlers.pointerleave(); h.game.updateEnemyTraitTip(); h.advance(600); h.game.updateEnemyTraitTip();
+assert.equal(tip().hidden, true, "leaving the slot hides the tip");
 
 const before = JSON.stringify({ phase: S.phase, score: S.score, xp: S.player.xp, traits: S.player.traits, levels: S.player.traitLevels });
 ui.heldSlots[1].handlers.click();

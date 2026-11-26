@@ -263,7 +263,9 @@
     };
     api.snapshot = () => {
       save(api.roster.indexOf(S.player));
-      const world=copy(S);for(const key of ["comboStepTimer","comboHideTimer","runTicket","player","camera"])delete world[key];
+      // Each view keeps its own HUD caches: a copied heldTraitKey would make the
+      // other view skip drawing its trait slots.
+      const world=copy(S);for(const key of ["comboStepTimer","comboHideTimer","runTicket","player","camera","heldTraitKey","heldTraitIndex","upgradeDescriptionIndex"])delete world[key];
       return {world,players:copy(api.roster),turns:copy(api.turns),pendingOwner:api.pendingOwner,recommendation:api.recommendation,lastChoice:api.lastChoice,clock:clock(),rewardLabels:{title:ui.upgradeTitle.textContent,eyebrow:ui.upgradeEyebrow.textContent}};
     };
     api.apply = snapshot => {

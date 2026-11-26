@@ -1100,8 +1100,8 @@
         const trait = id ? TraitSystem.atLevel(id, S.player.traitLevels[id] || 1, Boolean(S.player.mastered[id])) : null;
         button.disabled = !trait;
         button.innerHTML = trait ? traitIcon(trait.id) : "";
-        button.title = trait ? trait.name + (trait.mastered ? " · 달인" : " · Lv. " + trait.level) : "빈 슬롯";
-        button.setAttribute("aria-label", trait ? button.title + " 설명" : "빈 특성 슬롯 " + (index + 1));
+        // No native title: the hover tip below shows the full description.
+        button.setAttribute("aria-label", trait ? trait.name + (trait.mastered ? " · 달인" : " · Lv. " + trait.level) + " 설명" : "빈 특성 슬롯 " + (index + 1));
         button.setAttribute("aria-expanded", "false");
         if (trait) button.dataset.level = String(trait.level);
         else delete button.dataset.level;
@@ -1118,18 +1118,32 @@
     ui.heldDetails.classList.add("hidden");
     ui.heldSlots.forEach((button) => button.setAttribute("aria-expanded", "false"));
   }
-  function toggleHeldTrait(index) {
+  // Matches the .hud [data-level] colours; the hover tip sits outside the HUD.
+  const TRAIT_LEVEL_COLORS = { 1: "#b9c5dc", 2: "#6ee7b7", 3: "#d66efd", 4: "#ffd166", 5: "#ff9f43" };
+  // Name and description of a held trait, shared by the tap panel and the hover tip.
+  function heldTraitInfo(index) {
     const id = S.player?.traits[index];
-    if (!id) return;
+    if (!id) return null;
     const trait = TraitSystem.atLevel(id, S.player.traitLevels[id] || 1, Boolean(S.player.mastered[id]));
-    if (S.heldTraitIndex === index) { closeHeldTrait(); return; }
-    S.heldTraitIndex = index;
-    ui.heldName.textContent = trait.name + (trait.mastered ? " · 달인" : " · Lv. " + trait.level);
     const synergies = TraitSystem.activeSynergies(S.player.traits).filter((synergy) => synergy.recipe.includes(id));
     const effectCopy = trait.desc.replaceAll(" / ", "\n").replaceAll(" · 재사용 ", "\n재사용 ");
-    ui.heldCopy.textContent = effectCopy + synergies.map((synergy) =>
-      "\n\n시너지 · " + synergy.name + "\n" + synergy.recipe.map((part) => TraitSystem.atLevel(part).name).join(" + ") + "\n" + synergy.desc
-    ).join("") + (!trait.mastered && trait.level >= (TraitSystem.MASTERIES[id]?.level || TraitSystem.MAX_LEVEL) && S.player.traitXp[id] > 0 ? "\n\n낯선 힘이 응축되고 있습니다." : "");
+    return {
+      trait,
+      name: trait.name + (trait.mastered ? " · 달인" : " · Lv. " + trait.level),
+      copy: effectCopy + synergies.map((synergy) =>
+        "\n\n시너지 · " + synergy.name + "\n" + synergy.recipe.map((part) => TraitSystem.atLevel(part).name).join(" + ") + "\n" + synergy.desc
+      ).join("") + (!trait.mastered && trait.level >= (TraitSystem.MASTERIES[id]?.level || TraitSystem.MAX_LEVEL) && S.player.traitXp[id] > 0 ? "\n\n낯선 힘이 응축되고 있습니다." : ""),
+      color: trait.mastered ? "#ffe69b" : TRAIT_LEVEL_COLORS[trait.level] || TRAIT_LEVEL_COLORS[1],
+    };
+  }
+  function toggleHeldTrait(index) {
+    const info = heldTraitInfo(index);
+    if (!info) return;
+    const trait = info.trait;
+    if (S.heldTraitIndex === index) { closeHeldTrait(); return; }
+    S.heldTraitIndex = index;
+    ui.heldName.textContent = info.name;
+    ui.heldCopy.textContent = info.copy;
     ui.heldDetails.dataset.level = String(trait.level);
     ui.heldDetails.classList.remove("hidden");
     ui.heldSlots.forEach((button, i) => button.setAttribute("aria-expanded", String(i === index)));
@@ -3668,10 +3682,14 @@
     requestAnimationFrame(tick);
   }
   let hoverPoint = null,
+    // Held trait slot under the mouse, if any.
+    hoverSlot = null,
     // Tooltips wait for the mouse to rest on the same target.
     hoverKey = "",
     hoverSince = 0;
-  const HOVER_TIP_MS = 2000;
+  const HOVER_TIP_MS = 2000,
+    // A held trait slot is hovered to read it, so its tip comes sooner.
+    HELD_TIP_MS = 600;
   // The enemy trait badge under a canvas point, on the board or on an edge marker.
   function traitBadgeAt(tx, ty) {
     for (const enemy of S.enemies) {
@@ -3748,11 +3766,13 @@
   // Mouse hover shows what is under the cursor. It is re-checked every frame
   // because enemies and the camera move under the cursor.
   function updateEnemyTraitTip() {
-    const hit = hoverPoint && S.running ? hoverInfoAt(hoverPoint.x, hoverPoint.y) : null;
-    c.style.cursor = hit ? "help" : "";
+    // The open tap panel already shows a held trait, so its slot needs no tip.
+    const slotHit = hoverSlot !== null && S.running && ui.heldDetails.classList.contains("hidden") ? heldTraitInfo(hoverSlot) : null,
+      hit = slotHit || (hoverPoint && S.running ? hoverInfoAt(hoverPoint.x, hoverPoint.y) : null);
+    c.style.cursor = hit && !slotHit ? "help" : "";
     const key = hit ? hit.name + "\n" + hit.copy : "";
     if (key !== hoverKey) { hoverKey = key; hoverSince = performance.now(); }
-    if (!hit || performance.now() - hoverSince < HOVER_TIP_MS) { ui.enemyTraitTip.classList.add("hidden"); return; }
+    if (!hit || performance.now() - hoverSince < (slotHit ? HELD_TIP_MS : HOVER_TIP_MS)) { ui.enemyTraitTip.classList.add("hidden"); return; }
     const tip = ui.enemyTraitTip;
     ui.enemyTraitTipName.textContent = hit.name;
     ui.enemyTraitTipCopy.textContent = hit.copy;
@@ -3761,8 +3781,14 @@
     // The tip is zoomed by the UI scale, so screen pixels are divided back into its own units.
     const scale = uiScale(),
       box = tip.getBoundingClientRect();
-    tip.style.left = Math.max(8, Math.min(W - box.width - 8, hoverPoint.x + 16)) / scale + "px";
-    tip.style.top = Math.max(8, Math.min(H - box.height - 8, hoverPoint.y + 16)) / scale + "px";
+    // A slot tip hangs below its slot; a board tip sits beside the cursor.
+    let anchor = hoverPoint;
+    if (slotHit) {
+      const slot = ui.heldSlots[hoverSlot].getBoundingClientRect(), bounds = c.getBoundingClientRect();
+      anchor = { x: slot.left - bounds.left - 16, y: slot.top + slot.height - bounds.top - 8 };
+    }
+    tip.style.left = Math.max(8, Math.min(W - box.width - 8, anchor.x + 16)) / scale + "px";
+    tip.style.top = Math.max(8, Math.min(H - box.height - 8, anchor.y + 16)) / scale + "px";
   }
   function tap(e) {
     if (coopSession && !coopSession.interactive) { coopHintTap(e); return; }
@@ -4208,7 +4234,11 @@
   ui.choiceInfo.forEach((b) =>
     b.addEventListener("click", () => toggleUpgradeDescription(Number(b.dataset.choice))),
   );
-  ui.heldSlots.forEach((button) => button.addEventListener("click", () => toggleHeldTrait(Number(button.dataset.slot))));
+  ui.heldSlots.forEach((button) => {
+    button.addEventListener("click", () => toggleHeldTrait(Number(button.dataset.slot)));
+    button.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") hoverSlot = Number(button.dataset.slot); });
+    button.addEventListener("pointerleave", () => { hoverSlot = null; });
+  });
   ui.heldClose.addEventListener("click", closeHeldTrait);
   setBusVolume("bgm", Math.round(audio.bgmVolume / 0.05));
   setBusVolume("sfx", Math.round(audio.sfxVolume / 0.05));
